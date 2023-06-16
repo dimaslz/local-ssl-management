@@ -6,6 +6,8 @@ import { Config, getLocalIP, mkcert } from "@dimaslz/local-ssl-management-core";
 
 import Templates from "./templates";
 import listContainer from "./list-container";
+import chalk from "chalk";
+import Table from "cli-table";
 
 const toReplace = "#--server-config--#";
 
@@ -78,23 +80,29 @@ COPY ${d.cert} /etc/nginx/`
 		{ silent: true }
 	);
 
-	listContainer()
+	listContainer();
 
-	shell.echo("\nSSL proxy running\n")
+	shell.echo(chalk.green("\nSSL proxy running\n"));
 
+
+	const tablePing = new Table({
+		head: ["domain", "app running"],
+	});
 
 	config.forEach((c: Config) => {
 		c.domain.split(",").map(d => d.trim()).forEach((domain) => {
 			const curl = `curl -s -o /dev/null -w "%{http_code}" https://${domain}`;
-			const status = shell.exec(curl).stdout;
+			const status = shell.exec(curl, { silent: true }).stdout;
 
 			if (status === "200") {
-				console.log(` - https://${domain} ✅`);
+				tablePing.push([`https://${domain}`, "✅"])
 			} else {
-				console.log(` - https://${domain} ❌`);
+				tablePing.push([`https://${domain}`, "❌"])
 			}
-		})
+		});
 	});
+
+	shell.echo(`\n${tablePing.toString()}\n`);
 }
 
 export default generateProxyImage;

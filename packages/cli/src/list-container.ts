@@ -22,8 +22,8 @@ const listContainer = () => {
 	table.push([containerId, containerName, ports]);
 
 	shell.echo(chalk.green(
-		`\nThe local ssl proxy is running.
-	ℹ️ The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.\n`
+		`\nThe local ssl proxy is running.\n
+ℹ️  The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.\n`
 	));
 	shell.echo(`\n${table.toString()}\n`);
 };
