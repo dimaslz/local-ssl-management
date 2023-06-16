@@ -33,17 +33,31 @@ const onRemoveAction = (_domain: string) => {
 		shell.exit(1);
 	}
 
-	let newConfig = config.filter((c) => c.domain !== domain);
+	let newConfig = isUUID
+		? config.filter((c) => c.id !== domain)
+		: config.filter((c) => c.domain !== domain);
 
-	const certFileExists = fs.existsSync(`${sslPath}/${_domain}-cert.pem`);
-	const keyFileExists = fs.existsSync(`${sslPath}/${_domain}-key.pem`);
+	const domainData = config.find(c => {
+		if (isUUID) {
+			return c.id === _domain;
+		}
+
+		return c.domain === _domain;
+	});
+
+	const certFile = `${domainData?.domain}-cert.pem`;
+	const keyFile = `${domainData?.domain}-key.pem`;
+
+
+	const certFileExists = fs.existsSync(`${sslPath}/${certFile}`);
+	const keyFileExists = fs.existsSync(`${sslPath}/${keyFile}`);
 
 	if (certFileExists) {
-		fs.unlinkSync(`${sslPath}/${_domain}-cert.pem`);
+		fs.unlinkSync(`${sslPath}/${certFile}`);
 	}
 
 	if (keyFileExists) {
-		fs.unlinkSync(`${sslPath}/${_domain}-key.pem`);
+		fs.unlinkSync(`${sslPath}/${keyFile}`);
 	}
 
 	if (!newConfig.length) {

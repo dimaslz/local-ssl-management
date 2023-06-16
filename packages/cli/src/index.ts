@@ -47,13 +47,13 @@ const cli = () => {
     .action(onListAction);
 
   program
-    .command("update <domain>")
+    .command("update <domain|id>")
     .description("update domain")
     .option("-p, --port <port>", "Port where is running the application")
     .action(onUpdateAction);
 
   program
-    .command("remove <domain>")
+    .command("remove <domain|id>")
     .description("Create domain")
     .action(onRemoveAction);
 
