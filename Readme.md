@@ -1,5 +1,7 @@
 # Local SSL Management
 
+**WIP: IT IS NOT AVALILABLE YET**
+
 This project is the iteration of [https://github.com/dimaslz/local-ssl-management-docker](https://github.com/dimaslz/local-ssl-management-docker), to do the same but throuth a UI or CLI.
 
 CLI to manage local SSL certifications by [mkcert](https://github.com/FiloSottile/mkcert). The key of this script: do not use ports in the domain and use all of them through port 443.
@@ -13,6 +15,7 @@ https://local.your-domain.tld:3000 → https://local.your-domain.tld
 ## Install cli
 
 `npm install -g @dimaslz/local-ssl-management-cli`
+**WIP: IT IS NOT AVALILABLE YET**
 
 Then the CLI will be `local-ssl ...`
 
@@ -49,55 +52,48 @@ Yes, this is a specific use case but for me, sometimes is very useful and, I do 
 
 ## How it works?
 
-![alt text](/architecture-schema.png)
+![Local SSL Management - Project idea](/architecture-schema.png)
 
 Basically, the script creates a container based on [nginx](https://hub.docker.com/_/nginx), and this container works as proxy for local domains, like in a server.
 
 ## How to use
 
+> By default, always is created the certifications for `https://localhost`
+
 **#1 - Update your /hosts**:
 
-OSX:
+MacOS and Linux:
 
 ```bash
 ...
 127.0.0.1					local.your-domain.com
 ```
 
-**#2 - Setup config**:
+**#2 - Create new domain**:
 
-```json
-[
-  {
-    "domain": "local.your-domain.com",
-    "port": 2000, // port where the application is running http://localhost:2000
-  },
-  ...
-]
-```
+`$ local-ssl create local.your-domain.com --port 4200`
+
+> or for multiple domains with `$ local-ssl create local.your-domain.com,local.your-domain.es --port 4200`
+
+List domain to check it
+
+![Local SSL Management - list domains configured](/local-ssl-list-example.png)
+
+The script will:
+
+* Store the configs.
+* Create the `nginx.conf` per each domain.
+* Create or update the `Dockerfile` configuration.
+* Remove and create the new image (named `local-ssl-management`).
+* Remove and create the new container (named `local-ssl-management`).
 
 **#3 - Run your application**:
 
 The script will work but, if your application is not running, the domain with not resolve the source.
 
-**#4 - Run the script**:
-
-Before all, build the script by running `yarn build` and after `yarn up`
-
-The script will:
-
-* Check the `config.json` file, creating the new SSL certificates if needed.
-* Create the `nginx.conf` per each domain.
-* Generate the `Dockerfile` configuration.
-* Remove and create the new image (named `local-ssl-management`).
-* Remove and create the new container (named `local-ssl-management`).
-
-> All files create will be into `.temp` folder.
-
 **#4 - Go to your domain and check it**:
 
 Go you your application local domain: [https://local.your-domain.com](https://local.your-domain.com) and... should work 😅.
-
 
 ## TODO
 
