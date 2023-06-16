@@ -1,6 +1,6 @@
 {
   "name": "@dimaslz/local-ssl-management-cli",
-  "version": "0.0.0",
+  "version": "0.0.0-beta.0",
   "description": "Manage local SSL certificates though a Docker Nginx proxy",
   "author": {
     "email": "me@dimaslz.io",
@@ -26,7 +26,8 @@
   },
   "scripts": {
     "prebuild": "npx vite-node prebuild.js",
-    "build": "ncc build src/index.ts -m -o dist"
+    "build": "ncc build src/index.ts -m -o dist",
+    "publish": "ls -al"
   },
   "dependencies": {
     "@dimaslz/local-ssl-management-core": "*",
