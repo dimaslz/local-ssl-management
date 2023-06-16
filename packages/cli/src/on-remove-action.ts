@@ -13,7 +13,9 @@ const sslPath = `${rootPath}/ssl`;
 
 const config: Config[] = JSON.parse(fs.readFileSync(configPath, { encoding: "utf8" }) || "[]");
 
-const onRemoveAction = (domain: string) => {
+const onRemoveAction = (_domain: string) => {
+	const domain = _domain.split("_").join(",");
+
 	const exists = config.some((c) => c.domain === domain);
 
 	if (!exists) {
@@ -23,15 +25,15 @@ const onRemoveAction = (domain: string) => {
 
 	let newConfig = config.filter((c) => c.domain !== domain);
 
-	const certFileExists = fs.existsSync(`${sslPath}/${domain}-cert.pem`);
-	const keyFileExists = fs.existsSync(`${sslPath}/${domain}-key.pem`);
+	const certFileExists = fs.existsSync(`${sslPath}/${_domain}-cert.pem`);
+	const keyFileExists = fs.existsSync(`${sslPath}/${_domain}-key.pem`);
 
 	if (certFileExists) {
-		fs.unlinkSync(`${sslPath}/${domain}-cert.pem`);
+		fs.unlinkSync(`${sslPath}/${_domain}-cert.pem`);
 	}
 
 	if (keyFileExists) {
-		fs.unlinkSync(`${sslPath}/${domain}-key.pem`);
+		fs.unlinkSync(`${sslPath}/${_domain}-key.pem`);
 	}
 
 	if (!newConfig.length) {
