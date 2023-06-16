@@ -2,7 +2,8 @@ import fs from "fs";
 import shell from "shelljs";
 import path from "path";
 
-import { Config, getLocalIP, mkcert } from "@dimaslz/local-ssl-management-core";
+import type { Config } from "@dimaslz/local-ssl-management-core";
+import { getLocalIP, mkcert } from "@dimaslz/local-ssl-management-core";
 
 import Templates from "./templates";
 import listContainer from "./list-container";
@@ -87,6 +88,13 @@ COPY ${d.cert} /etc/nginx/`
 
 	const tablePing = new Table({
 		head: ["domain", "app running"],
+		chars: {
+			'top': '', 'top-mid': '', 'top-left': '', 'top-right': ''
+			, 'bottom': '', 'bottom-mid': '', 'bottom-left': '', 'bottom-right': ''
+			, 'left': '', 'left-mid': '', 'mid': '', 'mid-mid': ''
+			, 'right': '', 'right-mid': '', 'middle': ' '
+		},
+		style: { 'padding-left': 0, 'padding-right': 0 },
 	});
 
 	config.forEach((c: Config) => {

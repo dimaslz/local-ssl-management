@@ -1,9 +1,10 @@
 import fs from "fs";
+import crypto from "crypto";
 import shell from "shelljs";
 import chalk from "chalk";
 import path from "path";
 
-import { Config } from "@dimaslz/local-ssl-management-core";
+import type { Config } from "@dimaslz/local-ssl-management-core";
 import { validateDomain, validatePort } from "./utils";
 import generateProxyImage from "./generate-proxy-image";
 
@@ -52,6 +53,7 @@ const onCreateAction = (_domain: string, options: any, config: Config[]) => {
 	}
 
 	config.push({
+		id: crypto.randomUUID(),
 		domain,
 		port,
 	} as Config);

@@ -1,4 +1,5 @@
 export type Config = {
+	id: string;
 	domain: string;
 	ssl: {
 		cert: string;
