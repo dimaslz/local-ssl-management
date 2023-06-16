@@ -1,0 +1,38 @@
+[
+  {
+    "domain": "local.cv.dimaslz.dev",
+    "ssl": {
+      "cert": "./ssl/local.cv.dimaslz.dev-cert.pem",
+      "key": "./ssl/local.cv.dimaslz.dev-key.pem"
+    },
+    "port": 2000,
+    "nginxConf": null
+  },
+  {
+    "domain": "local.dimaslz.io",
+    "port": 1000,
+    "ssl": {
+      "cert": "./ssl/local.dimaslz.io-cert.pem",
+      "key": "./ssl/local.dimaslz.io-key.pem"
+    },
+    "nginxConf": null
+  },
+  {
+    "domain": "local.fito-deploy.dimaslz.dev",
+    "port": 4000,
+    "ssl": {
+      "cert": "./ssl/local.fito-deploy.dimaslz.dev-cert.pem",
+      "key": "./ssl/local.fito-deploy.dimaslz.dev-key.pem"
+    },
+    "nginxConf": null
+  },
+  {
+    "domain": "local.dimaslz.dev, local.dimaslz.com",
+    "port": 1001,
+    "ssl": {
+      "cert": "./ssl/local.dimaslz.dev_local.dimaslz.com-cert.pem",
+      "key": "./ssl/local.dimaslz.dev_local.dimaslz.com-key.pem"
+    },
+    "nginxConf": null
+  }
+]
