@@ -7,6 +7,10 @@
     "name": "Dimas López <dimaslz>",
     "url": "https://dimaslz.com"
   },
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/dimaslz/local-ssl-management"
+  },
   "keywords": ["docker", "ssl", "mkcert", "nodejs", "cli"],
   "license": "MIT",
   "main": "dist/index.js",
