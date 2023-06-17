@@ -7,3 +7,5 @@ vite.config.ts
 dist/.tmp-local-ssl-management
 dist/.local-ssl-management
 .npmrc
+.tmp.package.json
+.tmp-dist

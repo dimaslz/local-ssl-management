@@ -1,12 +1,13 @@
 {
   "name": "@dimaslz/local-ssl-management-cli",
-  "version": "0.0.0",
+  "version": "0.0.0-beta.3",
   "description": "Manage local SSL certificates though a Docker Nginx proxy",
   "author": {
     "email": "me@dimaslz.io",
     "name": "Dimas López <dimaslz>",
     "url": "https://dimaslz.com"
   },
+  "keywords": ["docker", "ssl", "mkcert", "nodejs", "cli"],
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -21,12 +22,13 @@
     "local-ssl": "./dist/index.js"
   },
   "publishConfig": {
-    "registry": "https://registry.yarnpkg.com",
+    "registry": "https://npm.pkg.github.com",
     "tag": "ssl, mkcert, docker, localhost"
   },
   "scripts": {
     "prebuild": "npx vite-node prebuild.js",
-    "build": "ncc build src/index.ts -m -o dist"
+    "build": "ncc build src/index.ts -m -o dist",
+    "to-publish": "npx vite-node publish.js"
   },
   "dependencies": {
     "@dimaslz/local-ssl-management-core": "*",
@@ -48,5 +50,8 @@
     "typescript": "^5.1.3",
     "vite": "^4.3.9",
     "vite-plugin-dts": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=14"
   }
 }

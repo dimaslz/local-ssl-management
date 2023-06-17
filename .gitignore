@@ -3,5 +3,9 @@ ssl/
 dist/
 .svelte-kit/
 .npmrc
+.tmp-dist
 .tmp-local-ssl-management
 .local-ssl-management
+yarn-error.log
+.DS_Store
+.tmp.package.json
