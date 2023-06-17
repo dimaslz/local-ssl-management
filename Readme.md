@@ -1,6 +1,6 @@
 # Local SSL Management
 
-**WIP: IT IS NOT AVALILABLE YET**
+> **RELEASED v0.0.0-beta.3**
 
 This project is the iteration of [https://github.com/dimaslz/local-ssl-management-docker](https://github.com/dimaslz/local-ssl-management-docker), to do the same but throuth a UI or CLI.
 
@@ -15,7 +15,7 @@ https://local.your-domain.tld:3000 → https://local.your-domain.tld
 ## Install cli
 
 `npm install -g @dimaslz/local-ssl-management-cli`
-**WIP: IT IS NOT AVALILABLE YET**
+> **RELEASED v0.0.0-beta.3** [https://www.npmjs.com/package/@dimaslz/local-ssl-management-cli](https://www.npmjs.com/package/@dimaslz/local-ssl-management-cli)
 
 Then the CLI will be `local-ssl ...`
 
