@@ -1,7 +1,6 @@
 node_nodules
 src
 prebuild.js
-README.md
 tsconfig.js
 vite.config.ts
 dist/.tmp-local-ssl-management
