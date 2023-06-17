@@ -14,7 +14,9 @@ const sslPath = `${rootPath}/ssl`;
 const configPath = `${rootPath}/config.json`;
 
 
-const onCreateAction = (_domain: string, options: any, config: Config[]) => {
+const onCreateAction = (_domain: string, options: any) => {
+	const config: Config[] = JSON.parse(fs.readFileSync(configPath, { encoding: "utf8" }) || "[]");
+
 	const { port } = options as { port: number; };
 
 	validatePort(port);

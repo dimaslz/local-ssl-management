@@ -11,9 +11,10 @@ const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;
 const configPath = `${rootPath}/config.json`;
 
-const config: Config[] = JSON.parse(fs.readFileSync(configPath, { encoding: "utf8" }) || "[]");
 
 const onUpdateAction = (domain: string, options: any) => {
+	const config: Config[] = JSON.parse(fs.readFileSync(configPath, { encoding: "utf8" }) || "[]");
+
 	const v4 = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
 	const isUUID = v4.test(domain);
 
