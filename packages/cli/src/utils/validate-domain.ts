@@ -2,12 +2,19 @@ import chalk from "chalk";
 import isUrlHttp from "is-url-http";
 import shell from "shelljs";
 
-const validateDomain = (domain: string) => {
-	const domains = domain.split(",").map(d => `https://${d.trim()}`);
+const validateDomain = (value: string) => {
+	const domains = value.split(",").map(d => `https://${d.trim()}`);
 
-	domains.forEach((_domain) => {
-		if (!isUrlHttp(_domain)) {
-			shell.echo(chalk.red(`\n[Error] - Domain (${_domain})format is not valid\n`));
+	domains.forEach((domainItem) => {
+		let domain = domainItem;
+
+		// include validate domains like .local or .test
+		if (/\.local$|\.test$/g.test(domainItem)) {
+			domain = domain.replace(/\.local$|\.test$/, ".com");
+		}
+
+		if (!isUrlHttp(domain)) {
+			shell.echo(chalk.red(`\n[Error] - Domain (${domainItem})format is not valid\n`));
 			shell.exit(1);
 		}
 	});
