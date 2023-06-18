@@ -10,6 +10,8 @@
     "app:dev": "yarn --cwd=./packages/app dev",
     "core:build": "yarn --cwd=./packages/core build",
     "cli:build": "yarn --cwd=./packages/cli build",
-    "cli:publish": "yarn --cwd=./packages/cli to-publish"
+    "cli:publish": "yarn --cwd=./packages/cli to-publish",
+    "cli:test": "yarn --cwd=./packages/cli test run --reporter=verbose",
+    "cli:test-coverage": "yarn --cwd=./packages/cli test run --reporter=verbose --coverage"
   }
 }
