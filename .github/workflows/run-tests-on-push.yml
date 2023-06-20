@@ -1,0 +1,58 @@
+---
+  name: "ONLY TEST"
+  on:
+    workflow_dispatch: {}
+    push:
+      branches:
+        - "main"
+      paths-ignore:
+        - "**/*.md"
+  concurrency:
+    group: "${{ github.workflow }}-${{ github.ref }}"
+    cancel-in-progress: false
+  jobs:
+    install-dependencies:
+      name: "install dependencies"
+      runs-on: "ubuntu-latest"
+      steps:
+        -
+          name: "Checkout under $GITHUB_WORKSPACE"
+          uses: "actions/checkout@master"
+          with:
+            ref: "main"
+        -
+          name: "Set up NodeJS"
+          uses: "actions/setup-node@master"
+          with:
+            node-version: "16.20.0"
+        -
+          name: "Install yarn"
+          run: "npm install -g yarn"
+        -
+          name: "Install dependencies"
+          run: "yarn install"
+        -
+          name: "Cache"
+          uses: "actions/cache@main"
+          with:
+            path: "./*"
+            key: "${{ github.sha }}-cache"
+    test:
+      name: "test"
+      runs-on: "ubuntu-latest"
+      needs: "install-dependencies"
+      steps:
+        -
+          name: "Set up NodeJS"
+          uses: "actions/setup-node@master"
+          with:
+            node-version: "16.20.0"
+        -
+          name: "Cache"
+          uses: "actions/cache@main"
+          with:
+            path: "./*"
+            key: "${{ github.sha }}-cache"
+        -
+          name: "Run tests"
+          run: "yarn cli:test-coverage"
