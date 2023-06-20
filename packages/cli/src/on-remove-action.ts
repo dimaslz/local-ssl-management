@@ -43,11 +43,11 @@ const onRemoveAction = (_domain: string) => {
 			return c.id === _domain;
 		}
 
-		return c.domain === _domain;
+		return c.domain === domain;
 	});
 
-	const certFile = `${domainData?.domain}-cert.pem`;
-	const keyFile = `${domainData?.domain}-key.pem`;
+	const certFile = `${domainData?.domain.split(",").join("_")}-cert.pem`;
+	const keyFile = `${domainData?.domain.split(",").join("_")}-key.pem`;
 
 
 	const certFileExists = fs.existsSync(`${sslPath}/${certFile}`);
