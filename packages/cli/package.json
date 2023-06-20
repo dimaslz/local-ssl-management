@@ -21,6 +21,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.js",
+  "type": "commonjs",
   "directories": {
     "src": "src",
     "dist": "dist"
@@ -36,7 +37,7 @@
     "tag": "ssl, mkcert, docker, localhost"
   },
   "scripts": {
-    "prebuild": "npx vite-node prebuild.js",
+    "prebuild": "node prebuild.mjs",
     "build": "ncc build src/index.ts -m -o dist",
     "to-publish": "npx vite-node publish.js",
     "test": "vitest"

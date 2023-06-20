@@ -2,7 +2,8 @@ import fs from "fs";
 import cpy from "cpy";
 import { rimrafSync } from "rimraf";
 
-const run = async () => {
+
+const prebuild = async () => {
 	if (fs.existsSync("dist/.local-ssl-management")) {
 		await cpy("dist/.local-ssl-management/**/*", ".tmp-local-ssl-management");
 	}
@@ -16,7 +17,13 @@ const run = async () => {
 
 	rimrafSync(".tmp-local-ssl-management");
 
-	fs.mkdirSync("dist/.local-ssl-management/ssl", { recursive: true });
+	if (!fs.existsSync(".local-ssl-management/ssl")) {
+		fs.mkdirSync("dist/.local-ssl-management/ssl", { recursive: true });
+	}
 }
 
-run();
+if (process.env.CI) {
+	rimrafSync("dist");
+} else {
+	prebuild();
+}
