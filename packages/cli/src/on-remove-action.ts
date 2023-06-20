@@ -35,7 +35,7 @@ const onRemoveAction = (_domain: string) => {
 	}
 
 	let newConfig = isUUID
-		? config.filter((c) => c.id !== domain)
+		? config.filter((c) => c.id !== _domain)
 		: config.filter((c) => c.domain !== domain);
 
 	const domainData = config.find(c => {
@@ -49,7 +49,6 @@ const onRemoveAction = (_domain: string) => {
 	const certFile = `${domainData?.domain.split(",").join("_")}-cert.pem`;
 	const keyFile = `${domainData?.domain.split(",").join("_")}-key.pem`;
 
-
 	const certFileExists = fs.existsSync(`${sslPath}/${certFile}`);
 	const keyFileExists = fs.existsSync(`${sslPath}/${keyFile}`);
 
@@ -59,10 +58,6 @@ const onRemoveAction = (_domain: string) => {
 
 	if (keyFileExists) {
 		fs.unlinkSync(`${sslPath}/${keyFile}`);
-	}
-
-	if (!newConfig.length) {
-		newConfig = config;
 	}
 
 	fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));

@@ -6,6 +6,12 @@ import crypto from "crypto";
 import onRemoveAction from "./on-remove-action";
 import generateProxyImage from "./generate-proxy-image";
 
+vi.mock("path", () => ({
+	default: {
+		resolve: () => "/root/path"
+	}
+}));
+
 vi.mock("fs");
 
 vi.mock("shelljs", async () => ({
@@ -98,22 +104,34 @@ describe("On remove action", () => {
 
 			expect(fs.existsSync).toHaveBeenCalledTimes(2);
 			expect(fs.existsSync).toHaveBeenNthCalledWith(
-				1, expect.stringMatching(/.*?\/local.some-domain.tld-cert.pem$/g)
+				1, "/root/path/.local-ssl-management/ssl/local.some-domain.tld-cert.pem"
 			);
 			expect(fs.existsSync).toHaveBeenNthCalledWith(
-				2, expect.stringMatching(/.*?\/local.some-domain.tld-key.pem$/g)
+				2, "/root/path/.local-ssl-management/ssl/local.some-domain.tld-key.pem"
 			);
 
 			expect(fs.unlinkSync).toHaveBeenCalledTimes(2);
 			expect(fs.unlinkSync).toHaveBeenNthCalledWith(
-				1, expect.stringMatching(/.*?\/local.some-domain.tld-cert.pem$/g)
+				1, "/root/path/.local-ssl-management/ssl/local.some-domain.tld-cert.pem"
 			);
 			expect(fs.unlinkSync).toHaveBeenNthCalledWith(
 				2, expect.stringMatching(/.*?\/local.some-domain.tld-key.pem$/g)
 			);
+			expect(fs.unlinkSync).toHaveBeenNthCalledWith(
+				1, "/root/path/.local-ssl-management/ssl/local.some-domain.tld-cert.pem"
+			);
+			expect(fs.unlinkSync).toHaveBeenNthCalledWith(
+				2, "/root/path/.local-ssl-management/ssl/local.some-domain.tld-key.pem"
+			);
+			expect(fs.writeFileSync).toHaveBeenCalledWith(
+				"/root/path/.local-ssl-management/config.json",
+				JSON.stringify([], null, 2)
+			);
+
 			expect(shell.echo).toHaveBeenCalledTimes(2);
 			expect(shell.echo).toHaveBeenNthCalledWith(1, `\n[Success] - 🎉 Domain removed succesful.\n`);
 			expect(shell.echo).toHaveBeenNthCalledWith(2, `\n[Action] - 🔄 Updating proxy image.\n`);
+
 			expect(generateProxyImage).toBeCalled();
 		});
 
@@ -148,14 +166,12 @@ describe("On remove action", () => {
 			);
 			expect(fs.writeFileSync).toHaveBeenCalledWith(
 				expect.stringMatching(/.*?\/\.local-ssl-management\/config.json$/g),
-				JSON.stringify([
-					{
-						id: "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26",
-						domain: "demo.com,demo.es",
-						port: "3333"
-					}
-				], null, 2)
+				JSON.stringify([], null, 2)
 			);
+
+			expect(shell.echo).toHaveBeenCalledTimes(2);
+			expect(shell.echo).toHaveBeenNthCalledWith(1, `\n[Success] - 🎉 Domain removed succesful.\n`);
+			expect(shell.echo).toHaveBeenNthCalledWith(2, `\n[Action] - 🔄 Updating proxy image.\n`);
 
 			expect(generateProxyImage).toBeCalled();
 		});
