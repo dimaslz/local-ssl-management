@@ -1,6 +1,5 @@
 import fs from "fs";
 import shell from "shelljs";
-import { vi } from "vitest";
 import crypto from "crypto";
 
 import onRemoveAction from "./on-remove-action";

@@ -1,10 +1,10 @@
 import fs from "fs";
 import shell from "shelljs";
-import { expect, vi } from "vitest";
 import { mkcert } from "@dimaslz/local-ssl-management-core";
 
 import generateProxyImage from "./generate-proxy-image";
 import listContainer from "./list-container";
+import { SpyInstance } from "vitest";
 
 vi.mock("fs");
 vi.mock("shelljs");
@@ -139,8 +139,7 @@ CMD ["nginx", "-g", "daemon off;"]`
 			return false;
 		});
 
-		// TODO: how to fix it? (typescript issue)
-		(shell.exec as any) = vi.fn((v) => v);
+		(vi.spyOn(shell, "exec") as SpyInstance).mockImplementation((v) => v);
 
 		generateProxyImage([
 			{

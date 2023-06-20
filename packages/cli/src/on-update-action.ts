@@ -12,7 +12,7 @@ const rootPath = `${distPath}/.local-ssl-management`;
 const configPath = `${rootPath}/config.json`;
 
 
-const onUpdateAction = (domain: string, options: any) => {
+const onUpdateAction = (domain: string, options: { port: number }) => {
 	const config: Config[] = JSON.parse(fs.readFileSync(configPath, { encoding: "utf8" }) || "[]");
 
 	const v4 = new RegExp(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);

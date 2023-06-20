@@ -1,5 +1,5 @@
 import fs from "fs";
-import { vi } from "vitest";
+import { SpyInstance } from "vitest";
 import shell, { ShellString } from "shelljs";
 import crypto from "crypto";
 
@@ -55,8 +55,7 @@ describe("On create action", () => {
 		test("domain config created sucessfully", () => {
 			vi.spyOn(fs, "readFileSync").mockReturnValue("[]");
 			vi.spyOn(fs, "mkdirSync");
-			// TODO: how to fix it? (typescript issue)
-			(fs.readdirSync as any) = vi.fn(() => ([
+			(vi.spyOn(fs, "readdirSync") as SpyInstance).mockImplementation(() => ([
 				"some-domain.com-cert.pem",
 				"some-domain.com-key.pem",
 			]));
@@ -127,8 +126,7 @@ describe("On create action", () => {
 
 		test("domain config created sucessfully (does not exists /ssl)", () => {
 			vi.spyOn(fs, "readFileSync").mockReturnValue("[]");
-			// TODO: how to fix it? (typescript issue)
-			(fs.readdirSync as any) = vi.fn(() => ([
+			(vi.spyOn(fs, "readdirSync") as SpyInstance).mockImplementation(() => ([
 				"some-domain.com-cert.pem",
 				"some-domain.com-key.pem",
 			]));
@@ -172,8 +170,7 @@ describe("On create action", () => {
 					"port": 3000
 				}
 			], null, 2));
-			// TODO: how to fix it? (typescript issue)
-			(fs.readdirSync as any) = vi.fn(() => ([
+			(vi.spyOn(fs, "readdirSync") as SpyInstance).mockImplementation(() => ([
 				"some-domain.com-cert.pem",
 				"some-domain.com-key.pem",
 			]));

@@ -1,4 +1,3 @@
-import { vi } from "vitest";
 import fs from "fs";
 import shell from "shelljs";
 

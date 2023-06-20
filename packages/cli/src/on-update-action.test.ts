@@ -1,6 +1,5 @@
 import fs from "fs";
 import shell from "shelljs";
-import { vi } from "vitest";
 
 import onUpdateAction from "./on-update-action";
 import validatePort from "./utils/validate-port";

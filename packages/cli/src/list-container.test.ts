@@ -1,7 +1,7 @@
-import { vi } from "vitest";
 import shell from "shelljs";
 
 import listContainer from "./list-container";
+import { SpyInstance } from "vitest";
 
 vi.mock("chalk", async () => ({
 	default: {
@@ -21,12 +21,12 @@ describe("List container", () => {
 	describe("success", () => {
 
 		test("commmand found local-ssl-management container running", async () => {
-			// TODO: how to fix it? (typescript issue)
-			(shell.exec as any) = vi.fn(() => {
+			(vi.spyOn(shell, "exec") as SpyInstance).mockImplementation(() => {
 				return {
 					stdout: "XXXXXXXXXXXX | local-ssl-management | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp"
 				};
 			});
+
 			listContainer();
 
 			expect(shell.echo).toHaveBeenCalledTimes(2);
@@ -45,10 +45,10 @@ describe("List container", () => {
 
 	describe("failure", () => {
 		test("some error happen", () => {
-			// TODO: how to fix it? (typescript issue)
-			(shell.exec as any) = vi.fn(() => ({
+			(vi.spyOn(shell, "exec") as SpyInstance).mockImplementation(() => ({
 				stdout: "XXXXXXXXXXXX | something | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp"
 			}));
+
 			vi.spyOn(shell, 'exit').mockImplementation(() => { throw new Error(); });
 
 			expect(() => { listContainer(); }).toThrow();

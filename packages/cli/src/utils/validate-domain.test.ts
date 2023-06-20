@@ -1,4 +1,3 @@
-import { vi } from "vitest";
 import shell from "shelljs";
 
 import validateDomain from "./validate-domain";
