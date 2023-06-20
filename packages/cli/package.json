@@ -37,8 +37,9 @@
     "tag": "ssl, mkcert, docker, localhost"
   },
   "scripts": {
-    "prebuild": "node prebuild.mjs",
-    "build": "ncc build src/index.ts -m -o dist",
+    "prelocal-build": "node prebuild.mjs",
+    "local-build": "ncc build src/index.ts -m -o dist",
+    "build": "ncc build src/index.ts -m -o publish/dist",
     "to-publish": "npx vite-node publish.js",
     "test": "vitest"
   },
@@ -48,6 +49,8 @@
     "cli-table": "^0.3.11",
     "commander": "^10.0.1",
     "is-url-http": "^2.3.5",
+    "prompts": "^2.4.2",
+    "semver": "^7.5.2",
     "shelljs": "^0.8.5"
   },
   "devDependencies": {
