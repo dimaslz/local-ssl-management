@@ -92,6 +92,7 @@ const run = async () => {
 		delete pckg.dependencies;
 		delete pckg.devDependencies;
 		delete pckg.scripts;
+		delete pckg.publishConfig;
 		pckg.version = newVersion;
 
 		if (!fs.existsSync("publish")) {
@@ -120,9 +121,8 @@ const run = async () => {
 			fs.mkdirSync("dist/.local-ssl-management/ssl", { recursive: true });
 		}
 
-		// shell.exec("npm publish --access public");
 		shell.cd("publish");
-		shell.exec(`npx np ${newVersion} --access public --branch main`);
+		shell.exec(`npm publish --access public`);
 		shell.cd("..");
 	}
 
