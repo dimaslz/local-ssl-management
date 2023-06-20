@@ -10,8 +10,6 @@ import listContainer from "./list-container";
 import chalk from "chalk";
 import Table from "cli-table";
 
-const toReplace = "#--server-config--#";
-
 const LOCAL_IP = getLocalIP();
 const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;
@@ -20,6 +18,7 @@ const sslPath = `${rootPath}/ssl`;
 const generateProxyImage = (config: Config[]) => {
 	const localhostCertExists = fs.existsSync(sslPath + "/localhost-cert.pem");
 	const localhostKeyExists = fs.existsSync(sslPath + "/localhost-key.pem");
+
 	if (!localhostCertExists || !localhostKeyExists) {
 		mkcert("localhost", sslPath);
 	}
@@ -54,7 +53,7 @@ const generateProxyImage = (config: Config[]) => {
 	});
 
 	const nginxConfTpl = Templates.nginxConf;
-	const nginxConf = nginxConfTpl.replace(toReplace, serverConfigs.join("\n"));
+	const nginxConf = nginxConfTpl.replace(/\t\t#--server-config--#/, `\t\t${serverConfigs.join("\n")}`);
 
 	const nginxConfDest = `${rootPath}/nginx.conf`;
 	fs.writeFileSync(nginxConfDest, nginxConf);
@@ -103,9 +102,9 @@ COPY ${d.cert} /etc/nginx/`
 			const status = shell.exec(curl, { silent: true }).stdout;
 
 			if (status === "200") {
-				tablePing.push([`https://${domain}`, "✅"])
+				tablePing.push([`https://${domain}`, "✅"]);
 			} else {
-				tablePing.push([`https://${domain}`, "❌"])
+				tablePing.push([`https://${domain}`, "❌"]);
 			}
 		});
 	});

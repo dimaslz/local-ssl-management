@@ -18,7 +18,6 @@ const onListAction = () => {
 		shell.exit(1);
 	}
 
-
 	const table = new Table({
 		head: ["id", "key", "domains", "port"],
 		chars: {

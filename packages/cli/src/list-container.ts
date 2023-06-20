@@ -12,10 +12,12 @@ const listContainer = () => {
 		head: ["container id", "container image", "port"],
 	});
 
-	const containerData = containersList.split("\n").find((line) => /local-ssl-management/.test(line))
+	const containerData = containersList.split("\n").find((line) => /local-ssl-management/.test(line)) || "";
+
 	if (!containerData) {
-		shell.echo(chalk.red("[Error] - Something have been failure. Contact with the author."))
+		shell.echo(chalk.red("[Error] - Something have been failure. Contact with the author."));
 		shell.exit(1);
+
 	}
 
 	const [containerId, containerName, ports] = containerData.split("|").map(i => i.trim());
@@ -23,7 +25,7 @@ const listContainer = () => {
 
 	shell.echo(chalk.green(
 		`\nThe local ssl proxy is running.\n
-ℹ️  The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.\n`
+		ℹ️ The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.\n`
 	));
 	shell.echo(`\n${table.toString()}\n`);
 };

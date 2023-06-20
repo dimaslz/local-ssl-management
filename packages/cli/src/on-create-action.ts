@@ -22,12 +22,11 @@ const onCreateAction = (_domain: string, options: any) => {
 	validatePort(port);
 	validateDomain(_domain);
 
-	const portAlreadyExists = config.find((c) => c.port === port);
-	if (portAlreadyExists) {
-		shell.echo(chalk.yellow(`\n[Notice] - Port "${port}" is already used for domain "${portAlreadyExists.domain}".
-    If you want to use this port for this new domain "${_domain}", update the the other domain port it using "local-ssl update ${portAlreadyExists.domain} --port XXXX" and after try again.\n`));
-		shell.exit(1);
-	}
+	// const portAlreadyExists = config.find((c) => c.port === port);
+	// if (portAlreadyExists) {
+	// 	shell.echo(chalk.yellow(`\n[Notice] - Port "${port}" is already used for domain "${portAlreadyExists.domain}".
+	//   If you want to use this port for this new domain "${_domain}", update the the other domain port it using "local-ssl update ${portAlreadyExists.domain} --port XXXX" and after try again.\n`));
+	// }
 
 	const domains = config
 		.map((c) => c.domain.split(",")
