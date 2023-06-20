@@ -37,7 +37,7 @@ const onUpdateAction = (domain: string, options: any) => {
 	validatePort(port);
 
 	const newConfig = config.map((c) => {
-		if (isUUID && (c.id === domain || c.domain === domain)) {
+		if ((isUUID && c.id === domain) || c.domain === domain) {
 			c.port = port;
 		}
 
