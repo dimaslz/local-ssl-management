@@ -54,5 +54,8 @@
             path: "./*"
             key: "${{ github.sha }}-cache"
         -
+          name: "Build core package"
+          run: "yarn core:build"
+        -
           name: "Run tests"
           run: "yarn cli:test-coverage"
