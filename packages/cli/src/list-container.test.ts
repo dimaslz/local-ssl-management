@@ -1,5 +1,4 @@
 import shell from "shelljs";
-import { SpyInstance } from "vitest";
 
 import listContainer from "./list-container";
 
@@ -19,7 +18,8 @@ describe("List container", () => {
 
   describe("success", () => {
     test("commmand found local-ssl-management container running", async () => {
-      (vi.spyOn(shell, "exec") as SpyInstance).mockImplementation(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (vi.spyOn(shell, "exec") as any).mockImplementation(() => {
         return {
           stdout:
             "XXXXXXXXXXXX | local-ssl-management | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp",
@@ -29,31 +29,19 @@ describe("List container", () => {
       listContainer();
 
       expect(shell.echo).toHaveBeenCalledTimes(2);
-
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        1,
-        `\nThe local ssl proxy is running.\n
-		ℹ️ The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        2,
-        `
-┌──────────────┬──────────────────────┬──────────────────────────────────────────┐
-│ container id │ container image      │ port                                     │
-├──────────────┼──────────────────────┼──────────────────────────────────────────┤
-│ XXXXXXXXXXXX │ local-ssl-management │ 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp │
-└──────────────┴──────────────────────┴──────────────────────────────────────────┘
-`,
-      );
+      expect(shell.echo).toMatchSnapshot();
     });
   });
 
   describe("failure", () => {
     test("some error happen", () => {
-      (vi.spyOn(shell, "exec") as SpyInstance).mockImplementation(() => ({
-        stdout:
-          "XXXXXXXXXXXX | something | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp",
-      }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (vi.spyOn(shell, "exec") as any).mockImplementation(() => {
+        return {
+          stdout:
+            "XXXXXXXXXXXX | something | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp",
+        };
+      });
 
       vi.spyOn(shell, "exit").mockImplementation(() => {
         throw new Error();
@@ -63,8 +51,8 @@ describe("List container", () => {
         listContainer();
       }).toThrow();
 
-      expect(shell.echo).toHaveBeenCalled();
-      expect(shell.exit).toHaveBeenCalled();
+      expect(shell.echo).toBeCalledTimes(1);
+      expect(shell.exit).toBeCalledTimes(1);
     });
   });
 });

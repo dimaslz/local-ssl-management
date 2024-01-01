@@ -29,7 +29,7 @@ describe("Validate domain", () => {
       }).toThrow();
 
       expect(shell.echo).toBeCalledWith(
-        `\n[Error] - Domain (https://your-domain.FAKE_TLD)format is not valid\n`,
+        `\n[Error] - Domain (https://your-domain.FAKE_TLD) format is not valid\n`,
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
@@ -46,7 +46,7 @@ describe("Validate domain", () => {
       }).toThrow();
 
       expect(shell.echo).toBeCalledWith(
-        "\n[Error] - Domain (https://your!domain.com)format is not valid\n",
+        "\n[Error] - Domain (https://your!domain.com) format is not valid\n",
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });

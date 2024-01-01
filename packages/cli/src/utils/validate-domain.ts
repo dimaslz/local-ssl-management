@@ -15,7 +15,7 @@ const validateDomain = (value: string) => {
 
     if (!isUrlHttp(domain)) {
       shell.echo(
-        chalk.red(`\n[Error] - Domain (${domainItem})format is not valid\n`),
+        chalk.red(`\n[Error] - Domain (${domainItem}) format is not valid\n`),
       );
       shell.exit(1);
     }

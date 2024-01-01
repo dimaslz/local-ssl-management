@@ -5,13 +5,17 @@ import path from "path";
 import shell from "shelljs";
 
 import generateProxyImage from "./generate-proxy-image";
-
 const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;
 const configPath = `${rootPath}/config.json`;
 const sslPath = `${rootPath}/ssl`;
 
-const onRemoveAction = (_domain: string) => {
+const onRemoveAction = (
+  _domain: string,
+  options: { port?: string; location?: string } = {},
+) => {
+  const { location } = options;
+
   const config: Config[] = JSON.parse(
     fs.readFileSync(configPath, { encoding: "utf8" }) || "[]",
   );
@@ -39,9 +43,40 @@ const onRemoveAction = (_domain: string) => {
     shell.exit(1);
   }
 
-  const newConfig = isUUID
-    ? config.filter((c) => c.id !== _domain)
-    : config.filter((c) => c.domain !== domain);
+  const byLocation = !!location;
+
+  let newConfig = config;
+
+  if (byLocation) {
+    const domainIndex = config.findIndex(
+      (c) => (isUUID && c.id === domain) || c.domain === domain,
+    );
+
+    const locationExists = config[domainIndex].services.some(
+      (service) => service.location === location,
+    );
+
+    if (!locationExists) {
+      shell.echo(
+        chalk.red(`\n[Error] - Location "${location}" does not exists\n`),
+      );
+      shell.exit(1);
+    }
+
+    newConfig = config.map((c, cIndex) => {
+      if (domainIndex === cIndex) {
+        c.services = c.services.filter(
+          (service) => service.location !== location,
+        );
+      }
+
+      return c;
+    });
+  } else {
+    newConfig = isUUID
+      ? config.filter((c) => c.id !== _domain)
+      : config.filter((c) => c.domain !== domain);
+  }
 
   const domainData = config.find((c) => {
     if (isUUID) {

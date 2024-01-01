@@ -1,7 +1,6 @@
 import { mkcert } from "@dimaslz/local-ssl-management-core";
 import fs from "fs";
 import shell from "shelljs";
-import { SpyInstance } from "vitest";
 
 import generateProxyImage from "./generate-proxy-image";
 import listContainer from "./list-container";
@@ -29,919 +28,414 @@ vi.mock("chalk", async () => ({
 describe("Generate proxy image", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    vi.spyOn(fs, "existsSync").mockReturnValue(false);
   });
 
-  describe("single service", () => {
-    test("does not exists localhost certs", () => {
-      fs.existsSync = vi.fn(() => false);
-
-      generateProxyImage([]);
-
-      expect(fs.existsSync).toBeCalledTimes(2);
-      expect(mkcert).toBeCalled();
-      expect(fs.writeFileSync).toBeCalledTimes(2);
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        1,
-        "/root/path/.local-ssl-management/nginx.conf",
-        `user  nginx;
-worker_processes  20;
-
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
-
-events {
-    worker_connections  1024;
-}
-
-http {
-		server {
-				listen              443 ssl;
-				server_name         _;
-				ssl_certificate     /etc/nginx/localhost-cert.pem;
-				ssl_certificate_key /etc/nginx/localhost-key.pem;
-				location / {
-						root  /var/www/html;
-				}
-		}
-
-		server {
-				listen 80 default_server;
-				server_name         _;
-
-				include       /etc/nginx/mime.types;
-				default_type  application/octet-stream;
-
-				location / {
-						root  /var/www/html;
-				}
-		}
-
-\t\t
-}`,
-      );
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        2,
-        "/root/path/.local-ssl-management/Dockerfile",
-        `FROM nginx
-
-# RUN rm -f /etc/nginx/conf.d/default.conf
-
-# WORKDIR /var/www/html
-# COPY index.html /var/www/html
-# RUN chmod 755 /var/www/html/index.html
-
-COPY nginx.conf /etc/nginx/conf.d/
-
-
-
-COPY ssl/localhost-key.pem /etc/nginx/
-COPY ssl/localhost-cert.pem /etc/nginx/
-
-COPY nginx.conf /etc/nginx/
-
-EXPOSE 80 443
-
-CMD ["nginx", "-g", "daemon off;"]`,
-      );
-
-      expect(shell.exec).toBeCalledTimes(1);
-      expect(shell.exec).toHaveBeenNthCalledWith(
-        1,
-        `NAME=local-ssl-management && \
-		docker rm -f $NAME && \
-		docker rmi -f $NAME && \
-		docker build --no-cache -t $NAME /root/path/.local-ssl-management && \
-		docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
-        { silent: true },
-      );
-      expect(listContainer).toBeCalled();
-
-      expect(shell.echo).toBeCalledTimes(2);
-      expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
-      expect(shell.echo).nthCalledWith(2, "\ndomain app running\n");
-    });
-
-    test("create domain config succesful (localhost certs does not exists)", () => {
-      vi.spyOn(fs, "existsSync").mockImplementation((v) => {
-        if (/localhost-cert.pem$/.test(String(v))) {
-          return false;
-        }
-
-        if (/demo.com-.*.pem$/.test(String(v))) {
-          return true;
-        }
-
-        return false;
+  describe("failure", () => {
+    test("does not exists config to create reverse proxy", () => {
+      vi.spyOn(shell, "exit").mockImplementation(() => {
+        throw new Error();
       });
 
-      (vi.spyOn(shell, "exec") as SpyInstance).mockImplementation((v) => v);
+      expect(() => {
+        generateProxyImage([]);
+      }).toThrow();
 
-      generateProxyImage([
-        {
-          id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
-          domain: "demo.com",
-          port: "4000",
-          location: "/",
-        },
-      ]);
-
-      expect(fs.existsSync).toBeCalledTimes(4);
-
-      expect(mkcert).toBeCalledTimes(1);
-      expect(mkcert).nthCalledWith(
-        1,
-        "localhost",
-        "/root/path/.local-ssl-management/ssl",
+      expect(shell.echo).toBeCalledWith(
+        "\n[Info] - Does not exists config to create reverse proxy\n",
       );
-
-      expect(fs.writeFileSync).toBeCalledTimes(2);
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        1,
-        "/root/path/.local-ssl-management/nginx.conf",
-        `user  nginx;
-worker_processes  20;
-
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
-
-events {
-    worker_connections  1024;
-}
-
-http {
-		server {
-				listen              443 ssl;
-				server_name         _;
-				ssl_certificate     /etc/nginx/localhost-cert.pem;
-				ssl_certificate_key /etc/nginx/localhost-key.pem;
-				location / {
-						root  /var/www/html;
-				}
-		}
-
-		server {
-				listen 80 default_server;
-				server_name         _;
-
-				include       /etc/nginx/mime.types;
-				default_type  application/octet-stream;
-
-				location / {
-						root  /var/www/html;
-				}
-		}
-
-		server {
-			listen	443 ssl;
-
-			autoindex off;
-
-			access_log  /var/log/nginx/demo.com.access.log;
-			error_log   /var/log/nginx/demo.com.error.log;
-
-			server_tokens off;
-			server_name demo.com;
-
-			ssl_certificate     /etc/nginx/demo.com-cert.pem;
-			ssl_certificate_key /etc/nginx/demo.com-key.pem;
-
-			gzip_static on;
-
-			location / {
-				gzip on;
-				gzip_disable "msie6";
-				gzip_vary on;
-				gzip_proxied any;
-				gzip_comp_level 6;
-				gzip_buffers 16 8k;
-				gzip_http_version 1.1;
-				gzip_min_length 256;
-				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:4000;
-				proxy_redirect off;
-				proxy_http_version 1.1;
-				proxy_cache_bypass $http_upgrade;
-				proxy_set_header Upgrade $http_upgrade;
-				proxy_set_header Connection 'upgrade';
-				proxy_set_header Host $host;
-				proxy_set_header 'Access-Control-Allow-Origin' '*';
-				proxy_set_header X-Real-IP $remote_addr;
-				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-				expires off;
-		}
-	}
-}`,
-      );
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        2,
-        "/root/path/.local-ssl-management/Dockerfile",
-        `FROM nginx
-
-# RUN rm -f /etc/nginx/conf.d/default.conf
-
-# WORKDIR /var/www/html
-# COPY index.html /var/www/html
-# RUN chmod 755 /var/www/html/index.html
-
-COPY nginx.conf /etc/nginx/conf.d/
-
-COPY ssl/demo.com-key.pem /etc/nginx/
-COPY ssl/demo.com-cert.pem /etc/nginx/
-
-COPY ssl/localhost-key.pem /etc/nginx/
-COPY ssl/localhost-cert.pem /etc/nginx/
-
-COPY nginx.conf /etc/nginx/
-
-EXPOSE 80 443
-
-CMD ["nginx", "-g", "daemon off;"]`,
-      );
-
-      expect(shell.exec).toBeCalledTimes(2);
-      expect(shell.exec).toHaveBeenNthCalledWith(
-        1,
-        `NAME=local-ssl-management && \
-		docker rm -f $NAME && \
-		docker rmi -f $NAME && \
-		docker build --no-cache -t $NAME /root/path/.local-ssl-management && \
-		docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
-        { silent: true },
-      );
-      expect(listContainer).toBeCalled();
-
-      expect(shell.echo).toBeCalledTimes(2);
-      expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
-
-      expect(shell.exec).nthCalledWith(
-        2,
-        'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
-        { silent: true },
-      );
-
-      expect(shell.echo).nthCalledWith(
-        2,
-        `
-domain           app running
-https://demo.com ❌${"          "}
-`,
-      );
-    });
-
-    test("create domain config succesful (domain certs does not exists)", () => {
-      vi.spyOn(shell, "exec").mockImplementation(() => {
-        return { status: 200 };
-      });
-      vi.spyOn(fs, "existsSync").mockImplementation((v) => {
-        if (/localhost-cert.pem$/.test(String(v))) {
-          return false;
-        }
-
-        if (/demo.com-.*.pem$/.test(String(v))) {
-          return false;
-        }
-
-        return false;
-      });
-
-      generateProxyImage([
-        {
-          id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
-          domain: "demo.com",
-          port: "4000",
-          location: "/",
-        },
-      ]);
-
-      expect(fs.existsSync).toBeCalledTimes(4);
-
-      expect(mkcert).toBeCalledTimes(2);
-      expect(mkcert).nthCalledWith(
-        1,
-        "localhost",
-        "/root/path/.local-ssl-management/ssl",
-      );
-      expect(mkcert).nthCalledWith(
-        2,
-        "demo.com",
-        "/root/path/.local-ssl-management/ssl",
-      );
-
-      expect(fs.writeFileSync).toBeCalledTimes(2);
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        1,
-        "/root/path/.local-ssl-management/nginx.conf",
-        `user  nginx;
-worker_processes  20;
-
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
-
-events {
-    worker_connections  1024;
-}
-
-http {
-		server {
-				listen              443 ssl;
-				server_name         _;
-				ssl_certificate     /etc/nginx/localhost-cert.pem;
-				ssl_certificate_key /etc/nginx/localhost-key.pem;
-				location / {
-						root  /var/www/html;
-				}
-		}
-
-		server {
-				listen 80 default_server;
-				server_name         _;
-
-				include       /etc/nginx/mime.types;
-				default_type  application/octet-stream;
-
-				location / {
-						root  /var/www/html;
-				}
-		}
-
-		server {
-			listen	443 ssl;
-
-			autoindex off;
-
-			access_log  /var/log/nginx/demo.com.access.log;
-			error_log   /var/log/nginx/demo.com.error.log;
-
-			server_tokens off;
-			server_name demo.com;
-
-			ssl_certificate     /etc/nginx/demo.com-cert.pem;
-			ssl_certificate_key /etc/nginx/demo.com-key.pem;
-
-			gzip_static on;
-
-			location / {
-				gzip on;
-				gzip_disable "msie6";
-				gzip_vary on;
-				gzip_proxied any;
-				gzip_comp_level 6;
-				gzip_buffers 16 8k;
-				gzip_http_version 1.1;
-				gzip_min_length 256;
-				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:4000;
-				proxy_redirect off;
-				proxy_http_version 1.1;
-				proxy_cache_bypass $http_upgrade;
-				proxy_set_header Upgrade $http_upgrade;
-				proxy_set_header Connection 'upgrade';
-				proxy_set_header Host $host;
-				proxy_set_header 'Access-Control-Allow-Origin' '*';
-				proxy_set_header X-Real-IP $remote_addr;
-				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-				expires off;
-		}
-	}
-}`,
-      );
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        2,
-        "/root/path/.local-ssl-management/Dockerfile",
-        `FROM nginx
-
-# RUN rm -f /etc/nginx/conf.d/default.conf
-
-# WORKDIR /var/www/html
-# COPY index.html /var/www/html
-# RUN chmod 755 /var/www/html/index.html
-
-COPY nginx.conf /etc/nginx/conf.d/
-
-COPY ssl/demo.com-key.pem /etc/nginx/
-COPY ssl/demo.com-cert.pem /etc/nginx/
-
-COPY ssl/localhost-key.pem /etc/nginx/
-COPY ssl/localhost-cert.pem /etc/nginx/
-
-COPY nginx.conf /etc/nginx/
-
-EXPOSE 80 443
-
-CMD ["nginx", "-g", "daemon off;"]`,
-      );
-
-      expect(shell.exec).toBeCalledTimes(2);
-      expect(shell.exec).toHaveBeenNthCalledWith(
-        1,
-        `NAME=local-ssl-management && \
-		docker rm -f $NAME && \
-		docker rmi -f $NAME && \
-		docker build --no-cache -t $NAME /root/path/.local-ssl-management && \
-		docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
-        { silent: true },
-      );
-      expect(listContainer).toBeCalled();
-
-      expect(shell.echo).toBeCalledTimes(2);
-      expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
-
-      expect(shell.exec).nthCalledWith(
-        2,
-        'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
-        { silent: true },
-      );
-
-      expect(shell.echo).nthCalledWith(
-        2,
-        `
-domain           app running
-https://demo.com ❌${"          "}
-`,
-      );
+      expect(shell.exit).toBeCalledWith(1);
     });
   });
 
-  describe("multiple service", () => {
-    test("does not exists localhost certs", () => {
-      fs.existsSync = vi.fn(() => false);
+  describe("success", () => {
+    describe("single service", () => {
+      beforeEach(() => {
+        vi.clearAllMocks();
 
-      generateProxyImage([]);
+        vi.spyOn(shell, "exec")
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .mockImplementationOnce((): any => "")
+          .mockImplementationOnce(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (): any => {
+              return { stdout: 200 };
+            },
+          );
+      });
 
-      expect(fs.existsSync).toBeCalledTimes(2);
-      expect(mkcert).toBeCalled();
-      expect(fs.writeFileSync).toBeCalledTimes(2);
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        1,
-        "/root/path/.local-ssl-management/nginx.conf",
-        `user  nginx;
-worker_processes  20;
+      test("does not exists localhost certs", () => {
+        generateProxyImage([
+          {
+            id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
+            domain: "domain.tld",
+            services: [
+              {
+                id: "7ab48ea7-8adb-4439-949b-a22868d65050",
+                port: "3000",
+                location: "/",
+              },
+            ],
+          },
+        ]);
 
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
+        expect(fs.existsSync).toBeCalledTimes(4);
+        expect(mkcert).toBeCalledTimes(2);
+        expect(mkcert).nthCalledWith(
+          1,
+          "localhost",
+          "/root/path/.local-ssl-management/ssl",
+        );
+        expect(mkcert).nthCalledWith(
+          2,
+          "domain.tld",
+          "/root/path/.local-ssl-management/ssl",
+        );
 
-events {
-    worker_connections  1024;
-}
+        expect(fs.writeFileSync).toBeCalledTimes(2);
+        expect(fs.writeFileSync).toMatchSnapshot();
 
-http {
-		server {
-				listen              443 ssl;
-				server_name         _;
-				ssl_certificate     /etc/nginx/localhost-cert.pem;
-				ssl_certificate_key /etc/nginx/localhost-key.pem;
-				location / {
-						root  /var/www/html;
-				}
-		}
+        expect(shell.exec).toBeCalledTimes(2);
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          1,
+          `NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
+          { silent: true },
+        );
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          2,
+          `curl -s -o /dev/null -w "%{http_code}" https://domain.tld`,
+          { silent: true },
+        );
 
-		server {
-				listen 80 default_server;
-				server_name         _;
+        expect(listContainer).toBeCalled();
 
-				include       /etc/nginx/mime.types;
-				default_type  application/octet-stream;
+        expect(shell.echo).toBeCalledTimes(2);
+        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
+        expect(shell.echo).toMatchSnapshot();
+      });
 
-				location / {
-						root  /var/www/html;
-				}
-		}
+      test("create domain config succesful (localhost certs does not exists)", () => {
+        vi.spyOn(fs, "existsSync").mockImplementation((v) => {
+          if (/localhost-cert.pem$/.test(String(v))) {
+            return false;
+          }
 
-\t\t
-}`,
-      );
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        2,
-        "/root/path/.local-ssl-management/Dockerfile",
-        `FROM nginx
+          if (/demo.com-.*.pem$/.test(String(v))) {
+            return true;
+          }
 
-# RUN rm -f /etc/nginx/conf.d/default.conf
+          return false;
+        });
 
-# WORKDIR /var/www/html
-# COPY index.html /var/www/html
-# RUN chmod 755 /var/www/html/index.html
+        generateProxyImage([
+          {
+            id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
+            domain: "demo.com",
+            services: [
+              {
+                id: "22fab721-eeef-472f-8dfb-83b14b933d01",
+                port: "4000",
+                location: "/",
+              },
+            ],
+          },
+        ]);
 
-COPY nginx.conf /etc/nginx/conf.d/
+        expect(fs.existsSync).toBeCalledTimes(4);
 
+        expect(mkcert).toBeCalledTimes(1);
+        expect(mkcert).nthCalledWith(
+          1,
+          "localhost",
+          "/root/path/.local-ssl-management/ssl",
+        );
 
+        expect(fs.writeFileSync).toBeCalledTimes(2);
+        expect(fs.writeFileSync).toMatchSnapshot();
 
-COPY ssl/localhost-key.pem /etc/nginx/
-COPY ssl/localhost-cert.pem /etc/nginx/
+        expect(shell.exec).toBeCalledTimes(2);
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          1,
+          `NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
+          { silent: true },
+        );
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          2,
+          `curl -s -o /dev/null -w "%{http_code}" https://demo.com`,
+          { silent: true },
+        );
 
-COPY nginx.conf /etc/nginx/
+        expect(listContainer).toBeCalled();
 
-EXPOSE 80 443
+        expect(shell.echo).toBeCalledTimes(2);
+        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
 
-CMD ["nginx", "-g", "daemon off;"]`,
-      );
+        expect(shell.exec).nthCalledWith(
+          2,
+          'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
+          { silent: true },
+        );
 
-      expect(shell.exec).toBeCalledTimes(1);
-      expect(shell.exec).toHaveBeenNthCalledWith(
-        1,
-        `NAME=local-ssl-management && \
-		docker rm -f $NAME && \
-		docker rmi -f $NAME && \
-		docker build --no-cache -t $NAME /root/path/.local-ssl-management && \
-		docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
-        { silent: true },
-      );
-      expect(listContainer).toBeCalled();
+        expect(shell.echo).toMatchSnapshot();
+      });
 
-      expect(shell.echo).toBeCalledTimes(2);
-      expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
-      expect(shell.echo).nthCalledWith(2, "\ndomain app running\n");
+      test("create domain config succesful (domain certs does not exists)", () => {
+        generateProxyImage([
+          {
+            id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
+            domain: "demo.com",
+            services: [
+              {
+                id: "1c3ca615-72e9-465b-a0e2-e788aafa0890",
+                port: "4000",
+                location: "/",
+              },
+            ],
+          },
+        ]);
+
+        expect(fs.existsSync).toBeCalledTimes(4);
+
+        expect(mkcert).toBeCalledTimes(2);
+        expect(mkcert).nthCalledWith(
+          1,
+          "localhost",
+          "/root/path/.local-ssl-management/ssl",
+        );
+        expect(mkcert).nthCalledWith(
+          2,
+          "demo.com",
+          "/root/path/.local-ssl-management/ssl",
+        );
+
+        expect(fs.writeFileSync).toBeCalledTimes(2);
+        expect(fs.writeFileSync).toMatchSnapshot();
+
+        expect(shell.exec).toBeCalledTimes(2);
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          1,
+          `NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
+          { silent: true },
+        );
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          2,
+          'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
+          { silent: true },
+        );
+
+        expect(listContainer).toBeCalled();
+
+        expect(shell.echo).toBeCalledTimes(2);
+        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
+
+        expect(shell.exec).nthCalledWith(
+          2,
+          'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
+          { silent: true },
+        );
+
+        expect(shell.echo).toMatchSnapshot();
+      });
     });
 
-    test("create domain config succesful (localhost certs does not exists)", () => {
-      vi.spyOn(fs, "existsSync").mockImplementation((v) => {
-        if (/localhost-cert.pem$/.test(String(v))) {
-          return false;
-        }
+    describe("multiple service", () => {
+      beforeEach(() => {
+        vi.clearAllMocks();
 
-        if (/demo.com-.*.pem$/.test(String(v))) {
-          return true;
-        }
-
-        return false;
+        vi.spyOn(shell, "exec")
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .mockImplementationOnce((): any => "")
+          .mockImplementationOnce(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (): any => {
+              return { stdout: 200 };
+            },
+          );
       });
 
-      (vi.spyOn(shell, "exec") as SpyInstance).mockImplementation((v) => v);
+      test("does not exists localhost certs", () => {
+        generateProxyImage([
+          {
+            id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
+            domain: "demo.com",
+            services: [
+              {
+                id: "c977c7cc-e9e1-4237-b6b1-8dd7b3d4001b",
+                port: "4000",
+                location: "/",
+              },
+              {
+                id: "0438bcb8-ac14-4d81-b8ac-1da3da4065b0",
+                port: "3000",
+                location: "/app-name",
+              },
+            ],
+          },
+        ]);
 
-      generateProxyImage([
-        {
-          id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
-          domain: "demo.com",
-          port: "4000,3000",
-          location: "/,/app-name",
-        },
-      ]);
+        expect(fs.existsSync).toBeCalledTimes(4);
 
-      expect(fs.existsSync).toBeCalledTimes(4);
+        expect(mkcert).toBeCalledTimes(2);
+        expect(mkcert).nthCalledWith(
+          1,
+          "localhost",
+          "/root/path/.local-ssl-management/ssl",
+        );
+        expect(mkcert).nthCalledWith(
+          2,
+          "demo.com",
+          "/root/path/.local-ssl-management/ssl",
+        );
 
-      expect(mkcert).toBeCalledTimes(1);
-      expect(mkcert).nthCalledWith(
-        1,
-        "localhost",
-        "/root/path/.local-ssl-management/ssl",
-      );
+        expect(fs.writeFileSync).toBeCalledTimes(2);
+        expect(fs.writeFileSync).toMatchSnapshot();
 
-      expect(fs.writeFileSync).toBeCalledTimes(2);
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        1,
-        "/root/path/.local-ssl-management/nginx.conf",
-        `user  nginx;
-worker_processes  20;
+        expect(shell.exec).toBeCalledTimes(2);
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          1,
+          `NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
+          { silent: true },
+        );
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          2,
+          'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
+          { silent: true },
+        );
 
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
+        expect(listContainer).toBeCalled();
 
-events {
-    worker_connections  1024;
-}
-
-http {
-		server {
-				listen              443 ssl;
-				server_name         _;
-				ssl_certificate     /etc/nginx/localhost-cert.pem;
-				ssl_certificate_key /etc/nginx/localhost-key.pem;
-				location / {
-						root  /var/www/html;
-				}
-		}
-
-		server {
-				listen 80 default_server;
-				server_name         _;
-
-				include       /etc/nginx/mime.types;
-				default_type  application/octet-stream;
-
-				location / {
-						root  /var/www/html;
-				}
-		}
-
-		server {
-			listen	443 ssl;
-
-			autoindex off;
-
-			access_log  /var/log/nginx/demo.com.access.log;
-			error_log   /var/log/nginx/demo.com.error.log;
-
-			server_tokens off;
-			server_name demo.com;
-
-			ssl_certificate     /etc/nginx/demo.com-cert.pem;
-			ssl_certificate_key /etc/nginx/demo.com-key.pem;
-
-			gzip_static on;
-
-			location / {
-				gzip on;
-				gzip_disable "msie6";
-				gzip_vary on;
-				gzip_proxied any;
-				gzip_comp_level 6;
-				gzip_buffers 16 8k;
-				gzip_http_version 1.1;
-				gzip_min_length 256;
-				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:4000;
-				proxy_redirect off;
-				proxy_http_version 1.1;
-				proxy_cache_bypass $http_upgrade;
-				proxy_set_header Upgrade $http_upgrade;
-				proxy_set_header Connection 'upgrade';
-				proxy_set_header Host $host;
-				proxy_set_header 'Access-Control-Allow-Origin' '*';
-				proxy_set_header X-Real-IP $remote_addr;
-				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-				expires off;
-		}
-
-location /app-name {
-				gzip on;
-				gzip_disable "msie6";
-				gzip_vary on;
-				gzip_proxied any;
-				gzip_comp_level 6;
-				gzip_buffers 16 8k;
-				gzip_http_version 1.1;
-				gzip_min_length 256;
-				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:3000;
-				proxy_redirect off;
-				proxy_http_version 1.1;
-				proxy_cache_bypass $http_upgrade;
-				proxy_set_header Upgrade $http_upgrade;
-				proxy_set_header Connection 'upgrade';
-				proxy_set_header Host $host;
-				proxy_set_header 'Access-Control-Allow-Origin' '*';
-				proxy_set_header X-Real-IP $remote_addr;
-				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-				expires off;
-		}
-	}
-}`,
-      );
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        2,
-        "/root/path/.local-ssl-management/Dockerfile",
-        `FROM nginx
-
-# RUN rm -f /etc/nginx/conf.d/default.conf
-
-# WORKDIR /var/www/html
-# COPY index.html /var/www/html
-# RUN chmod 755 /var/www/html/index.html
-
-COPY nginx.conf /etc/nginx/conf.d/
-
-COPY ssl/demo.com-key.pem /etc/nginx/
-COPY ssl/demo.com-cert.pem /etc/nginx/
-
-COPY ssl/localhost-key.pem /etc/nginx/
-COPY ssl/localhost-cert.pem /etc/nginx/
-
-COPY nginx.conf /etc/nginx/
-
-EXPOSE 80 443
-
-CMD ["nginx", "-g", "daemon off;"]`,
-      );
-
-      expect(shell.exec).toBeCalledTimes(2);
-      expect(shell.exec).toHaveBeenNthCalledWith(
-        1,
-        `NAME=local-ssl-management && \
-		docker rm -f $NAME && \
-		docker rmi -f $NAME && \
-		docker build --no-cache -t $NAME /root/path/.local-ssl-management && \
-		docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
-        { silent: true },
-      );
-      expect(listContainer).toBeCalled();
-
-      expect(shell.echo).toBeCalledTimes(2);
-      expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
-
-      expect(shell.exec).nthCalledWith(
-        2,
-        'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
-        { silent: true },
-      );
-
-      expect(shell.echo).nthCalledWith(
-        2,
-        `
-domain           app running
-https://demo.com ❌${"          "}
-`,
-      );
-    });
-
-    test("create domain config succesful (domain certs does not exists)", () => {
-      vi.spyOn(shell, "exec").mockImplementation(() => {
-        return { status: 200 };
-      });
-      vi.spyOn(fs, "existsSync").mockImplementation((v) => {
-        if (/localhost-cert.pem$/.test(String(v))) {
-          return false;
-        }
-
-        if (/demo.com-.*.pem$/.test(String(v))) {
-          return false;
-        }
-
-        return false;
+        expect(shell.echo).toBeCalledTimes(2);
+        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
+        expect(shell.echo).toMatchSnapshot();
       });
 
-      generateProxyImage([
-        {
-          id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
-          domain: "demo.com",
-          port: "4000,3000",
-          location: "/,/app-name",
-        },
-      ]);
+      test("create domain config succesful (localhost certs does not exists)", () => {
+        vi.spyOn(fs, "existsSync").mockImplementation((v) => {
+          if (/localhost-cert.pem$/.test(String(v))) {
+            return false;
+          }
 
-      expect(fs.existsSync).toBeCalledTimes(4);
+          if (/demo.com-.*.pem$/.test(String(v))) {
+            return true;
+          }
 
-      expect(mkcert).toBeCalledTimes(2);
-      expect(mkcert).nthCalledWith(
-        1,
-        "localhost",
-        "/root/path/.local-ssl-management/ssl",
-      );
-      expect(mkcert).nthCalledWith(
-        2,
-        "demo.com",
-        "/root/path/.local-ssl-management/ssl",
-      );
+          return false;
+        });
 
-      expect(fs.writeFileSync).toBeCalledTimes(2);
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        1,
-        "/root/path/.local-ssl-management/nginx.conf",
-        `user  nginx;
-worker_processes  20;
+        generateProxyImage([
+          {
+            id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
+            domain: "demo.com",
+            services: [
+              {
+                id: "f8a368e6-3cab-4107-a463-a9edda7edbfa",
+                port: "4000",
+                location: "/",
+              },
+              {
+                id: "6c157015-3b64-47b8-82c1-8e6813c96990",
+                port: "3000",
+                location: "/app-name",
+              },
+            ],
+          },
+        ]);
 
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
+        expect(fs.existsSync).toBeCalledTimes(4);
 
-events {
-    worker_connections  1024;
-}
+        expect(mkcert).toBeCalledTimes(1);
+        expect(mkcert).nthCalledWith(
+          1,
+          "localhost",
+          "/root/path/.local-ssl-management/ssl",
+        );
 
-http {
-		server {
-				listen              443 ssl;
-				server_name         _;
-				ssl_certificate     /etc/nginx/localhost-cert.pem;
-				ssl_certificate_key /etc/nginx/localhost-key.pem;
-				location / {
-						root  /var/www/html;
-				}
-		}
+        expect(fs.writeFileSync).toBeCalledTimes(2);
+        expect(fs.writeFileSync).toMatchSnapshot();
 
-		server {
-				listen 80 default_server;
-				server_name         _;
+        expect(shell.exec).toBeCalledTimes(2);
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          1,
+          `NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
+          { silent: true },
+        );
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          2,
+          'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
+          { silent: true },
+        );
 
-				include       /etc/nginx/mime.types;
-				default_type  application/octet-stream;
+        expect(listContainer).toBeCalled();
 
-				location / {
-						root  /var/www/html;
-				}
-		}
+        expect(shell.echo).toBeCalledTimes(2);
+        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
 
-		server {
-			listen	443 ssl;
+        expect(shell.exec).nthCalledWith(
+          2,
+          'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
+          { silent: true },
+        );
 
-			autoindex off;
+        expect(shell.echo).toMatchSnapshot();
+      });
 
-			access_log  /var/log/nginx/demo.com.access.log;
-			error_log   /var/log/nginx/demo.com.error.log;
+      test("create domain config succesful (domain certs does not exists)", () => {
+        generateProxyImage([
+          {
+            id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
+            domain: "demo.com",
+            services: [
+              {
+                id: "f8a368e6-3cab-4107-a463-a9edda7edbfa",
+                port: "4000",
+                location: "/",
+              },
+              {
+                id: "6c157015-3b64-47b8-82c1-8e6813c96990",
+                port: "3000",
+                location: "/app-name",
+              },
+            ],
+          },
+        ]);
 
-			server_tokens off;
-			server_name demo.com;
+        expect(fs.existsSync).toBeCalledTimes(4);
 
-			ssl_certificate     /etc/nginx/demo.com-cert.pem;
-			ssl_certificate_key /etc/nginx/demo.com-key.pem;
+        expect(mkcert).toBeCalledTimes(2);
+        expect(mkcert).nthCalledWith(
+          1,
+          "localhost",
+          "/root/path/.local-ssl-management/ssl",
+        );
+        expect(mkcert).nthCalledWith(
+          2,
+          "demo.com",
+          "/root/path/.local-ssl-management/ssl",
+        );
 
-			gzip_static on;
+        expect(fs.writeFileSync).toBeCalledTimes(2);
+        expect(fs.writeFileSync).toMatchSnapshot();
 
-			location / {
-				gzip on;
-				gzip_disable "msie6";
-				gzip_vary on;
-				gzip_proxied any;
-				gzip_comp_level 6;
-				gzip_buffers 16 8k;
-				gzip_http_version 1.1;
-				gzip_min_length 256;
-				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:4000;
-				proxy_redirect off;
-				proxy_http_version 1.1;
-				proxy_cache_bypass $http_upgrade;
-				proxy_set_header Upgrade $http_upgrade;
-				proxy_set_header Connection 'upgrade';
-				proxy_set_header Host $host;
-				proxy_set_header 'Access-Control-Allow-Origin' '*';
-				proxy_set_header X-Real-IP $remote_addr;
-				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-				expires off;
-		}
+        expect(shell.exec).toBeCalledTimes(2);
+        expect(shell.exec).toHaveBeenNthCalledWith(
+          1,
+          `NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
+          { silent: true },
+        );
+        expect(listContainer).toBeCalled();
 
-location /app-name {
-				gzip on;
-				gzip_disable "msie6";
-				gzip_vary on;
-				gzip_proxied any;
-				gzip_comp_level 6;
-				gzip_buffers 16 8k;
-				gzip_http_version 1.1;
-				gzip_min_length 256;
-				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:3000;
-				proxy_redirect off;
-				proxy_http_version 1.1;
-				proxy_cache_bypass $http_upgrade;
-				proxy_set_header Upgrade $http_upgrade;
-				proxy_set_header Connection 'upgrade';
-				proxy_set_header Host $host;
-				proxy_set_header 'Access-Control-Allow-Origin' '*';
-				proxy_set_header X-Real-IP $remote_addr;
-				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-				expires off;
-		}
-	}
-}`,
-      );
-      expect(fs.writeFileSync).toHaveBeenNthCalledWith(
-        2,
-        "/root/path/.local-ssl-management/Dockerfile",
-        `FROM nginx
+        expect(shell.echo).toBeCalledTimes(2);
+        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
 
-# RUN rm -f /etc/nginx/conf.d/default.conf
+        expect(shell.exec).nthCalledWith(
+          2,
+          'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
+          { silent: true },
+        );
 
-# WORKDIR /var/www/html
-# COPY index.html /var/www/html
-# RUN chmod 755 /var/www/html/index.html
-
-COPY nginx.conf /etc/nginx/conf.d/
-
-COPY ssl/demo.com-key.pem /etc/nginx/
-COPY ssl/demo.com-cert.pem /etc/nginx/
-
-COPY ssl/localhost-key.pem /etc/nginx/
-COPY ssl/localhost-cert.pem /etc/nginx/
-
-COPY nginx.conf /etc/nginx/
-
-EXPOSE 80 443
-
-CMD ["nginx", "-g", "daemon off;"]`,
-      );
-
-      expect(shell.exec).toBeCalledTimes(2);
-      expect(shell.exec).toHaveBeenNthCalledWith(
-        1,
-        `NAME=local-ssl-management && \
-		docker rm -f $NAME && \
-		docker rmi -f $NAME && \
-		docker build --no-cache -t $NAME /root/path/.local-ssl-management && \
-		docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
-        { silent: true },
-      );
-      expect(listContainer).toBeCalled();
-
-      expect(shell.echo).toBeCalledTimes(2);
-      expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
-
-      expect(shell.exec).nthCalledWith(
-        2,
-        'curl -s -o /dev/null -w "%{http_code}" https://demo.com',
-        { silent: true },
-      );
-
-      expect(shell.echo).nthCalledWith(
-        2,
-        `
-domain           app running
-https://demo.com ❌${"          "}
-`,
-      );
+        expect(shell.echo).toMatchSnapshot();
+      });
     });
   });
 });

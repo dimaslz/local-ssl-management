@@ -11,7 +11,9 @@ const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;
 const configPath = `${rootPath}/config.json`;
 
-const onUpdateAction = (domain: string, options: { port: number }) => {
+type Options = { port?: string; location?: string };
+
+const onUpdateAction = (domain: string, options: Options) => {
   const config: Config[] = JSON.parse(
     fs.readFileSync(configPath, { encoding: "utf8" }) || "[]",
   );
@@ -37,13 +39,70 @@ const onUpdateAction = (domain: string, options: { port: number }) => {
     shell.exit(1);
   }
 
-  const { port } = options;
+  let { port } = options;
+  const { location } = options;
 
-  validatePort(port);
+  if (!location) {
+    shell.echo(chalk.red(`\n[Error] - Location is mandatory\n`));
+    shell.exit(1);
+  }
 
-  const newConfig = config.map((c) => {
-    if ((isUUID && c.id === domain) || c.domain === domain) {
-      c.port = port;
+  const domainIndex = config.findIndex(
+    (c) => (isUUID && c.id === domain) || c.domain === domain,
+  );
+
+  if (location.includes(",")) {
+    const [oldLocation] = location.split(",");
+
+    if (!port) {
+      port = config[domainIndex].services.find(
+        (service) => service.location === oldLocation,
+      )?.port;
+    }
+
+    const oldLocationExists = config[domainIndex].services.some(
+      (service) => service.location === oldLocation,
+    );
+
+    if (!oldLocationExists) {
+      shell.echo(
+        chalk.red(`\n[Error] - Location "${oldLocation}" does not exists\n`),
+      );
+      shell.exit(1);
+    }
+  } else {
+    const locationExists = config[domainIndex].services.some(
+      (service) => service.location === location,
+    );
+
+    if (!locationExists) {
+      shell.echo(
+        chalk.red(`\n[Error] - Location "${location}" does not exists\n`),
+      );
+      shell.exit(1);
+    }
+  }
+
+  if (port) {
+    validatePort(port);
+  }
+
+  const newConfig = config.map((c, cIndex) => {
+    if (domainIndex === cIndex) {
+      c.services.map((service) => {
+        if (location?.includes(",")) {
+          const [oldLocation, newLocation] = location.split(",");
+
+          if (service.location === oldLocation) {
+            service.location = newLocation;
+            service.port = port || service.port;
+          }
+        }
+
+        if (service.location === location && port) {
+          service.port = port;
+        }
+      });
     }
 
     return c;
@@ -51,7 +110,7 @@ const onUpdateAction = (domain: string, options: { port: number }) => {
 
   fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
 
-  shell.echo(chalk.green("\n[Success] - 🎉 Domain removed succesful.\n"));
+  shell.echo(chalk.green("\n[Success] - 🎉 Domain updated succesful.\n"));
   shell.echo(chalk.green("\n[Action] - 🔄 Updating proxy image.\n"));
 
   generateProxyImage(newConfig);

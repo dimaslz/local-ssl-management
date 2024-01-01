@@ -19,7 +19,7 @@ describe("Validate port", () => {
   describe("valid", () => {
     const ports = [["1025"], ["3000"], ["65535"]];
     test.each(ports)("Port %s is valid", (port) => {
-      validatePort(Number(port));
+      validatePort(port);
 
       expect(shell.echo).not.toBeCalled();
       expect(shell.exit).not.toHaveBeenCalledWith(1);
@@ -35,7 +35,7 @@ describe("Validate port", () => {
       });
 
       expect(() => {
-        validatePort(Number(port));
+        validatePort(port);
       }).toThrow();
 
       if (Number(port)) {

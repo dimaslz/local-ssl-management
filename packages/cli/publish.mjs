@@ -1,7 +1,5 @@
-import ncc from "@vercel/ncc";
 import cpy from "cpy";
 import fs from "fs";
-import path from "path";
 import prompts from "prompts";
 import { rimrafSync } from "rimraf";
 import semver from "semver";

@@ -1,22 +1,21 @@
-// import path from "path";
 import type { Config } from "@dimaslz/local-ssl-management-core";
 import chalk from "chalk";
 import crypto from "crypto";
 import fs from "fs";
+import path from "path";
 import shell from "shelljs";
 
 import generateProxyImage from "./generate-proxy-image";
 import { validateDomain, validateLocation, validatePort } from "./utils";
 
-// const distPath = path.resolve(__dirname, "./");
-// const rootPath = `${distPath}/.local-ssl-management`;
-const rootPath = `.local-ssl-management`;
-const sslPath = `${rootPath}/ssl`;
+const distPath = path.resolve(__dirname, "./");
+const rootPath = `${distPath}/.local-ssl-management`;
 const configPath = `${rootPath}/config.json`;
+const sslPath = `${rootPath}/ssl`;
 
 const onCreateAction = (
   _domain: string,
-  options: { port: string; location?: string },
+  options: { port?: string; location?: string },
 ) => {
   const config: Config[] = JSON.parse(
     fs.readFileSync(configPath, { encoding: "utf8" }) || "[]",
@@ -25,9 +24,11 @@ const onCreateAction = (
   const { location = "/" } = options as { port: string; location: string };
   const { port } = options as { port: string; location: string };
 
-  validateLocation(location);
-  validatePort(port);
   validateDomain(_domain);
+  if (port) {
+    validatePort(port);
+  }
+  validateLocation(location);
 
   const domains = config
     .map((c) =>
@@ -55,37 +56,60 @@ const onCreateAction = (
     .join(",");
   const domainExists = config.some((c) => c.domain === domain);
   const domainIndex = config.findIndex((c) => c.domain === domain);
-  let currentLocation: string =
-    config.find((c) => c.domain === domain)?.location || "/";
-  let currentPort: string = config.find((c) => c.domain === domain)?.port;
 
-  if (domainExists) {
-    shell.echo(chalk.red("\n[Error] - Domain already exists\n"));
+  const locationExists =
+    config[domainIndex]?.services.some(
+      (service) => service.location === location,
+    ) || false;
+
+  if (domainExists && locationExists) {
+    if (location === "/") {
+      shell.echo(
+        chalk.red(
+          `\n[Error] - Domain "${domain}" already created with the default location "${location}"\n`,
+        ),
+      );
+    } else {
+      shell.echo(
+        chalk.red(`\n[Error] - Location "${location}" already exists\n`),
+      );
+    }
+
     shell.exit(1);
   }
 
-  if (currentLocation) {
-    currentLocation += `,${location}`;
+  if (domainExists && locationExists) {
+    shell.echo(chalk.red(`\n[Error] - Domain "${domain}" already exists\n`));
+    shell.exit(1);
   }
 
-  if (currentPort) {
-    currentPort += `,${port}`;
+  const portExists =
+    config[domainIndex]?.services.some((service) => service.port === port) ||
+    false;
+
+  if (portExists) {
+    shell.echo(chalk.red(`\n[Error] - Port "${port}" already exists\n`));
+    shell.exit(1);
   }
 
   if (domainIndex > -1) {
-    config[domainIndex] = {
+    config[domainIndex].services.push({
       id: crypto.randomUUID(),
-      domain,
-      port: currentPort,
-      location: currentLocation,
-    } as Config;
+      location,
+      port,
+    });
   } else {
     config.push({
       id: crypto.randomUUID(),
       domain,
-      port,
-      location: "/",
-    } as Config);
+      services: [
+        {
+          id: crypto.randomUUID(),
+          location,
+          port,
+        },
+      ],
+    });
   }
 
   generateProxyImage(config);

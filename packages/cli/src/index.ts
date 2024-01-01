@@ -1,5 +1,4 @@
 #! /usr/bin/env node
-
 import { dockerExists, mkcertExists } from "@dimaslz/local-ssl-management-core";
 import { Command } from "commander";
 import fs from "fs";
@@ -54,11 +53,19 @@ const cli = () => {
     .command("update <domain|id>")
     .description("update domain")
     .option("-p, --port <port>", "Port where is running the application")
+    .option(
+      "-l, --location <location>",
+      'Location where nginx will serve the application. By default is "/"',
+    )
     .action(onUpdateAction);
 
   program
     .command("remove <domain|id>")
-    .description("Create domain")
+    .description("Remove domain")
+    .option(
+      "-l, --location <location>",
+      "Location where nginx will serve the application.",
+    )
     .action(onRemoveAction);
 
   program.parse();

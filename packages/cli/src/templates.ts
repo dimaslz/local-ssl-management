@@ -1,5 +1,5 @@
 export default {
-  nginxLocation: `location %LOCATION% {
+  nginxLocation: `location ~ ^%LOCATION%(/?)(.*) {
 				gzip on;
 				gzip_disable "msie6";
 				gzip_vary on;
@@ -9,7 +9,7 @@ export default {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://%LOCAL_IP%:%PORT%;
+				proxy_pass http://%LOCAL_IP%:%PORT%/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -63,11 +63,11 @@ CMD ["nginx", "-g", "daemon off;"]`,
   nginxConf: `user  nginx;
 worker_processes  20;
 
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
+error_log		/var/log/nginx/error.log warn;
+pid					/var/run/nginx.pid;
 
 events {
-    worker_connections  1024;
+	worker_connections  1024;
 }
 
 http {

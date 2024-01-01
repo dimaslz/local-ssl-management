@@ -10,6 +10,41 @@ https://local.your-domain.tld:3000 → https://local.your-domain.tld
 
 > ℹ️ At the moment, just tested in MacOS
 
+From `version 1.0.0`, also is possible to setup a reverse proxy for microservices on the same domain.
+
+**Example:**
+
+Request to <https://local.your-domain.tld/> will serve <http://localhost:3000>
+
+Request to <https://local.your-domain.tld/app-name> will serve <http://localhost:4000>
+
+## Content
+
+- [Local SSL Management](#local-ssl-management)
+  - [Content](#content)
+  - [Install cli](#install-cli)
+  - [Commands](#commands)
+    - [create domain config](#create-domain-config)
+    - [create new location for a existing domain](#create-new-location-for-a-existing-domain)
+    - [rename location](#rename-location)
+    - [update port to a location](#update-port-to-a-location)
+    - [update location and port](#update-location-and-port)
+    - [remove domain](#remove-domain)
+    - [remove location for a domain](#remove-location-for-a-domain)
+    - [list current service configs](#list-current-service-configs)
+  - [Use case](#use-case)
+    - [Other use cases](#other-use-cases)
+  - [Requirements](#requirements)
+  - [How it works?](#how-it-works)
+  - [How to use](#how-to-use)
+  - [TODO](#todo)
+  - [Packages](#packages)
+    - [app](#app)
+    - [cli](#cli)
+    - [core](#core)
+  - [Author](#author)
+  - [My other projects](#my-other-projects)
+
 ## Install cli
 
 `npm install -g @dimaslz/local-ssl-management-cli`
@@ -17,12 +52,71 @@ https://local.your-domain.tld:3000 → https://local.your-domain.tld
 
 Then the CLI will be `local-ssl ...`
 
-### Commands
+## Commands
 
-* `local-ssl create <domain> --port XXXX`: Create a domain (without http or https) like: `local-ssl create local.your-domain.com --port 3333`. The port should where the original application is running ([http://localhost:3333](http://localhost:3333));
-* `local-ssl list`: List all the configs working.
-* `local-ssl remove <domain-key>`: Remove domain in the proxy. The domain key is the value you can see in the result of `local-ssl list`.
-* `local-ssl update <domain-key> --port XXXX`: Update config for a domain. For example, the port like: `local-ssl update local.your-domain.com --port 4444`
+> Is important to know that you need to setup the domains into your `/etc/hosts`
+>
+> ```bash
+> your-domain.com           127.0.0.1
+> ```
+>
+> This will be automatically on the next version
+
+### create domain config
+
+```bash
+$ local-ssl create local.your-name.com --location / --port 3000
+
+# note: --location is "/"" by default.
+```
+
+Now, go to your favourite browser and visit <https://local.your-name.com> and should be serving what is serving on <http://localhost:3000>.
+
+### create new location for a existing domain
+
+```bash
+$ local-ssl create local.your-name.com --location /app --port 4000
+```
+
+### rename location
+
+```bash
+$ local-ssl update local.your-name.com --location /app,/new-app
+```
+
+> Also you can update the port at the same time if you want.
+
+### update port to a location
+
+```bash
+$ local-ssl update local.your-name.com --location /new-app --port 4000
+```
+
+### update location and port
+
+```bash
+$ local-ssl update local.your-name.com --location /,/new-app --port 4000
+```
+
+Now, intead of access to <https://local.your-domain.com/app>, you should access to <https://local.your-domain.com/new-app>
+
+### remove domain
+
+```bash
+$ local-ssl remove local.your-domain.com
+```
+
+### remove location for a domain
+
+```bash
+$ local-ssl remove local.your-domain.com --location /new-app
+```
+
+### list current service configs
+
+```bash
+$ local-ssl list
+```
 
 ## Use case
 
@@ -38,15 +132,15 @@ Yes, this is a specific use case but for me, sometimes is very useful and, I do 
 
 ### Other use cases
 
-* When you need to do something related with different TLD, as for example: setup a default language according to the TLD. You do not need to add a special script to get the TLD.
-* ...
+- When you need to do something related with different TLD, as for example: setup a default language according to the TLD. You do not need to add a special script to get the TLD.
+- ...
 
 ## Requirements
 
-* Nodejs +16
-* Docker
-* Mkcert
-* Update /etc/hosts manually
+- Nodejs +16
+- Docker
+- Mkcert
+- Update /etc/hosts manually
 
 ## How it works?
 
@@ -64,14 +158,16 @@ MacOS and Linux:
 
 ```bash
 ...
-127.0.0.1					local.your-domain.com
+127.0.0.1     local.your-domain.com
 ```
 
 **#2 - Create new domain**:
 
 `$ local-ssl create local.your-domain.com --port 4200`
 
-> or for multiple domains with `$ local-ssl create local.your-domain.com,local.your-domain.es --port 4200`
+or for multiple domains...
+
+`$ local-ssl create local.your-domain.com,local.your-domain.es --port 4200`
 
 List domain to check it
 
@@ -79,11 +175,11 @@ List domain to check it
 
 The script will:
 
-* Store the configs.
-* Create the `nginx.conf` per each domain.
-* Create or update the `Dockerfile` configuration.
-* Remove and create the new image (named `local-ssl-management`).
-* Remove and create the new container (named `local-ssl-management`).
+- Store the configs.
+- Create the `nginx.conf` per each domain.
+- Create or update the `Dockerfile` configuration.
+- Remove and create the new image (named `local-ssl-management`).
+- Remove and create the new container (named `local-ssl-management`).
 
 **#3 - Run your application**:
 
@@ -93,10 +189,16 @@ The script will work but, if your application is not running, the domain with no
 
 Go you your application local domain: [https://local.your-domain.com](https://local.your-domain.com) and... should work 😅.
 
+For sure, if the service is not working, the result will response a server error.
+
 ## TODO
 
-* [ ] Add certs manually
-* [ ] Add custom nginx config
+- [ ] Serve dashboard on <https://localhost>
+  - [ ] Manage domains by UI
+  - [ ] Show logs in a friendly ui
+  - [ ] Allow edit Nginx config
+- [ ] Add certs manually
+- [ ] Add custom nginx config
 
 ## Packages
 

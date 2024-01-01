@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import Table from "cli-table";
+import Table from "cli-table3";
 import shell from "shelljs";
 
 const listContainer = () => {
@@ -37,6 +37,7 @@ const listContainer = () => {
 		ℹ️ The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.\n`,
     ),
   );
+
   shell.echo(`\n${table.toString()}\n`);
 };
 
