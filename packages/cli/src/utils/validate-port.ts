@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import shell from "shelljs";
 
-const validatePort = (port: number) => {
+const validatePort = (port: string) => {
 	const portIsNumber = !isNaN(Number(port));
 	if (!portIsNumber) {
 		shell.echo(chalk.red("\n[Error] - Port (--port <port>) should be a valid number\n"));
