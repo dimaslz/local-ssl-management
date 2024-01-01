@@ -42,6 +42,7 @@ const cli = () => {
     .command("create <domain>")
     .description("Create domain")
     .option("-p, --port <port>", "Port where is running the application")
+    .option("-l, --location <location>", "Location where nginx will serve the application. By default is \"/\"")
     .action(onCreateAction);
 
   program

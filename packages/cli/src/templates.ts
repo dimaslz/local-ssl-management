@@ -1,41 +1,5 @@
 export default {
-	dockerfile: `FROM nginx
-
-# RUN rm -f /etc/nginx/conf.d/default.conf
-
-# WORKDIR /var/www/html
-# COPY index.html /var/www/html
-# RUN chmod 755 /var/www/html/index.html
-
-COPY #-main-path-#nginx.conf /etc/nginx/conf.d/
-
-#-certs-#
-
-COPY #-main-path-#ssl/localhost-key.pem /etc/nginx/
-COPY #-main-path-#ssl/localhost-cert.pem /etc/nginx/
-
-COPY #-main-path-#nginx.conf /etc/nginx/
-
-EXPOSE 80 443
-
-CMD ["nginx", "-g", "daemon off;"]`,
-	nginxConfServer: `server {
-		listen	443 ssl;
-
-		autoindex off;
-
-		access_log  /var/log/nginx/%APP_DOMAIN%.access.log;
-		error_log   /var/log/nginx/%APP_DOMAIN%.error.log;
-
-		server_tokens off;
-		server_name %SERVER_NAME%;
-
-		ssl_certificate     /etc/nginx/%APP_DOMAIN%-cert.pem;
-		ssl_certificate_key /etc/nginx/%APP_DOMAIN%-key.pem;
-
-		gzip_static on;
-
-		location / {
+	nginxLocation: `location %LOCATION% {
 				gzip on;
 				gzip_disable "msie6";
 				gzip_vary on;
@@ -57,8 +21,45 @@ CMD ["nginx", "-g", "daemon off;"]`,
 				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
 				expires off;
-		}
-}`,
+		}`,
+	dockerfile: `FROM nginx
+
+# RUN rm -f /etc/nginx/conf.d/default.conf
+
+# WORKDIR /var/www/html
+# COPY index.html /var/www/html
+# RUN chmod 755 /var/www/html/index.html
+
+COPY #-main-path-#nginx.conf /etc/nginx/conf.d/
+
+#-certs-#
+
+COPY #-main-path-#ssl/localhost-key.pem /etc/nginx/
+COPY #-main-path-#ssl/localhost-cert.pem /etc/nginx/
+
+COPY #-main-path-#nginx.conf /etc/nginx/
+
+EXPOSE 80 443
+
+CMD ["nginx", "-g", "daemon off;"]`,
+	nginxConfServer: `server {
+			listen	443 ssl;
+
+			autoindex off;
+
+			access_log  /var/log/nginx/%APP_DOMAIN%.access.log;
+			error_log   /var/log/nginx/%APP_DOMAIN%.error.log;
+
+			server_tokens off;
+			server_name %SERVER_NAME%;
+
+			ssl_certificate     /etc/nginx/%APP_DOMAIN%-cert.pem;
+			ssl_certificate_key /etc/nginx/%APP_DOMAIN%-key.pem;
+
+			gzip_static on;
+
+			#--server-location--#
+	}`,
 	nginxConf: `user  nginx;
 worker_processes  20;
 
