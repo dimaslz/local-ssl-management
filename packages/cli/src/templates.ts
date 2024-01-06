@@ -1,5 +1,5 @@
 export default {
-	nginxLocation: `location %LOCATION% {
+  nginxLocation: `location %LOCATION% {
 				gzip on;
 				gzip_disable "msie6";
 				gzip_vary on;
@@ -22,7 +22,7 @@ export default {
 				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
 				expires off;
 		}`,
-	dockerfile: `FROM nginx
+  dockerfile: `FROM nginx
 
 # RUN rm -f /etc/nginx/conf.d/default.conf
 
@@ -42,7 +42,7 @@ COPY #-main-path-#nginx.conf /etc/nginx/
 EXPOSE 80 443
 
 CMD ["nginx", "-g", "daemon off;"]`,
-	nginxConfServer: `server {
+  nginxConfServer: `server {
 			listen	443 ssl;
 
 			autoindex off;
@@ -60,7 +60,7 @@ CMD ["nginx", "-g", "daemon off;"]`,
 
 			#--server-location--#
 	}`,
-	nginxConf: `user  nginx;
+  nginxConf: `user  nginx;
 worker_processes  20;
 
 error_log  /var/log/nginx/error.log warn;
@@ -94,5 +94,5 @@ http {
 		}
 
 		#--server-config--#
-}`
-}
+}`,
+};
