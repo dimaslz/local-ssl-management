@@ -1,6 +1,7 @@
 node_modules/
 ssl/
 dist/
+build/
 .svelte-kit/
 .npmrc
 .tmp-dist

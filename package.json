@@ -9,6 +9,7 @@
     "reset:dependencies": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
     "app:dev": "yarn --cwd=./packages/app dev",
     "core:build": "yarn --cwd=./packages/core build",
+    "cli:lint": "yarn --cwd=./packages/cli lint",
     "cli:build": "yarn --cwd=./packages/cli build",
     "cli:publish": "yarn --cwd=./packages/cli to-publish",
     "cli:test": "yarn --cwd=./packages/cli test --reporter=verbose",

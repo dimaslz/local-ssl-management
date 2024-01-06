@@ -5,7 +5,7 @@
 /// <reference types="@sveltejs/kit" />
 
 /**
- * Environment variables [loaded by Vite](https://vitejs.dev/guide/env-and-mode.html#env-files) from `.env` files and `process.env`. Like [`$env/dynamic/private`](https://kit.svelte.dev/docs/modules#$env-dynamic-private), this module cannot be imported into client-side code. This module only includes variables that _do not_ begin with [`config.kit.env.publicPrefix`](https://kit.svelte.dev/docs/configuration#env).
+ * Environment variables [loaded by Vite](https://vitejs.dev/guide/env-and-mode.html#env-files) from `.env` files and `process.env`. Like [`$env/dynamic/private`](https://kit.svelte.dev/docs/modules#$env-dynamic-private), this module cannot be imported into client-side code. This module only includes variables that _do not_ begin with [`config.kit.env.publicPrefix`](https://kit.svelte.dev/docs/configuration#env) _and do_ start with [`config.kit.env.privatePrefix`](https://kit.svelte.dev/docs/configuration#env) (if configured).
  * 
  * _Unlike_ [`$env/dynamic/private`](https://kit.svelte.dev/docs/modules#$env-dynamic-private), the values exported from this module are statically injected into your bundle at build time, enabling optimisations like dead code elimination.
  * 
@@ -39,7 +39,6 @@ declare module '$env/static/private' {
 	export const ANDROID_HOME: string;
 	export const GEM_HOME: string;
 	export const npm_package_devDependencies_typescript: string;
-	export const npm_package_devDependencies__types_marked: string;
 	export const npm_package_homepage: string;
 	export const npm_config_version_git_tag: string;
 	export const SHELL: string;
@@ -49,8 +48,10 @@ declare module '$env/static/private' {
 	export const TMPDIR: string;
 	export const HOMEBREW_REPOSITORY: string;
 	export const IRBRC: string;
+	export const GRADLE_HOME: string;
 	export const npm_package_scripts_lint: string;
 	export const npm_config_init_license: string;
+	export const npm_config_email: string;
 	export const TERM_PROGRAM_VERSION: string;
 	export const npm_package_dependencies_set_cookie_parser: string;
 	export const npm_package_dependencies_cookie: string;
@@ -58,6 +59,7 @@ declare module '$env/static/private' {
 	export const ORIGINAL_XDG_CURRENT_DESKTOP: string;
 	export const ZDOTDIR: string;
 	export const MY_RUBY_HOME: string;
+	export const SDKMAN_PLATFORM: string;
 	export const npm_package_devDependencies_svelte_preprocess: string;
 	export const npm_config_registry: string;
 	export const ZSH: string;
@@ -72,6 +74,7 @@ declare module '$env/static/private' {
 	export const npm_package_dependencies_esm_env: string;
 	export const npm_package_license: string;
 	export const COMMAND_MODE: string;
+	export const SDKMAN_CANDIDATES_API: string;
 	export const npm_package_exports___import: string;
 	export const rvm_path: string;
 	export const npm_package_repository_directory: string;
@@ -90,20 +93,20 @@ declare module '$env/static/private' {
 	export const npm_package_scripts_postinstall: string;
 	export const npm_package_devDependencies_rollup: string;
 	export const npm_package_dependencies_magic_string: string;
+	export const LaunchInstanceID: string;
 	export const _: string;
 	export const __CFBundleIdentifier: string;
 	export const USER_ZDOTDIR: string;
 	export const PWD: string;
-	export const npm_package_devDependencies__types_mime: string;
+	export const JAVA_HOME: string;
 	export const npm_lifecycle_event: string;
 	export const LANG: string;
 	export const npm_package_types: string;
-	export const npm_package_devDependencies_marked: string;
 	export const npm_package_repository_type: string;
 	export const npm_package_name: string;
+	export const npm_package_scripts_generate_types: string;
 	export const npm_package_scripts_test_integration: string;
 	export const npm_package_devDependencies__types_connect: string;
-	export const npm_package_dependencies_mime: string;
 	export const npm_package_exports___node_polyfills_import: string;
 	export const npm_package_exports___types: string;
 	export const npm_config_version_commit_hooks: string;
@@ -111,6 +114,7 @@ declare module '$env/static/private' {
 	export const VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 	export const npm_package_scripts_test_cross_platform_dev: string;
 	export const npm_package_devDependencies_vitest: string;
+	export const npm_config_username: string;
 	export const npm_package_dependencies_tiny_glob: string;
 	export const npm_config_bin_links: string;
 	export const npm_package_engines_node: string;
@@ -124,6 +128,7 @@ declare module '$env/static/private' {
 	export const npm_package_dependencies_undici: string;
 	export const npm_package_type: string;
 	export const VSCODE_GIT_ASKPASS_MAIN: string;
+	export const npm_package_scripts_generate_version: string;
 	export const npm_package_scripts_test: string;
 	export const npm_package_scripts_check_all: string;
 	export const npm_package_exports___vite_types: string;
@@ -136,6 +141,7 @@ declare module '$env/static/private' {
 	export const LESS: string;
 	export const npm_package_scripts_format: string;
 	export const npm_package_peerDependencies_vite: string;
+	export const SDKMAN_DIR: string;
 	export const npm_lifecycle_script: string;
 	export const npm_package_peerDependencies_svelte: string;
 	export const GEM_PATH: string;
@@ -149,6 +155,7 @@ declare module '$env/static/private' {
 	export const npm_config_user_agent: string;
 	export const HOMEBREW_CELLAR: string;
 	export const INFOPATH: string;
+	export const SDKMAN_CANDIDATES_DIR: string;
 	export const GIT_ASKPASS: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
 	export const npm_package_files_2: string;
@@ -157,9 +164,11 @@ declare module '$env/static/private' {
 	export const npm_package_files_1: string;
 	export const npm_package_devDependencies_dts_buddy: string;
 	export const npm_package_files_0: string;
+	export const npm_package_dependencies_mrmime: string;
 	export const npm_package_dependencies_kleur: string;
 	export const npm_config_init_version: string;
 	export const npm_config_ignore_optional: string;
+	export const SECURITYSESSIONID: string;
 	export const RUBY_VERSION: string;
 	export const npm_package_exports___node_types: string;
 	export const npm_package_files_6: string;
@@ -186,7 +195,7 @@ declare module '$env/static/public' {
 }
 
 /**
- * This module provides access to runtime environment variables, as defined by the platform you're running on. For example if you're using [`adapter-node`](https://github.com/sveltejs/kit/tree/master/packages/adapter-node) (or running [`vite preview`](https://kit.svelte.dev/docs/cli)), this is equivalent to `process.env`. This module only includes variables that _do not_ begin with [`config.kit.env.publicPrefix`](https://kit.svelte.dev/docs/configuration#env).
+ * This module provides access to runtime environment variables, as defined by the platform you're running on. For example if you're using [`adapter-node`](https://github.com/sveltejs/kit/tree/master/packages/adapter-node) (or running [`vite preview`](https://kit.svelte.dev/docs/cli)), this is equivalent to `process.env`. This module only includes variables that _do not_ begin with [`config.kit.env.publicPrefix`](https://kit.svelte.dev/docs/configuration#env) _and do_ start with [`config.kit.env.privatePrefix`](https://kit.svelte.dev/docs/configuration#env) (if configured).
  * 
  * This module cannot be imported into client-side code.
  * 
@@ -212,7 +221,6 @@ declare module '$env/dynamic/private' {
 		ANDROID_HOME: string;
 		GEM_HOME: string;
 		npm_package_devDependencies_typescript: string;
-		npm_package_devDependencies__types_marked: string;
 		npm_package_homepage: string;
 		npm_config_version_git_tag: string;
 		SHELL: string;
@@ -222,8 +230,10 @@ declare module '$env/dynamic/private' {
 		TMPDIR: string;
 		HOMEBREW_REPOSITORY: string;
 		IRBRC: string;
+		GRADLE_HOME: string;
 		npm_package_scripts_lint: string;
 		npm_config_init_license: string;
+		npm_config_email: string;
 		TERM_PROGRAM_VERSION: string;
 		npm_package_dependencies_set_cookie_parser: string;
 		npm_package_dependencies_cookie: string;
@@ -231,6 +241,7 @@ declare module '$env/dynamic/private' {
 		ORIGINAL_XDG_CURRENT_DESKTOP: string;
 		ZDOTDIR: string;
 		MY_RUBY_HOME: string;
+		SDKMAN_PLATFORM: string;
 		npm_package_devDependencies_svelte_preprocess: string;
 		npm_config_registry: string;
 		ZSH: string;
@@ -245,6 +256,7 @@ declare module '$env/dynamic/private' {
 		npm_package_dependencies_esm_env: string;
 		npm_package_license: string;
 		COMMAND_MODE: string;
+		SDKMAN_CANDIDATES_API: string;
 		npm_package_exports___import: string;
 		rvm_path: string;
 		npm_package_repository_directory: string;
@@ -263,20 +275,20 @@ declare module '$env/dynamic/private' {
 		npm_package_scripts_postinstall: string;
 		npm_package_devDependencies_rollup: string;
 		npm_package_dependencies_magic_string: string;
+		LaunchInstanceID: string;
 		_: string;
 		__CFBundleIdentifier: string;
 		USER_ZDOTDIR: string;
 		PWD: string;
-		npm_package_devDependencies__types_mime: string;
+		JAVA_HOME: string;
 		npm_lifecycle_event: string;
 		LANG: string;
 		npm_package_types: string;
-		npm_package_devDependencies_marked: string;
 		npm_package_repository_type: string;
 		npm_package_name: string;
+		npm_package_scripts_generate_types: string;
 		npm_package_scripts_test_integration: string;
 		npm_package_devDependencies__types_connect: string;
-		npm_package_dependencies_mime: string;
 		npm_package_exports___node_polyfills_import: string;
 		npm_package_exports___types: string;
 		npm_config_version_commit_hooks: string;
@@ -284,6 +296,7 @@ declare module '$env/dynamic/private' {
 		VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 		npm_package_scripts_test_cross_platform_dev: string;
 		npm_package_devDependencies_vitest: string;
+		npm_config_username: string;
 		npm_package_dependencies_tiny_glob: string;
 		npm_config_bin_links: string;
 		npm_package_engines_node: string;
@@ -297,6 +310,7 @@ declare module '$env/dynamic/private' {
 		npm_package_dependencies_undici: string;
 		npm_package_type: string;
 		VSCODE_GIT_ASKPASS_MAIN: string;
+		npm_package_scripts_generate_version: string;
 		npm_package_scripts_test: string;
 		npm_package_scripts_check_all: string;
 		npm_package_exports___vite_types: string;
@@ -309,6 +323,7 @@ declare module '$env/dynamic/private' {
 		LESS: string;
 		npm_package_scripts_format: string;
 		npm_package_peerDependencies_vite: string;
+		SDKMAN_DIR: string;
 		npm_lifecycle_script: string;
 		npm_package_peerDependencies_svelte: string;
 		GEM_PATH: string;
@@ -322,6 +337,7 @@ declare module '$env/dynamic/private' {
 		npm_config_user_agent: string;
 		HOMEBREW_CELLAR: string;
 		INFOPATH: string;
+		SDKMAN_CANDIDATES_DIR: string;
 		GIT_ASKPASS: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
 		npm_package_files_2: string;
@@ -330,9 +346,11 @@ declare module '$env/dynamic/private' {
 		npm_package_files_1: string;
 		npm_package_devDependencies_dts_buddy: string;
 		npm_package_files_0: string;
+		npm_package_dependencies_mrmime: string;
 		npm_package_dependencies_kleur: string;
 		npm_config_init_version: string;
 		npm_config_ignore_optional: string;
+		SECURITYSESSIONID: string;
 		RUBY_VERSION: string;
 		npm_package_exports___node_types: string;
 		npm_package_files_6: string;
@@ -344,7 +362,7 @@ declare module '$env/dynamic/private' {
 		npm_package_files_4: string;
 		npm_config_version_tag_prefix: string;
 		[key: `PUBLIC_${string}`]: undefined;
-		[key: string]: string | undefined;
+		[key: `${string}`]: string | undefined;
 	}
 }
 

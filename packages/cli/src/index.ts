@@ -1,10 +1,10 @@
 #! /usr/bin/env node
 
+import { dockerExists, mkcertExists } from "@dimaslz/local-ssl-management-core";
+import { Command } from "commander";
 import fs from "fs";
 import path from "path";
-import { Command } from 'commander';
 
-import { dockerExists, mkcertExists } from "@dimaslz/local-ssl-management-core";
 import onCreateAction from "./on-create-action";
 import onListAction from "./on-list-action";
 import onRemoveAction from "./on-remove-action";
@@ -16,11 +16,11 @@ const createBaseFolders = () => {
   const sslPath = `${rootPath}/ssl`;
 
   if (!fs.existsSync(rootPath)) {
-    fs.mkdirSync(rootPath, { recursive: true })
+    fs.mkdirSync(rootPath, { recursive: true });
   }
 
   if (!fs.existsSync(sslPath)) {
-    fs.mkdirSync(sslPath, { recursive: true })
+    fs.mkdirSync(sslPath, { recursive: true });
   }
 
   const configPath = `${rootPath}/config.json`;
@@ -28,7 +28,7 @@ const createBaseFolders = () => {
   if (!fs.existsSync(configPath)) {
     fs.writeFileSync(configPath, "[]");
   }
-}
+};
 
 const cli = () => {
   createBaseFolders();
@@ -42,13 +42,13 @@ const cli = () => {
     .command("create <domain>")
     .description("Create domain")
     .option("-p, --port <port>", "Port where is running the application")
-    .option("-l, --location <location>", "Location where nginx will serve the application. By default is \"/\"")
+    .option(
+      "-l, --location <location>",
+      'Location where nginx will serve the application. By default is "/"',
+    )
     .action(onCreateAction);
 
-  program
-    .command("list")
-    .description("List domains")
-    .action(onListAction);
+  program.command("list").description("List domains").action(onListAction);
 
   program
     .command("update <domain|id>")
@@ -62,6 +62,6 @@ const cli = () => {
     .action(onRemoveAction);
 
   program.parse();
-}
+};
 
 cli();

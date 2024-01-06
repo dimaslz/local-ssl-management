@@ -136,3 +136,15 @@ Common methods and functions to use in `app` and `cli`. At the moment not very u
 * [https://api.dimaslz.dev](https://api.dimaslz.dev): My professional info by API
 * [https://dimaslz.dev](https://dimaslz.dev): Dev landing
 * [https://dimaslz.com](https://dimaslz.com): Profesional landing profile
+
+
+<!-- NOTES -->
+
+<!-- current config -->
+cat /opt/homebrew/opt/.n/lib/node_modules/@dimaslz/local-ssl-management-cli/dist/.local-ssl-management/config.json
+<!-- Dockerfile config -->
+cat /opt/homebrew/opt/.n/lib/node_modules/@dimaslz/local-ssl-management-cli/dist/.local-ssl-management/Dockerfile
+<!-- SSL certs -->
+ls -al /opt/homebrew/opt/.n/lib/node_modules/@dimaslz/local-ssl-management-cli/dist/.local-ssl-management/ssl
+<!-- Nginx config -->
+cat /opt/homebrew/opt/.n/lib/node_modules/@dimaslz/local-ssl-management-cli/dist/.local-ssl-management/nginx.conf
