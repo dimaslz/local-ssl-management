@@ -16,9 +16,6 @@
   "files": [
     "src"
   ],
-  "publishConfig": {
-    "registry": "https://registry.yarnpkg.com"
-  },
   "scripts": {
     "build": "tsc && vite build"
   },

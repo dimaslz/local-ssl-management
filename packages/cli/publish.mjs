@@ -106,7 +106,7 @@ const run = async () => {
     }
 
     rimrafSync("dist");
-    shell.exec("yarn build");
+    shell.exec("npm run build");
 
     if (fs.existsSync("package.json")) {
       fs.writeFileSync("publish/package.json", JSON.stringify(pckg, null, 2));

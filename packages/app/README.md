@@ -105,7 +105,7 @@ The script will work but, if your application is not running, the domain with no
 
 **#4 - Run the script**:
 
-`yarn up`
+`npm run up`
 
 The script will:
 
@@ -121,6 +121,6 @@ Go you your application local domain: [https://local.your-domain.com](https://lo
 
 ## Use by application
 
-Just init the frontend application running the command `yarn dev` and access to [http://localhost:5173](http://localhost:5173) and manage the certificates by UI.
+Just init the frontend application running the command `npm run dev` and access to [http://localhost:5173](http://localhost:5173) and manage the certificates by UI.
 
 ![alt text](/app-screenshot.png)

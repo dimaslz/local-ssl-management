@@ -9,12 +9,12 @@
   ],
   "scripts": {
     "reset:dependencies": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "app:dev": "yarn --cwd=./packages/app dev",
-    "core:build": "yarn --cwd=./packages/core build",
-    "cli:lint": "yarn --cwd=./packages/cli lint",
-    "cli:build": "yarn --cwd=./packages/cli build",
-    "cli:publish": "yarn --cwd=./packages/cli to-publish",
-    "cli:test": "yarn --cwd=./packages/cli test $npm_config_path --reporter=verbose",
-    "cli:test-coverage": "yarn --cwd=./packages/cli test run --reporter=verbose --coverage"
+    "app:dev": "npm run --workspace=./packages/app dev",
+    "core:build": "npm run --workspace=./packages/core build",
+    "cli:lint": "npm run --workspace=./packages/cli lint",
+    "cli:build": "npm run --workspace=./packages/cli build",
+    "cli:publish": "npm run --workspace=./packages/cli to-publish",
+    "cli:test": "npm run --workspace=./packages/cli test $npm_config_path --reporter=verbose",
+    "cli:test-coverage": "npm run --workspace=./packages/cli test run --reporter=verbose --coverage"
   }
 }
