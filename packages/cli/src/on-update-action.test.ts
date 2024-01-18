@@ -1,3 +1,4 @@
+import consola from "consola";
 import fs from "fs";
 import shell from "shelljs";
 
@@ -5,12 +6,7 @@ import onUpdateAction from "./on-update-action";
 import validatePort from "./utils/validate-port";
 
 vi.mock("./utils/validate-port");
-vi.mock("fs");
-vi.mock("shelljs");
-vi.mock("@dimaslz/local-ssl-management-core", () => ({
-  mkcert: vi.fn(),
-  getLocalIP: vi.fn(() => "192.168.0.0"),
-}));
+
 vi.mock("./list-container");
 vi.mock("path", () => ({
   default: {
@@ -18,25 +14,8 @@ vi.mock("path", () => ({
   },
 }));
 
-vi.mock("chalk", async () => ({
-  default: {
-    green: vi.fn((v) => v),
-    red: vi.fn((v) => v),
-  },
-}));
-
 describe("On update action", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.resetModules();
-  });
-
   describe("failures", () => {
-    beforeEach(() => {
-      vi.clearAllMocks();
-      vi.resetModules();
-    });
-
     test("update domain by wrong domain name", () => {
       const domain = "foo-domain.com";
       const port = "3333";
@@ -61,17 +40,14 @@ describe("On update action", () => {
         ),
       );
 
-      vi.spyOn(shell, "exit").mockImplementationOnce(() => {
-        throw new Error();
-      });
-
       expect(() => {
         onUpdateAction(domain, { port });
       }).toThrow();
 
-      expect(shell.echo).toBeCalledWith(
-        '\n[Error] - Domain "foo-domain.com" does not exists\n',
+      expect(consola.error).toBeCalledWith(
+        new Error('Domain "foo-domain.com" does not exists'),
       );
+
       expect(shell.exit).toBeCalledWith(1);
     });
     test("update domain by wrong id", () => {
@@ -98,16 +74,14 @@ describe("On update action", () => {
         ),
       );
 
-      vi.spyOn(shell, "exit").mockImplementationOnce(() => {
-        throw new Error();
-      });
-
       expect(() => {
         onUpdateAction(domain, { port });
       }).toThrow();
 
-      expect(shell.echo).toBeCalledWith(
-        '\n[Error] - Domain with key "48d1a85c-377a-40ef-8a82-d1405f7a0722" does not exists\n',
+      expect(consola.error).toBeCalledWith(
+        new Error(
+          'Domain with key "48d1a85c-377a-40ef-8a82-d1405f7a0722" does not exists',
+        ),
       );
       expect(shell.exit).toBeCalledWith(1);
     });
@@ -140,16 +114,12 @@ describe("On update action", () => {
         onUpdateAction(domain, { port });
       }).toThrow();
 
-      expect(shell.echo).toBeCalledWith("\n[Error] - Location is mandatory\n");
+      expect(consola.error).toBeCalledWith(new Error("Location is mandatory"));
       expect(shell.exit).toBeCalledWith(1);
     });
 
     test("location does not exists on replace", () => {
       const domain = "48d1a85c-377a-40ef-8a82-d1405f7a074f";
-
-      vi.spyOn(shell, "exit").mockImplementationOnce(() => {
-        throw new Error();
-      });
 
       vi.spyOn(fs, "readFileSync").mockReturnValue(
         JSON.stringify(
@@ -175,18 +145,14 @@ describe("On update action", () => {
         onUpdateAction(domain, { location: "/not-exists,/app-name" });
       }).toThrow();
 
-      expect(shell.echo).toBeCalledWith(
-        '\n[Error] - Location "/not-exists" does not exists\n',
+      expect(consola.error).toBeCalledWith(
+        new Error('Location "/not-exists" does not exists'),
       );
       expect(shell.exit).toBeCalledWith(1);
     });
 
     test("location does not exists on update", () => {
       const domain = "48d1a85c-377a-40ef-8a82-d1405f7a074f";
-
-      vi.spyOn(shell, "exit").mockImplementationOnce(() => {
-        throw new Error();
-      });
 
       vi.spyOn(fs, "readFileSync").mockReturnValue(
         JSON.stringify(
@@ -212,8 +178,8 @@ describe("On update action", () => {
         onUpdateAction(domain, { location: "/app-name" });
       }).toThrow();
 
-      expect(shell.echo).toBeCalledWith(
-        '\n[Error] - Location "/app-name" does not exists\n',
+      expect(consola.error).toBeCalledWith(
+        new Error('Location "/app-name" does not exists'),
       );
       expect(shell.exit).toBeCalledWith(1);
     });
@@ -248,7 +214,7 @@ describe("On update action", () => {
         onUpdateAction(domain, { location: "/" });
       }).toThrow();
 
-      expect(shell.echo).toBeCalledWith("\n[Error] - Port is mandatory\n");
+      expect(consola.error).toBeCalledWith(new Error("Port is mandatory"));
       expect(shell.exit).toBeCalledWith(1);
     });
   });
@@ -299,14 +265,8 @@ describe("On update action", () => {
 
         expect(validatePort).toBeCalled();
 
-        expect(shell.echo).nthCalledWith(
-          1,
-          "\n[Success] - 🎉 Domain updated succesful.\n",
-        );
-        expect(shell.echo).nthCalledWith(
-          2,
-          "\n[Action] - 🔄 Updating proxy image.\n",
-        );
+        expect(consola.success).nthCalledWith(1, "Domain updated succesful");
+        expect(consola.success).nthCalledWith(2, "Updating proxy image");
 
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
@@ -375,14 +335,8 @@ describe("On update action", () => {
 
         expect(validatePort).toBeCalled();
 
-        expect(shell.echo).nthCalledWith(
-          1,
-          "\n[Success] - 🎉 Domain updated succesful.\n",
-        );
-        expect(shell.echo).nthCalledWith(
-          2,
-          "\n[Action] - 🔄 Updating proxy image.\n",
-        );
+        expect(consola.success).nthCalledWith(1, "Domain updated succesful");
+        expect(consola.success).nthCalledWith(2, "Updating proxy image");
 
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
@@ -452,14 +406,8 @@ describe("On update action", () => {
 
         expect(validatePort).toBeCalled();
 
-        expect(shell.echo).nthCalledWith(
-          1,
-          "\n[Success] - 🎉 Domain updated succesful.\n",
-        );
-        expect(shell.echo).nthCalledWith(
-          2,
-          "\n[Action] - 🔄 Updating proxy image.\n",
-        );
+        expect(consola.success).nthCalledWith(1, "Domain updated succesful");
+        expect(consola.success).nthCalledWith(2, "Updating proxy image");
 
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
@@ -527,14 +475,8 @@ describe("On update action", () => {
 
         expect(validatePort).toBeCalled();
 
-        expect(shell.echo).nthCalledWith(
-          1,
-          "\n[Success] - 🎉 Domain updated succesful.\n",
-        );
-        expect(shell.echo).nthCalledWith(
-          2,
-          "\n[Action] - 🔄 Updating proxy image.\n",
-        );
+        expect(consola.success).nthCalledWith(1, "Domain updated succesful");
+        expect(consola.success).nthCalledWith(2, "Updating proxy image");
 
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
@@ -605,14 +547,8 @@ describe("On update action", () => {
 
         expect(validatePort).toBeCalled();
 
-        expect(shell.echo).nthCalledWith(
-          1,
-          "\n[Success] - 🎉 Domain updated succesful.\n",
-        );
-        expect(shell.echo).nthCalledWith(
-          2,
-          "\n[Action] - 🔄 Updating proxy image.\n",
-        );
+        expect(consola.success).nthCalledWith(1, "Domain updated succesful");
+        expect(consola.success).nthCalledWith(2, "Updating proxy image");
 
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(

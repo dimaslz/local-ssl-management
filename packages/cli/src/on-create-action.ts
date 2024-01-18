@@ -1,5 +1,5 @@
 import type { Config } from "@dimaslz/local-ssl-management-core";
-import chalk from "chalk";
+import consola from "consola";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
@@ -64,22 +64,20 @@ const onCreateAction = (
 
   if (domainExists && locationExists) {
     if (location === "/") {
-      shell.echo(
-        chalk.red(
-          `\n[Error] - Domain "${domain}" already created with the default location "${location}"\n`,
+      consola.error(
+        new Error(
+          `Domain "${domain}" already created with the default location "${location}"`,
         ),
       );
     } else {
-      shell.echo(
-        chalk.red(`\n[Error] - Location "${location}" already exists\n`),
-      );
+      consola.error(new Error(`Location "${location}" already exists`));
     }
 
     shell.exit(1);
   }
 
   if (domainExists && locationExists) {
-    shell.echo(chalk.red(`\n[Error] - Domain "${domain}" already exists\n`));
+    consola.error(new Error(`Domain "${domain}" already exists`));
     shell.exit(1);
   }
 
@@ -88,7 +86,7 @@ const onCreateAction = (
     false;
 
   if (portExists) {
-    shell.echo(chalk.red(`\n[Error] - Port "${port}" already exists\n`));
+    consola.error(new Error(`Port "${port}" already exists`));
     shell.exit(1);
   }
 

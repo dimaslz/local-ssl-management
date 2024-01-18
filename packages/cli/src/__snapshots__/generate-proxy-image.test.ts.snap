@@ -64,7 +64,7 @@ http {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:4000/$2;
+				proxy_pass http://11.22.33.445:4000/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -88,7 +88,7 @@ location ~ ^/app-name(/?)(.*) {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:3000/$2;
+				proxy_pass http://11.22.33.445:3000/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -147,11 +147,6 @@ exports[`Generate proxy image > success > multiple service > create domain confi
   "calls": [
     [
       "
-SSL proxy running
-",
-    ],
-    [
-      "
 [90m┌──────────────────[39m[90m┬─────────────┐[39m
 [90m│[39m[31m domain           [39m[90m│[39m[31m app running [39m[90m│[39m
 [90m├──────────────────[39m[90m┼─────────────┤[39m
@@ -161,10 +156,6 @@ SSL proxy running
     ],
   ],
   "results": [
-    {
-      "type": "return",
-      "value": undefined,
-    },
     {
       "type": "return",
       "value": undefined,
@@ -237,7 +228,7 @@ http {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:4000/$2;
+				proxy_pass http://11.22.33.445:4000/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -261,7 +252,7 @@ location ~ ^/app-name(/?)(.*) {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:3000/$2;
+				proxy_pass http://11.22.33.445:3000/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -320,11 +311,6 @@ exports[`Generate proxy image > success > multiple service > create domain confi
   "calls": [
     [
       "
-SSL proxy running
-",
-    ],
-    [
-      "
 [90m┌──────────────────[39m[90m┬─────────────┐[39m
 [90m│[39m[31m domain           [39m[90m│[39m[31m app running [39m[90m│[39m
 [90m├──────────────────[39m[90m┼─────────────┤[39m
@@ -334,10 +320,6 @@ SSL proxy running
     ],
   ],
   "results": [
-    {
-      "type": "return",
-      "value": undefined,
-    },
     {
       "type": "return",
       "value": undefined,
@@ -410,7 +392,7 @@ http {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:4000/$2;
+				proxy_pass http://11.22.33.445:4000/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -434,7 +416,7 @@ location ~ ^/app-name(/?)(.*) {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:3000/$2;
+				proxy_pass http://11.22.33.445:3000/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -493,11 +475,6 @@ exports[`Generate proxy image > success > multiple service > does not exists loc
   "calls": [
     [
       "
-SSL proxy running
-",
-    ],
-    [
-      "
 [90m┌──────────────────[39m[90m┬─────────────┐[39m
 [90m│[39m[31m domain           [39m[90m│[39m[31m app running [39m[90m│[39m
 [90m├──────────────────[39m[90m┼─────────────┤[39m
@@ -507,10 +484,6 @@ SSL proxy running
     ],
   ],
   "results": [
-    {
-      "type": "return",
-      "value": undefined,
-    },
     {
       "type": "return",
       "value": undefined,
@@ -583,7 +556,7 @@ http {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:4000/$2;
+				proxy_pass http://11.22.33.445:4000/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -642,11 +615,6 @@ exports[`Generate proxy image > success > single service > create domain config 
   "calls": [
     [
       "
-SSL proxy running
-",
-    ],
-    [
-      "
 [90m┌──────────────────[39m[90m┬─────────────┐[39m
 [90m│[39m[31m domain           [39m[90m│[39m[31m app running [39m[90m│[39m
 [90m├──────────────────[39m[90m┼─────────────┤[39m
@@ -656,10 +624,6 @@ SSL proxy running
     ],
   ],
   "results": [
-    {
-      "type": "return",
-      "value": undefined,
-    },
     {
       "type": "return",
       "value": undefined,
@@ -732,7 +696,7 @@ http {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:4000/$2;
+				proxy_pass http://11.22.33.445:4000/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -791,11 +755,6 @@ exports[`Generate proxy image > success > single service > create domain config 
   "calls": [
     [
       "
-SSL proxy running
-",
-    ],
-    [
-      "
 [90m┌──────────────────[39m[90m┬─────────────┐[39m
 [90m│[39m[31m domain           [39m[90m│[39m[31m app running [39m[90m│[39m
 [90m├──────────────────[39m[90m┼─────────────┤[39m
@@ -805,10 +764,6 @@ SSL proxy running
     ],
   ],
   "results": [
-    {
-      "type": "return",
-      "value": undefined,
-    },
     {
       "type": "return",
       "value": undefined,
@@ -881,7 +836,7 @@ http {
 				gzip_http_version 1.1;
 				gzip_min_length 256;
 				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
-				proxy_pass http://192.168.0.0:3000/$2;
+				proxy_pass http://11.22.33.445:3000/$2;
 				proxy_redirect off;
 				proxy_http_version 1.1;
 				proxy_cache_bypass $http_upgrade;
@@ -940,11 +895,6 @@ exports[`Generate proxy image > success > single service > does not exists local
   "calls": [
     [
       "
-SSL proxy running
-",
-    ],
-    [
-      "
 [90m┌────────────────────[39m[90m┬─────────────┐[39m
 [90m│[39m[31m domain             [39m[90m│[39m[31m app running [39m[90m│[39m
 [90m├────────────────────[39m[90m┼─────────────┤[39m
@@ -954,10 +904,6 @@ SSL proxy running
     ],
   ],
   "results": [
-    {
-      "type": "return",
-      "value": undefined,
-    },
     {
       "type": "return",
       "value": undefined,

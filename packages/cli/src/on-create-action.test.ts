@@ -1,32 +1,15 @@
+import consola from "consola";
 import crypto from "crypto";
 import fs from "fs";
-import shell, { ShellString } from "shelljs";
+import shell from "shelljs";
 
 import onCreateAction from "./on-create-action";
 
-vi.mock("shelljs");
 vi.mock("./list-container");
-vi.mock("@dimaslz/local-ssl-management-core", async () => {
-  return {
-    getLocalIP: () => "11.22.33.445",
-    mkcert: vi.fn(),
-  };
-});
-vi.mock("fs");
-vi.mock("chalk", async () => ({
-  default: {
-    green: vi.fn((v) => v),
-    red: vi.fn((v) => v),
-  },
-}));
 
 describe("On create action", () => {
   beforeEach(() => {
     vi.spyOn(fs, "readFileSync").mockReturnValue("[]");
-    vi.spyOn(shell, "echo").mockImplementation((v) => ShellString(v));
-    vi.spyOn(shell, "exit").mockImplementation(() => {
-      throw new Error();
-    });
     vi.spyOn(fs, "existsSync").mockReturnValueOnce(true);
   });
 
@@ -38,8 +21,9 @@ describe("On create action", () => {
       expect(() => {
         onCreateAction(domain, { port });
       }).toThrow();
-      expect(shell.echo).toHaveBeenCalledWith(
-        "\n[Error] - Domain (https://wrong.domain) format is not valid\n",
+
+      expect(consola.error).toBeCalledWith(
+        new Error("Domain (https://wrong.domain) format is not valid"),
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
@@ -52,8 +36,10 @@ describe("On create action", () => {
         onCreateAction(domain, { port });
       }).toThrow();
 
-      expect(shell.echo).toHaveBeenCalledWith(
-        "\n[Error] - Port (--port <port>) should be into the range 1025 to 65535\n",
+      expect(consola.error).toBeCalledWith(
+        new Error(
+          "Port (--port <port>) should be into the range 1025 to 65535",
+        ),
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
@@ -94,8 +80,8 @@ describe("On create action", () => {
         onCreateAction(domain, { port, location });
       }).toThrow();
 
-      expect(shell.echo).toHaveBeenCalledWith(
-        `\n[Error] - Location "/app-name" already exists\n`,
+      expect(consola.error).toBeCalledWith(
+        new Error('Location "/app-name" already exists'),
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
@@ -134,8 +120,10 @@ describe("On create action", () => {
         onCreateAction(domain, {});
       }).toThrow();
 
-      expect(shell.echo).toHaveBeenCalledWith(
-        `\n[Error] - Domain "some-domain.com" already created with the default location "/"\n`,
+      expect(consola.error).toBeCalledWith(
+        new Error(
+          'Domain "some-domain.com" already created with the default location "/"',
+        ),
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
@@ -143,8 +131,6 @@ describe("On create action", () => {
 
   describe("success", () => {
     beforeEach(() => {
-      vi.clearAllMocks();
-
       vi.spyOn(fs, "mkdirSync");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.spyOn(fs, "readdirSync").mockImplementationOnce((): any[] => [
@@ -308,8 +294,10 @@ describe("On create action", () => {
           onCreateAction(domain, { port });
         }).toThrow();
 
-        expect(shell.echo).toHaveBeenCalledWith(
-          `\n[Error] - Domain "some-domain.com" already created with the default location "/"\n`,
+        expect(consola.error).toBeCalledWith(
+          new Error(
+            'Domain "some-domain.com" already created with the default location "/"',
+          ),
         );
         expect(shell.exit).toHaveBeenCalledWith(1);
       });
@@ -495,8 +483,10 @@ describe("On create action", () => {
           onCreateAction(domain, { port });
         }).toThrow();
 
-        expect(shell.echo).toHaveBeenCalledWith(
-          `\n[Error] - Domain "some-domain.com" already created with the default location "/"\n`,
+        expect(consola.error).toBeCalledWith(
+          new Error(
+            'Domain "some-domain.com" already created with the default location "/"',
+          ),
         );
         expect(shell.exit).toHaveBeenCalledWith(1);
       });

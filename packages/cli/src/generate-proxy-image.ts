@@ -1,7 +1,7 @@
 import type { Config } from "@dimaslz/local-ssl-management-core";
 import { getLocalIP, mkcert } from "@dimaslz/local-ssl-management-core";
-import chalk from "chalk";
 import Table from "cli-table3";
+import consola from "consola";
 import fs from "fs";
 import path from "path";
 import shell from "shelljs";
@@ -40,7 +40,7 @@ const renderTable = (config: Config[]) => {
 
 const generateProxyImage = (config: Config[]) => {
   if (!config.length) {
-    shell.echo("\n[Info] - Does not exists config to create reverse proxy\n");
+    consola.warn("Does not exists config to create reverse proxy");
     shell.exit(1);
   }
 
@@ -142,7 +142,7 @@ docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
 
   listContainer();
 
-  shell.echo(chalk.green("\nSSL proxy running\n"));
+  consola.success("SSL proxy running");
 
   renderTable(config);
 };

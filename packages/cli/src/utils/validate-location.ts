@@ -1,6 +1,10 @@
+import consola from "consola";
+import shell from "shelljs";
+
 const validateLocation = (location: string) => {
   if (!location.startsWith("/")) {
-    throw new Error("Location should start by /");
+    consola.error(new Error("Location should start by /"));
+    shell.exit(1);
   }
 };
 

@@ -1,5 +1,5 @@
 import type { Config } from "@dimaslz/local-ssl-management-core";
-import chalk from "chalk";
+import consola from "consola";
 import fs from "fs";
 import path from "path";
 import shell from "shelljs";
@@ -33,11 +33,9 @@ const onRemoveAction = (
 
   if (!exists) {
     if (isUUID) {
-      shell.echo(
-        chalk.red(`\n[Error] - Domain with id "${_domain}" does not exists\n`),
-      );
+      consola.error(new Error(`Domain with id "${_domain}" does not exists`));
     } else {
-      shell.echo(chalk.red(`\n[Error] - Domain "${domain}" does not exists\n`));
+      consola.error(new Error(`Domain "${domain}" does not exists`));
     }
 
     shell.exit(1);
@@ -57,9 +55,7 @@ const onRemoveAction = (
     );
 
     if (!locationExists) {
-      shell.echo(
-        chalk.red(`\n[Error] - Location "${location}" does not exists\n`),
-      );
+      consola.error(new Error(`Location "${location}" does not exists`));
       shell.exit(1);
     }
 
@@ -102,8 +98,8 @@ const onRemoveAction = (
 
   fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
 
-  shell.echo(chalk.green("\n[Success] - 🎉 Domain removed succesful.\n"));
-  shell.echo(chalk.green("\n[Action] - 🔄 Updating proxy image.\n"));
+  consola.success("Domain removed succesful.");
+  consola.success("Updating proxy image.");
 
   generateProxyImage(newConfig);
 };

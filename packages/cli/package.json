@@ -2,7 +2,6 @@
   "name": "@dimaslz/local-ssl-management-cli",
   "version": "1.0.0",
   "description": "Manage local SSL certificates though a Docker Nginx proxy",
-  "type": "module",
   "author": {
     "email": "me@dimaslz.io",
     "name": "Dimas López <dimaslz>",
@@ -49,6 +48,7 @@
     "chalk": "^5.3.0",
     "cli-table3": "^0.6.3",
     "commander": "^11.1.0",
+    "consola": "^3.2.3",
     "is-url-http": "^2.3.7",
     "prompts": "^2.4.2",
     "semver": "^7.5.4",

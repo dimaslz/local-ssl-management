@@ -1,21 +1,9 @@
+import consola from "consola";
 import shell from "shelljs";
 
 import listContainer from "./list-container";
 
-vi.mock("chalk", async () => ({
-  default: {
-    green: vi.fn((v) => v),
-    red: vi.fn((v) => v),
-  },
-}));
-
-vi.mock("shelljs");
-
 describe("List container", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe("success", () => {
     test("commmand found local-ssl-management container running", async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,7 +16,12 @@ describe("List container", () => {
 
       listContainer();
 
-      expect(shell.echo).toHaveBeenCalledTimes(2);
+      expect(consola.info).toBeCalledWith("The local ssl proxy is running.");
+      expect(consola.box).toBeCalledWith(
+        "The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.",
+      );
+
+      expect(shell.echo).toHaveBeenCalledTimes(1);
       expect(shell.echo).toMatchSnapshot();
     });
   });
@@ -43,15 +36,13 @@ describe("List container", () => {
         };
       });
 
-      vi.spyOn(shell, "exit").mockImplementation(() => {
-        throw new Error();
-      });
-
       expect(() => {
         listContainer();
       }).toThrow();
 
-      expect(shell.echo).toBeCalledTimes(1);
+      expect(consola.error).toBeCalledWith(
+        new Error("Something have been failure. Contact with the author."),
+      );
       expect(shell.exit).toBeCalledTimes(1);
     });
   });

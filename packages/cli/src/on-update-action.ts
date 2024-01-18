@@ -1,5 +1,5 @@
 import { Config } from "@dimaslz/local-ssl-management-core";
-import chalk from "chalk";
+import consola from "consola";
 import fs from "fs";
 import path from "path";
 import shell from "shelljs";
@@ -29,11 +29,9 @@ const onUpdateAction = (domain: string, options: Options) => {
 
   if (!exists) {
     if (isUUID) {
-      shell.echo(
-        chalk.red(`\n[Error] - Domain with key "${domain}" does not exists\n`),
-      );
+      consola.error(new Error(`Domain with key "${domain}" does not exists`));
     } else {
-      shell.echo(chalk.red(`\n[Error] - Domain "${domain}" does not exists\n`));
+      consola.error(new Error(`Domain "${domain}" does not exists`));
     }
 
     shell.exit(1);
@@ -43,7 +41,8 @@ const onUpdateAction = (domain: string, options: Options) => {
   const { location } = options;
 
   if (!location) {
-    shell.echo(chalk.red(`\n[Error] - Location is mandatory\n`));
+    consola.error(new Error(`Location is mandatory`));
+
     shell.exit(1);
   }
 
@@ -65,9 +64,8 @@ const onUpdateAction = (domain: string, options: Options) => {
     );
 
     if (!oldLocationExists) {
-      shell.echo(
-        chalk.red(`\n[Error] - Location "${oldLocation}" does not exists\n`),
-      );
+      consola.error(new Error(`Location "${oldLocation}" does not exists`));
+
       shell.exit(1);
     }
   } else {
@@ -76,9 +74,8 @@ const onUpdateAction = (domain: string, options: Options) => {
     );
 
     if (!locationExists) {
-      shell.echo(
-        chalk.red(`\n[Error] - Location "${location}" does not exists\n`),
-      );
+      consola.error(new Error(`Location "${location}" does not exists`));
+
       shell.exit(1);
     }
   }
@@ -110,8 +107,8 @@ const onUpdateAction = (domain: string, options: Options) => {
 
   fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
 
-  shell.echo(chalk.green("\n[Success] - 🎉 Domain updated succesful.\n"));
-  shell.echo(chalk.green("\n[Action] - 🔄 Updating proxy image.\n"));
+  consola.success("Domain updated succesful");
+  consola.success("Updating proxy image");
 
   generateProxyImage(newConfig);
 };

@@ -1,27 +1,15 @@
+import consola from "consola";
 import shell from "shelljs";
 
 import validatePort from "./validate-port";
 
-vi.mock("shelljs");
-
-vi.mock("chalk", async () => ({
-  default: {
-    green: vi.fn((v) => v),
-    red: vi.fn((v) => v),
-  },
-}));
-
 describe("Validate port", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  describe("valid", () => {
+  describe("success", () => {
     const ports = [["1025"], ["3000"], ["65535"]];
     test.each(ports)("Port %s is valid", (port) => {
       validatePort(port);
 
-      expect(shell.echo).not.toBeCalled();
+      expect(consola.error).not.toBeCalled();
       expect(shell.exit).not.toHaveBeenCalledWith(1);
     });
   });
@@ -30,21 +18,19 @@ describe("Validate port", () => {
     const ports = [["foo"], ["333"], ["1024"], ["70000"]];
 
     test.each(ports)("Port %s is not valid", (port) => {
-      vi.spyOn(shell, "exit").mockImplementation(() => {
-        throw new Error();
-      });
-
       expect(() => {
         validatePort(port);
       }).toThrow();
 
       if (Number(port)) {
-        expect(shell.echo).toBeCalledWith(
-          "\n[Error] - Port (--port <port>) should be into the range 1025 to 65535\n",
+        expect(consola.error).toBeCalledWith(
+          new Error(
+            "Port (--port <port>) should be into the range 1025 to 65535",
+          ),
         );
       } else {
-        expect(shell.echo).toBeCalledWith(
-          "\n[Error] - Port (--port <port>) should be a valid number\n",
+        expect(consola.error).toBeCalledWith(
+          new Error("Port (--port <port>) should be a valid number"),
         );
       }
       expect(shell.exit).toHaveBeenCalledWith(1);

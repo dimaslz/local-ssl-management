@@ -5,13 +5,6 @@ exports[`List container > success > commmand found local-ssl-management containe
   "calls": [
     [
       "
-The local ssl proxy is running.
-
-		ℹ️ The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.
-",
-    ],
-    [
-      "
 [90m┌──────────────[39m[90m┬──────────────────────[39m[90m┬──────────────────────────────────────────┐[39m
 [90m│[39m[31m container id [39m[90m│[39m[31m container image      [39m[90m│[39m[31m port                                     [39m[90m│[39m
 [90m├──────────────[39m[90m┼──────────────────────[39m[90m┼──────────────────────────────────────────┤[39m
@@ -21,10 +14,6 @@ The local ssl proxy is running.
     ],
   ],
   "results": [
-    {
-      "type": "return",
-      "value": undefined,
-    },
     {
       "type": "return",
       "value": undefined,

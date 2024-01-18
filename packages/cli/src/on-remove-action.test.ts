@@ -1,52 +1,20 @@
+import consola from "consola";
 import crypto from "crypto";
 import fs from "fs";
 import shell from "shelljs";
 
+import generateProxyImage from "./generate-proxy-image";
 import onRemoveAction from "./on-remove-action";
 
 vi.mock("./list-container");
+vi.mock("./generate-proxy-image");
 vi.mock("path", () => ({
   default: {
     resolve: () => "/root/path",
   },
 }));
 
-vi.mock("fs");
-vi.mock("shelljs", async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const actual: any = await vi.importActual("shelljs");
-
-  return {
-    ...actual,
-    default: {
-      exec: vi.fn((v) => v),
-      echo: vi.fn((v) => v),
-      exit: vi.fn((v) => v),
-    },
-  };
-});
-vi.mock("chalk", async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const actual: any = await vi.importActual("chalk");
-
-  return {
-    default: {
-      ...actual,
-      green: vi.fn((v) => v),
-      red: vi.fn((v) => v),
-    },
-  };
-});
-
 describe("On remove action", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-
-    vi.spyOn(shell, "exit").mockImplementation(() => {
-      throw new Error();
-    });
-  });
-
   describe("failure", () => {
     test("removing domain by name does not exists", () => {
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify([]));
@@ -55,8 +23,8 @@ describe("On remove action", () => {
         onRemoveAction("dummy");
       }).toThrow();
 
-      expect(shell.echo).toHaveBeenCalledWith(
-        `\n[Error] - Domain "dummy" does not exists\n`,
+      expect(consola.error).toBeCalledWith(
+        new Error('Domain "dummy" does not exists'),
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
@@ -68,8 +36,10 @@ describe("On remove action", () => {
         onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
       }).toThrow();
 
-      expect(shell.echo).toHaveBeenCalledWith(
-        `\n[Error] - Domain with id "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26" does not exists\n`,
+      expect(consola.error).toBeCalledWith(
+        new Error(
+          'Domain with id "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26" does not exists',
+        ),
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
@@ -101,8 +71,8 @@ describe("On remove action", () => {
         });
       }).toThrow();
 
-      expect(shell.echo).toHaveBeenCalledWith(
-        `\n[Error] - Location "/something" does not exists\n`,
+      expect(consola.error).toBeCalledWith(
+        new Error('Location "/something" does not exists'),
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
@@ -127,9 +97,7 @@ describe("On remove action", () => {
         ]),
       );
 
-      expect(() => {
-        onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
-      }).toThrow();
+      onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
 
       // unlink
       expect(fs.unlinkSync).toHaveBeenCalledTimes(2);
@@ -142,21 +110,10 @@ describe("On remove action", () => {
         expect.stringMatching(/.*?\/local.some-domain.tld-key.pem$/g),
       );
 
-      // shell echo's
-      expect(shell.echo).toHaveBeenCalledTimes(3);
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        1,
-        `\n[Success] - 🎉 Domain removed succesful.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        2,
-        `\n[Action] - 🔄 Updating proxy image.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        3,
-        `\n[Info] - Does not exists config to create reverse proxy\n`,
-      );
-      expect(shell.exit).toBeCalledWith(1);
+      expect(consola.success).nthCalledWith(1, "Domain removed succesful.");
+      expect(consola.success).nthCalledWith(2, "Updating proxy image.");
+
+      expect(generateProxyImage).toBeCalled();
     });
 
     test("remove domain by name", () => {
@@ -177,9 +134,7 @@ describe("On remove action", () => {
         ]),
       );
 
-      expect(() => {
-        onRemoveAction("local.some-domain.tld");
-      }).toThrow();
+      onRemoveAction("local.some-domain.tld");
 
       expect(fs.existsSync).toHaveBeenCalledTimes(2);
       expect(fs.existsSync).toHaveBeenNthCalledWith(
@@ -213,15 +168,10 @@ describe("On remove action", () => {
         JSON.stringify([], null, 2),
       );
 
-      expect(shell.echo).toHaveBeenCalledTimes(3);
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        1,
-        `\n[Success] - 🎉 Domain removed succesful.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        2,
-        `\n[Action] - 🔄 Updating proxy image.\n`,
-      );
+      expect(consola.success).nthCalledWith(1, "Domain removed succesful.");
+      expect(consola.success).nthCalledWith(2, "Updating proxy image.");
+
+      expect(generateProxyImage).toBeCalled();
     });
 
     test("remove multiple domain by name", () => {
@@ -249,9 +199,7 @@ describe("On remove action", () => {
 
       crypto.randomUUID = vi.fn(() => "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
 
-      expect(() => {
-        onRemoveAction("demo.com_demo.es");
-      }).toThrow();
+      onRemoveAction("demo.com_demo.es");
 
       expect(fs.existsSync).toHaveBeenCalledTimes(2);
       expect(fs.existsSync).toHaveBeenNthCalledWith(
@@ -275,15 +223,10 @@ describe("On remove action", () => {
         JSON.stringify([], null, 2),
       );
 
-      expect(shell.echo).toHaveBeenCalledTimes(3);
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        1,
-        `\n[Success] - 🎉 Domain removed succesful.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        2,
-        `\n[Action] - 🔄 Updating proxy image.\n`,
-      );
+      expect(consola.success).nthCalledWith(1, "Domain removed succesful.");
+      expect(consola.success).nthCalledWith(2, "Updating proxy image.");
+
+      expect(generateProxyImage).toBeCalled();
     });
 
     test("remove multiple domain by domain id", () => {
@@ -311,9 +254,7 @@ describe("On remove action", () => {
 
       crypto.randomUUID = vi.fn(() => "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
 
-      expect(() => {
-        onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
-      }).toThrow();
+      onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
 
       expect(fs.existsSync).toHaveBeenCalledTimes(2);
       expect(fs.existsSync).toHaveBeenNthCalledWith(
@@ -337,22 +278,19 @@ describe("On remove action", () => {
         JSON.stringify([], null, 2),
       );
 
-      expect(shell.echo).toHaveBeenCalledTimes(3);
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        1,
-        `\n[Success] - 🎉 Domain removed succesful.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        2,
-        `\n[Action] - 🔄 Updating proxy image.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        3,
-        `\n[Info] - Does not exists config to create reverse proxy\n`,
-      );
+      expect(consola.success).nthCalledWith(1, "Domain removed succesful.");
+      expect(consola.success).nthCalledWith(2, "Updating proxy image.");
+
+      expect(generateProxyImage).toBeCalled();
     });
 
     test("remove location", () => {
+      vi.spyOn(shell, "exec")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .mockImplementationOnce((): any => ({
+          stdout: 200,
+        }));
+
       vi.spyOn(fs, "existsSync").mockReturnValue(true);
       vi.spyOn(fs, "readFileSync").mockReturnValue(
         JSON.stringify([
@@ -381,7 +319,7 @@ describe("On remove action", () => {
         location: "/app-name",
       });
 
-      expect(fs.existsSync).toHaveBeenCalledTimes(6);
+      expect(fs.existsSync).toHaveBeenCalledTimes(2);
       expect(fs.existsSync).toHaveBeenNthCalledWith(
         1,
         expect.stringMatching(/.*?\/demo.com_demo.es-cert.pem$/g),
@@ -391,7 +329,7 @@ describe("On remove action", () => {
         expect.stringMatching(/.*?\/demo.com_demo.es-key.pem$/g),
       );
 
-      expect(fs.writeFileSync).toBeCalledTimes(3);
+      expect(fs.writeFileSync).toBeCalledTimes(1);
       expect(fs.writeFileSync).toHaveBeenNthCalledWith(
         1,
         expect.stringMatching(/.*?\/\.local-ssl-management\/config.json$/g),
@@ -414,17 +352,10 @@ describe("On remove action", () => {
         ),
       );
 
-      expect(shell.echo).toHaveBeenCalledTimes(4);
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        1,
-        `\n[Success] - 🎉 Domain removed succesful.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        2,
-        `\n[Action] - 🔄 Updating proxy image.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(3, `\nSSL proxy running\n`);
-      expect(shell.echo).toMatchSnapshot();
+      expect(consola.success).nthCalledWith(1, "Domain removed succesful.");
+      expect(consola.success).nthCalledWith(2, "Updating proxy image.");
+
+      expect(generateProxyImage).toBeCalled();
     });
   });
 });

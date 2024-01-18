@@ -1,4 +1,5 @@
 import type { Config } from "@dimaslz/local-ssl-management-core";
+import consola from "consola";
 import fs from "fs";
 import path from "path";
 import shell from "shelljs";
@@ -15,7 +16,7 @@ const onListAction = () => {
   );
 
   if (!config.length) {
-    shell.echo(`\nDoes not exists configs yet.\n`);
+    consola.box("Does not exists configs yet.");
     shell.exit(1);
   }
 

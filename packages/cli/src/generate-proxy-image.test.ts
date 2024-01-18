@@ -1,16 +1,11 @@
 import { mkcert } from "@dimaslz/local-ssl-management-core";
+import consola from "consola";
 import fs from "fs";
 import shell from "shelljs";
 
 import generateProxyImage from "./generate-proxy-image";
 import listContainer from "./list-container";
 
-vi.mock("fs");
-vi.mock("shelljs");
-vi.mock("@dimaslz/local-ssl-management-core", () => ({
-  mkcert: vi.fn(),
-  getLocalIP: vi.fn(() => "192.168.0.0"),
-}));
 vi.mock("./list-container");
 vi.mock("path", () => ({
   default: {
@@ -18,32 +13,19 @@ vi.mock("path", () => ({
   },
 }));
 
-vi.mock("chalk", async () => ({
-  default: {
-    green: vi.fn((v) => v),
-    red: vi.fn((v) => v),
-  },
-}));
-
 describe("Generate proxy image", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-
     vi.spyOn(fs, "existsSync").mockReturnValue(false);
   });
 
   describe("failure", () => {
     test("does not exists config to create reverse proxy", () => {
-      vi.spyOn(shell, "exit").mockImplementation(() => {
-        throw new Error();
-      });
-
       expect(() => {
         generateProxyImage([]);
       }).toThrow();
 
-      expect(shell.echo).toBeCalledWith(
-        "\n[Info] - Does not exists config to create reverse proxy\n",
+      expect(consola.warn).toBeCalledWith(
+        "Does not exists config to create reverse proxy",
       );
       expect(shell.exit).toBeCalledWith(1);
     });
@@ -110,8 +92,8 @@ describe("Generate proxy image", () => {
 
         expect(listContainer).toBeCalled();
 
-        expect(shell.echo).toBeCalledTimes(2);
-        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
+        expect(consola.success).toBeCalledWith("SSL proxy running");
+        expect(shell.echo).toBeCalledTimes(1);
         expect(shell.echo).toMatchSnapshot();
       });
 
@@ -168,8 +150,7 @@ describe("Generate proxy image", () => {
 
         expect(listContainer).toBeCalled();
 
-        expect(shell.echo).toBeCalledTimes(2);
-        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
+        expect(consola.success).toBeCalledWith("SSL proxy running");
 
         expect(shell.exec).nthCalledWith(
           2,
@@ -177,6 +158,7 @@ describe("Generate proxy image", () => {
           { silent: true },
         );
 
+        expect(shell.echo).toBeCalledTimes(1);
         expect(shell.echo).toMatchSnapshot();
       });
 
@@ -226,8 +208,7 @@ describe("Generate proxy image", () => {
 
         expect(listContainer).toBeCalled();
 
-        expect(shell.echo).toBeCalledTimes(2);
-        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
+        expect(consola.success).toBeCalledWith("SSL proxy running");
 
         expect(shell.exec).nthCalledWith(
           2,
@@ -235,6 +216,7 @@ describe("Generate proxy image", () => {
           { silent: true },
         );
 
+        expect(shell.echo).toBeCalledTimes(1);
         expect(shell.echo).toMatchSnapshot();
       });
     });
@@ -305,8 +287,8 @@ describe("Generate proxy image", () => {
 
         expect(listContainer).toBeCalled();
 
-        expect(shell.echo).toBeCalledTimes(2);
-        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
+        expect(consola.success).toBeCalledWith("SSL proxy running");
+        expect(shell.echo).toBeCalledTimes(1);
         expect(shell.echo).toMatchSnapshot();
       });
 
@@ -368,8 +350,7 @@ describe("Generate proxy image", () => {
 
         expect(listContainer).toBeCalled();
 
-        expect(shell.echo).toBeCalledTimes(2);
-        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
+        expect(consola.success).toBeCalledWith("SSL proxy running");
 
         expect(shell.exec).nthCalledWith(
           2,
@@ -377,6 +358,7 @@ describe("Generate proxy image", () => {
           { silent: true },
         );
 
+        expect(shell.echo).toBeCalledTimes(1);
         expect(shell.echo).toMatchSnapshot();
       });
 
@@ -425,8 +407,7 @@ describe("Generate proxy image", () => {
         );
         expect(listContainer).toBeCalled();
 
-        expect(shell.echo).toBeCalledTimes(2);
-        expect(shell.echo).nthCalledWith(1, "\nSSL proxy running\n");
+        expect(consola.success).toBeCalledWith("SSL proxy running");
 
         expect(shell.exec).nthCalledWith(
           2,
@@ -434,6 +415,7 @@ describe("Generate proxy image", () => {
           { silent: true },
         );
 
+        expect(shell.echo).toBeCalledTimes(1);
         expect(shell.echo).toMatchSnapshot();
       });
     });
