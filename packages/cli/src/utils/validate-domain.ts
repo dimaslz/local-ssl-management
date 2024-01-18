@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import consola from "consola";
 import isUrlHttp from "is-url-http";
 import shell from "shelljs";
 
@@ -14,9 +14,7 @@ const validateDomain = (value: string) => {
     }
 
     if (!isUrlHttp(domain)) {
-      shell.echo(
-        chalk.red(`\n[Error] - Domain (${domainItem})format is not valid\n`),
-      );
+      consola.error(new Error(`Domain (${domainItem}) format is not valid`));
       shell.exit(1);
     }
   });

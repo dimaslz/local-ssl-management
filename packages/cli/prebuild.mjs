@@ -19,6 +19,13 @@ const prebuild = async () => {
   if (!fs.existsSync(".local-ssl-management/ssl")) {
     fs.mkdirSync("dist/.local-ssl-management/ssl", { recursive: true });
   }
+
+  if (!fs.existsSync(".local-ssl-management/config.json")) {
+    fs.writeFileSync(
+      "dist/.local-ssl-management/config.json",
+      JSON.stringify([], null, 2),
+    );
+  }
 };
 
 if (process.env.CI) {

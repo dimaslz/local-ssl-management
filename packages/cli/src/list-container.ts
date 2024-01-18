@@ -1,5 +1,5 @@
-import chalk from "chalk";
-import Table from "cli-table";
+import Table from "cli-table3";
+import consola from "consola";
 import shell from "shelljs";
 
 const listContainer = () => {
@@ -18,10 +18,8 @@ const listContainer = () => {
       .find((line) => /local-ssl-management/.test(line)) || "";
 
   if (!containerData) {
-    shell.echo(
-      chalk.red(
-        "[Error] - Something have been failure. Contact with the author.",
-      ),
+    consola.error(
+      new Error("Something have been failure. Contact with the author."),
     );
     shell.exit(1);
   }
@@ -31,12 +29,11 @@ const listContainer = () => {
     .map((i) => i.trim());
   table.push([containerId, containerName, ports]);
 
-  shell.echo(
-    chalk.green(
-      `\nThe local ssl proxy is running.\n
-		ℹ️ The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.\n`,
-    ),
+  consola.info("The local ssl proxy is running.");
+  consola.box(
+    "The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.",
   );
+
   shell.echo(`\n${table.toString()}\n`);
 };
 

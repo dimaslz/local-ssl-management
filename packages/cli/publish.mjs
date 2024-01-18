@@ -1,7 +1,5 @@
-import ncc from "@vercel/ncc";
 import cpy from "cpy";
 import fs from "fs";
-import path from "path";
 import prompts from "prompts";
 import { rimrafSync } from "rimraf";
 import semver from "semver";
@@ -108,7 +106,7 @@ const run = async () => {
     }
 
     rimrafSync("dist");
-    shell.exec("yarn build");
+    shell.exec("npm run build");
 
     if (fs.existsSync("package.json")) {
       fs.writeFileSync("publish/package.json", JSON.stringify(pckg, null, 2));

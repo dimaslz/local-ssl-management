@@ -1,7 +1,7 @@
 import type { Config } from "@dimaslz/local-ssl-management-core";
 import { getLocalIP, mkcert } from "@dimaslz/local-ssl-management-core";
-import chalk from "chalk";
-import Table from "cli-table";
+import Table from "cli-table3";
+import consola from "consola";
 import fs from "fs";
 import path from "path";
 import shell from "shelljs";
@@ -14,7 +14,36 @@ const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;
 const sslPath = `${rootPath}/ssl`;
 
+const renderTable = (config: Config[]) => {
+  const tablePing = new Table({
+    head: ["domain", "app running"],
+  });
+
+  config.forEach((c: Config) => {
+    c.domain
+      .split(",")
+      .map((d) => d.trim())
+      .forEach((domain) => {
+        const curl = `curl -s -o /dev/null -w "%{http_code}" https://${domain}`;
+        const status = shell.exec(curl, { silent: true }).stdout;
+
+        if (status === "200") {
+          tablePing.push([`https://${domain}`, "yes"]);
+        } else {
+          tablePing.push([`https://${domain}`, "no"]);
+        }
+      });
+  });
+
+  shell.echo(`\n${tablePing.toString()}\n`);
+};
+
 const generateProxyImage = (config: Config[]) => {
+  if (!config.length) {
+    consola.warn("Does not exists config to create reverse proxy");
+    shell.exit(1);
+  }
+
   const localhostCertExists = fs.existsSync(sslPath + "/localhost-cert.pem");
   const localhostKeyExists = fs.existsSync(sslPath + "/localhost-key.pem");
 
@@ -51,18 +80,17 @@ const generateProxyImage = (config: Config[]) => {
     const nginxLocationTpl: string = Templates.nginxLocation;
 
     // setup location
-    let locationConfigs = c.location
-      .split(",")
-      .map((locationConfig) => {
+    let locationConfigs = c.services
+      .map((service) => {
         return nginxLocationTpl
-          .replace("%LOCATION%", locationConfig)
+          .replace("%LOCATION%", service.location)
           .replace("%LOCAL_IP%", LOCAL_IP);
       })
       .join("\n\n");
 
     // setup ports
-    c.port.split(",").forEach((port) => {
-      locationConfigs = locationConfigs.replace("%PORT%", String(port));
+    c.services.forEach((service) => {
+      locationConfigs = locationConfigs.replace("%PORT%", String(service.port));
     });
 
     return nginxConfServerTpl
@@ -83,7 +111,6 @@ const generateProxyImage = (config: Config[]) => {
     `\t\t${serverConfigs.join("\n")}`,
   );
 
-  // console.log("nginxConf", nginxConf)
   const nginxConfDest = `${rootPath}/nginx.conf`;
   fs.writeFileSync(nginxConfDest, nginxConf);
 
@@ -106,56 +133,18 @@ COPY ${d.cert} /etc/nginx/`;
 
   shell.exec(
     `NAME=local-ssl-management && \
-		docker rm -f $NAME && \
-		docker rmi -f $NAME && \
-		docker build --no-cache -t $NAME ${rootPath} && \
-		docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
+docker rm -f $NAME && \
+docker rmi -f $NAME && \
+docker build --no-cache -t $NAME ${rootPath} && \
+docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
     { silent: true },
   );
 
   listContainer();
 
-  shell.echo(chalk.green("\nSSL proxy running\n"));
+  consola.success("SSL proxy running");
 
-  const tablePing = new Table({
-    head: ["domain", "app running"],
-    chars: {
-      top: "",
-      "top-mid": "",
-      "top-left": "",
-      "top-right": "",
-      bottom: "",
-      "bottom-mid": "",
-      "bottom-left": "",
-      "bottom-right": "",
-      left: "",
-      "left-mid": "",
-      mid: "",
-      "mid-mid": "",
-      right: "",
-      "right-mid": "",
-      middle: " ",
-    },
-    style: { "padding-left": 0, "padding-right": 0 },
-  });
-
-  config.forEach((c: Config) => {
-    c.domain
-      .split(",")
-      .map((d) => d.trim())
-      .forEach((domain) => {
-        const curl = `curl -s -o /dev/null -w "%{http_code}" https://${domain}`;
-        const status = shell.exec(curl, { silent: true }).stdout;
-
-        if (status === "200") {
-          tablePing.push([`https://${domain}`, "✅"]);
-        } else {
-          tablePing.push([`https://${domain}`, "❌"]);
-        }
-      });
-  });
-
-  shell.echo(`\n${tablePing.toString()}\n`);
+  renderTable(config);
 };
 
 export default generateProxyImage;

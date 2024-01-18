@@ -5,6 +5,10 @@ export type Config = {
 		cert: string;
 		key: string;
 	},
-	port: number;
+	services: {
+		id: string;
+		port: string;
+		location: string;
+	}[],
 	nginxConf?: null | string;
 }

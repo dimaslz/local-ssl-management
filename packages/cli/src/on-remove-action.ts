@@ -1,17 +1,21 @@
 import type { Config } from "@dimaslz/local-ssl-management-core";
-import chalk from "chalk";
+import consola from "consola";
 import fs from "fs";
 import path from "path";
 import shell from "shelljs";
 
 import generateProxyImage from "./generate-proxy-image";
-
 const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;
 const configPath = `${rootPath}/config.json`;
 const sslPath = `${rootPath}/ssl`;
 
-const onRemoveAction = (_domain: string) => {
+const onRemoveAction = (
+  _domain: string,
+  options: { port?: string; location?: string } = {},
+) => {
+  const { location } = options;
+
   const config: Config[] = JSON.parse(
     fs.readFileSync(configPath, { encoding: "utf8" }) || "[]",
   );
@@ -29,19 +33,46 @@ const onRemoveAction = (_domain: string) => {
 
   if (!exists) {
     if (isUUID) {
-      shell.echo(
-        chalk.red(`\n[Error] - Domain with id "${_domain}" does not exists\n`),
-      );
+      consola.error(new Error(`Domain with id "${_domain}" does not exists`));
     } else {
-      shell.echo(chalk.red(`\n[Error] - Domain "${domain}" does not exists\n`));
+      consola.error(new Error(`Domain "${domain}" does not exists`));
     }
 
     shell.exit(1);
   }
 
-  const newConfig = isUUID
-    ? config.filter((c) => c.id !== _domain)
-    : config.filter((c) => c.domain !== domain);
+  const byLocation = !!location;
+
+  let newConfig = config;
+
+  if (byLocation) {
+    const domainIndex = config.findIndex(
+      (c) => (isUUID && c.id === domain) || c.domain === domain,
+    );
+
+    const locationExists = config[domainIndex].services.some(
+      (service) => service.location === location,
+    );
+
+    if (!locationExists) {
+      consola.error(new Error(`Location "${location}" does not exists`));
+      shell.exit(1);
+    }
+
+    newConfig = config.map((c, cIndex) => {
+      if (domainIndex === cIndex) {
+        c.services = c.services.filter(
+          (service) => service.location !== location,
+        );
+      }
+
+      return c;
+    });
+  } else {
+    newConfig = isUUID
+      ? config.filter((c) => c.id !== _domain)
+      : config.filter((c) => c.domain !== domain);
+  }
 
   const domainData = config.find((c) => {
     if (isUUID) {
@@ -67,8 +98,8 @@ const onRemoveAction = (_domain: string) => {
 
   fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
 
-  shell.echo(chalk.green("\n[Success] - 🎉 Domain removed succesful.\n"));
-  shell.echo(chalk.green("\n[Action] - 🔄 Updating proxy image.\n"));
+  consola.success("Domain removed succesful.");
+  consola.success("Updating proxy image.");
 
   generateProxyImage(newConfig);
 };

@@ -1,7 +1,9 @@
 import type * as Kit from '@sveltejs/kit';
 
 type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
-type RouteParams = { domain: string }
+// @ts-ignore
+type MatcherParam<M> = M extends (param : string) => param is infer U ? U extends string ? U : string : string;
+type RouteParams = { domain: string };
 type RouteId = '/api/config/[domain]';
 
 export type EntryGenerator = () => Promise<Array<RouteParams>> | Array<RouteParams>;

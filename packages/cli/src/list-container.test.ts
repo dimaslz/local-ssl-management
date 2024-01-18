@@ -1,25 +1,13 @@
+import consola from "consola";
 import shell from "shelljs";
-import { SpyInstance } from "vitest";
 
 import listContainer from "./list-container";
 
-vi.mock("chalk", async () => ({
-  default: {
-    green: vi.fn((v) => v),
-    red: vi.fn((v) => v),
-  },
-}));
-
-vi.mock("shelljs");
-
 describe("List container", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe("success", () => {
     test("commmand found local-ssl-management container running", async () => {
-      (vi.spyOn(shell, "exec") as SpyInstance).mockImplementation(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (vi.spyOn(shell, "exec") as any).mockImplementation(() => {
         return {
           stdout:
             "XXXXXXXXXXXX | local-ssl-management | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp",
@@ -28,43 +16,34 @@ describe("List container", () => {
 
       listContainer();
 
-      expect(shell.echo).toHaveBeenCalledTimes(2);
+      expect(consola.info).toBeCalledWith("The local ssl proxy is running.");
+      expect(consola.box).toBeCalledWith(
+        "The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.",
+      );
 
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        1,
-        `\nThe local ssl proxy is running.\n
-		ℹ️ The local ssl proxy is running. Keep it mind that it is important to the local domains that works through HTTPS.\n`,
-      );
-      expect(shell.echo).toHaveBeenNthCalledWith(
-        2,
-        `
-┌──────────────┬──────────────────────┬──────────────────────────────────────────┐
-│ container id │ container image      │ port                                     │
-├──────────────┼──────────────────────┼──────────────────────────────────────────┤
-│ XXXXXXXXXXXX │ local-ssl-management │ 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp │
-└──────────────┴──────────────────────┴──────────────────────────────────────────┘
-`,
-      );
+      expect(shell.echo).toHaveBeenCalledTimes(1);
+      expect(shell.echo).toMatchSnapshot();
     });
   });
 
   describe("failure", () => {
     test("some error happen", () => {
-      (vi.spyOn(shell, "exec") as SpyInstance).mockImplementation(() => ({
-        stdout:
-          "XXXXXXXXXXXX | something | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp",
-      }));
-
-      vi.spyOn(shell, "exit").mockImplementation(() => {
-        throw new Error();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (vi.spyOn(shell, "exec") as any).mockImplementation(() => {
+        return {
+          stdout:
+            "XXXXXXXXXXXX | something | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp",
+        };
       });
 
       expect(() => {
         listContainer();
       }).toThrow();
 
-      expect(shell.echo).toHaveBeenCalled();
-      expect(shell.exit).toHaveBeenCalled();
+      expect(consola.error).toBeCalledWith(
+        new Error("Something have been failure. Contact with the author."),
+      );
+      expect(shell.exit).toBeCalledTimes(1);
     });
   });
 });

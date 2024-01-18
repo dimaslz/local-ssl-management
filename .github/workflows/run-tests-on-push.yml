@@ -26,11 +26,8 @@
           with:
             node-version: "16.20.0"
         -
-          name: "Install yarn"
-          run: "npm install -g yarn"
-        -
           name: "Install dependencies"
-          run: "yarn install"
+          run: "npm install"
         -
           name: "Cache"
           uses: "actions/cache@main"
@@ -55,7 +52,7 @@
             key: "${{ github.sha }}-cache"
         -
           name: "Build core package"
-          run: "yarn core:build"
+          run: "npm run core:build"
         -
           name: "Run tests"
-          run: "yarn cli:test-coverage"
+          run: "npm run cli:test-coverage"

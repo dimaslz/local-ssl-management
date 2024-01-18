@@ -1,5 +1,5 @@
 import { Config } from "@dimaslz/local-ssl-management-core";
-import chalk from "chalk";
+import consola from "consola";
 import fs from "fs";
 import path from "path";
 import shell from "shelljs";
@@ -11,7 +11,9 @@ const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;
 const configPath = `${rootPath}/config.json`;
 
-const onUpdateAction = (domain: string, options: { port: number }) => {
+type Options = { port?: string; location?: string };
+
+const onUpdateAction = (domain: string, options: Options) => {
   const config: Config[] = JSON.parse(
     fs.readFileSync(configPath, { encoding: "utf8" }) || "[]",
   );
@@ -27,23 +29,77 @@ const onUpdateAction = (domain: string, options: { port: number }) => {
 
   if (!exists) {
     if (isUUID) {
-      shell.echo(
-        chalk.red(`\n[Error] - Domain with key "${domain}" does not exists\n`),
-      );
+      consola.error(new Error(`Domain with key "${domain}" does not exists`));
     } else {
-      shell.echo(chalk.red(`\n[Error] - Domain "${domain}" does not exists\n`));
+      consola.error(new Error(`Domain "${domain}" does not exists`));
     }
 
     shell.exit(1);
   }
 
-  const { port } = options;
+  let { port } = options;
+  const { location } = options;
 
-  validatePort(port);
+  if (!location) {
+    consola.error(new Error(`Location is mandatory`));
 
-  const newConfig = config.map((c) => {
-    if ((isUUID && c.id === domain) || c.domain === domain) {
-      c.port = port;
+    shell.exit(1);
+  }
+
+  const domainIndex = config.findIndex(
+    (c) => (isUUID && c.id === domain) || c.domain === domain,
+  );
+
+  if (location.includes(",")) {
+    const [oldLocation] = location.split(",");
+
+    if (!port) {
+      port = config[domainIndex].services.find(
+        (service) => service.location === oldLocation,
+      )?.port;
+    }
+
+    const oldLocationExists = config[domainIndex].services.some(
+      (service) => service.location === oldLocation,
+    );
+
+    if (!oldLocationExists) {
+      consola.error(new Error(`Location "${oldLocation}" does not exists`));
+
+      shell.exit(1);
+    }
+  } else {
+    const locationExists = config[domainIndex].services.some(
+      (service) => service.location === location,
+    );
+
+    if (!locationExists) {
+      consola.error(new Error(`Location "${location}" does not exists`));
+
+      shell.exit(1);
+    }
+  }
+
+  if (port) {
+    validatePort(port);
+  }
+
+  const newConfig = config.map((c, cIndex) => {
+    if (domainIndex === cIndex) {
+      c.services.map((service) => {
+        if (location?.includes(",")) {
+          const [oldLocation, newLocation] = location.split(",");
+
+          if (service.location === oldLocation) {
+            service.location = newLocation;
+            service.port = port || service.port;
+          }
+        }
+
+        if (service.location === location && port) {
+          service.port = port;
+        }
+      });
     }
 
     return c;
@@ -51,8 +107,8 @@ const onUpdateAction = (domain: string, options: { port: number }) => {
 
   fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
 
-  shell.echo(chalk.green("\n[Success] - 🎉 Domain removed succesful.\n"));
-  shell.echo(chalk.green("\n[Action] - 🔄 Updating proxy image.\n"));
+  consola.success("Domain updated succesful");
+  consola.success("Updating proxy image");
 
   generateProxyImage(newConfig);
 };

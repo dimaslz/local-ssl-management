@@ -1,52 +1,32 @@
+import consola from "consola";
 import shell from "shelljs";
 
 import validateDomain from "./validate-domain";
 
-vi.mock("shelljs");
-
-vi.mock("chalk", async () => ({
-  default: {
-    green: vi.fn((v) => v),
-    red: vi.fn((v) => v),
-  },
-}));
-
 describe("Validate domain", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe("wrong TLD", () => {
     test("domain with wrong TLD should not be acceptable", () => {
-      vi.spyOn(shell, "exit").mockImplementation(() => {
-        throw new Error();
-      });
-
       const domain = "your-domain.FAKE_TLD";
 
       expect(() => {
         validateDomain(domain);
       }).toThrow();
 
-      expect(shell.echo).toBeCalledWith(
-        `\n[Error] - Domain (https://your-domain.FAKE_TLD)format is not valid\n`,
+      expect(consola.error).toBeCalledWith(
+        new Error("Domain (https://your-domain.FAKE_TLD) format is not valid"),
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
 
     test("domain with not allowed characters should not be acceptable", () => {
-      vi.spyOn(shell, "exit").mockImplementation(() => {
-        throw new Error();
-      });
-
       const domain = "your!domain.com";
 
       expect(() => {
         validateDomain(domain);
       }).toThrow();
 
-      expect(shell.echo).toBeCalledWith(
-        "\n[Error] - Domain (https://your!domain.com)format is not valid\n",
+      expect(consola.error).toBeCalledWith(
+        new Error("Domain (https://your!domain.com) format is not valid"),
       );
       expect(shell.exit).toHaveBeenCalledWith(1);
     });
