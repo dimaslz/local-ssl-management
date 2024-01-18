@@ -24,7 +24,7 @@
           name: "Set up NodeJS"
           uses: "actions/setup-node@master"
           with:
-            node-version: "16.20.0"
+            node-version: "18"
         -
           name: "Install dependencies"
           run: "npm install"
@@ -43,7 +43,7 @@
           name: "Set up NodeJS"
           uses: "actions/setup-node@master"
           with:
-            node-version: "16.20.0"
+            node-version: "18"
         -
           name: "Cache"
           uses: "actions/cache@main"
