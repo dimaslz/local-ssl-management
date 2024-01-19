@@ -3,7 +3,6 @@ import consola from "consola";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
-import shell from "shelljs";
 
 import generateProxyImage from "./generate-proxy-image";
 import { validateDomain, validateLocation, validatePort } from "./utils";
@@ -65,20 +64,19 @@ const onCreateAction = (
   if (domainExists && locationExists) {
     if (location === "/") {
       consola.error(
-        new Error(
-          `Domain "${domain}" already created with the default location "${location}"`,
-        ),
+        `Domain "${domain}" already created with the default location "${location}"`,
       );
     } else {
-      consola.error(new Error(`Location "${location}" already exists`));
+      consola.error(`Location "${location}" already exists`);
     }
 
-    shell.exit(1);
+    return;
   }
 
   if (domainExists && locationExists) {
-    consola.error(new Error(`Domain "${domain}" already exists`));
-    shell.exit(1);
+    consola.error(`Domain "${domain}" already exists`);
+
+    return;
   }
 
   const portExists =
@@ -86,8 +84,9 @@ const onCreateAction = (
     false;
 
   if (portExists) {
-    consola.error(new Error(`Port "${port}" already exists`));
-    shell.exit(1);
+    consola.error(`Port "${port}" already exists`);
+
+    return;
   }
 
   if (domainIndex > -1) {

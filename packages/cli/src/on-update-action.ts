@@ -2,7 +2,6 @@ import { Config } from "@dimaslz/local-ssl-management-core";
 import consola from "consola";
 import fs from "fs";
 import path from "path";
-import shell from "shelljs";
 
 import generateProxyImage from "./generate-proxy-image";
 import { validatePort } from "./utils";
@@ -29,21 +28,21 @@ const onUpdateAction = (domain: string, options: Options) => {
 
   if (!exists) {
     if (isUUID) {
-      consola.error(new Error(`Domain with key "${domain}" does not exists`));
+      consola.error(`Domain with key "${domain}" does not exists`);
     } else {
-      consola.error(new Error(`Domain "${domain}" does not exists`));
+      consola.error(`Domain "${domain}" does not exists`);
     }
 
-    shell.exit(1);
+    return;
   }
 
   let { port } = options;
   const { location } = options;
 
   if (!location) {
-    consola.error(new Error(`Location is mandatory`));
+    consola.error(`Location is mandatory`);
 
-    shell.exit(1);
+    return;
   }
 
   const domainIndex = config.findIndex(
@@ -64,9 +63,9 @@ const onUpdateAction = (domain: string, options: Options) => {
     );
 
     if (!oldLocationExists) {
-      consola.error(new Error(`Location "${oldLocation}" does not exists`));
+      consola.error(`Location "${oldLocation}" does not exists`);
 
-      shell.exit(1);
+      return;
     }
   } else {
     const locationExists = config[domainIndex].services.some(
@@ -74,9 +73,9 @@ const onUpdateAction = (domain: string, options: Options) => {
     );
 
     if (!locationExists) {
-      consola.error(new Error(`Location "${location}" does not exists`));
+      consola.error(`Location "${location}" does not exists`);
 
-      shell.exit(1);
+      return;
     }
   }
 

@@ -18,10 +18,9 @@ const listContainer = () => {
       .find((line) => /local-ssl-management/.test(line)) || "";
 
   if (!containerData) {
-    consola.error(
-      new Error("Something have been failure. Contact with the author."),
-    );
-    shell.exit(1);
+    consola.error("Something have been failure. Contact with the author.");
+
+    return;
   }
 
   const [containerId, containerName, ports] = containerData

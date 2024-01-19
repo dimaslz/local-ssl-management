@@ -1,3 +1,4 @@
+import fs from "fs";
 import shell from "shelljs";
 import { beforeEach, vi } from "vitest";
 
@@ -20,4 +21,10 @@ beforeEach(() => {
       mkcert: vi.fn(),
     };
   });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  vi.spyOn(fs, "readdirSync").mockImplementationOnce((): any[] => [
+    "some-domain.com-cert.pem",
+    "some-domain.com-key.pem",
+  ]);
 });

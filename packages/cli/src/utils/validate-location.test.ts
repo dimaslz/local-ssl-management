@@ -1,19 +1,13 @@
 import consola from "consola";
-import shell from "shelljs";
 
 import validateLocation from "./validate-location";
 
 describe("Validate location", () => {
   describe("failures", () => {
     test("location has bad format", () => {
-      expect(() => {
-        validateLocation("foo");
-      }).toThrow();
+      validateLocation("foo");
 
-      expect(consola.error).toBeCalledWith(
-        new Error("Location should start by /"),
-      );
-      expect(shell.exit).toBeCalledWith(1);
+      expect(consola.error).toBeCalledWith("Location should start by /");
     });
   });
 

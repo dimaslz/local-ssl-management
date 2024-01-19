@@ -18,30 +18,42 @@ describe("On create action", () => {
       const domain = "wrong.domain";
       const port = "3000";
 
-      expect(() => {
-        onCreateAction(domain, { port });
-      }).toThrow();
+      vi.spyOn(shell, "exec")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .mockImplementationOnce((): any => "")
+        .mockImplementationOnce(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (): any => {
+            return { stdout: 200 };
+          },
+        );
+
+      onCreateAction(domain, { port });
 
       expect(consola.error).toBeCalledWith(
-        new Error("Domain (https://wrong.domain) format is not valid"),
+        "Domain (https://wrong.domain) format is not valid",
       );
-      expect(shell.exit).toHaveBeenCalledWith(1);
     });
 
     test("can not create with invalid port", () => {
       const domain = "some-domain.com";
       const port = "666";
 
-      expect(() => {
-        onCreateAction(domain, { port });
-      }).toThrow();
+      vi.spyOn(shell, "exec")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .mockImplementationOnce((): any => "")
+        .mockImplementationOnce(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (): any => {
+            return { stdout: 200 };
+          },
+        );
+
+      onCreateAction(domain, { port });
 
       expect(consola.error).toBeCalledWith(
-        new Error(
-          "Port (--port <port>) should be into the range 1025 to 65535",
-        ),
+        "Port (--port <port>) should be into the range 1025 to 65535",
       );
-      expect(shell.exit).toHaveBeenCalledWith(1);
     });
 
     test("can not create duplicated location", () => {
@@ -49,12 +61,6 @@ describe("On create action", () => {
       const port = "3000";
       const location = "/app-name";
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.spyOn(fs, "readdirSync").mockImplementationOnce((): any[] => [
-        "some-domain.com-cert.pem",
-        "some-domain.com-key.pem",
-      ]);
-
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(
         JSON.stringify([
           {
@@ -76,25 +82,16 @@ describe("On create action", () => {
         ]),
       );
 
-      expect(() => {
-        onCreateAction(domain, { port, location });
-      }).toThrow();
+      onCreateAction(domain, { port, location });
 
       expect(consola.error).toBeCalledWith(
-        new Error('Location "/app-name" already exists'),
+        'Location "/app-name" already exists',
       );
-      expect(shell.exit).toHaveBeenCalledWith(1);
     });
 
     test("can not create duplicated domain", () => {
       const domain = "some-domain.com";
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.spyOn(fs, "readdirSync").mockImplementationOnce((): any[] => [
-        "some-domain.com-cert.pem",
-        "some-domain.com-key.pem",
-      ]);
-
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(
         JSON.stringify([
           {
@@ -116,28 +113,16 @@ describe("On create action", () => {
         ]),
       );
 
-      expect(() => {
-        onCreateAction(domain, {});
-      }).toThrow();
+      onCreateAction(domain, {});
 
       expect(consola.error).toBeCalledWith(
-        new Error(
-          'Domain "some-domain.com" already created with the default location "/"',
-        ),
+        'Domain "some-domain.com" already created with the default location "/"',
       );
-      expect(shell.exit).toHaveBeenCalledWith(1);
     });
   });
 
   describe("success", () => {
     beforeEach(() => {
-      vi.spyOn(fs, "mkdirSync");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.spyOn(fs, "readdirSync").mockImplementationOnce((): any[] => [
-        "some-domain.com-cert.pem",
-        "some-domain.com-key.pem",
-      ]);
-
       vi.spyOn(shell, "exec")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .mockImplementationOnce((): any => "")
@@ -290,16 +275,11 @@ describe("On create action", () => {
         const domain = "some-domain.com";
         const port = "3000";
 
-        expect(() => {
-          onCreateAction(domain, { port });
-        }).toThrow();
+        onCreateAction(domain, { port });
 
         expect(consola.error).toBeCalledWith(
-          new Error(
-            'Domain "some-domain.com" already created with the default location "/"',
-          ),
+          'Domain "some-domain.com" already created with the default location "/"',
         );
-        expect(shell.exit).toHaveBeenCalledWith(1);
       });
     });
 
@@ -479,16 +459,11 @@ describe("On create action", () => {
         const domain = "some-domain.com";
         const port = "3000";
 
-        expect(() => {
-          onCreateAction(domain, { port });
-        }).toThrow();
+        onCreateAction(domain, { port });
 
         expect(consola.error).toBeCalledWith(
-          new Error(
-            'Domain "some-domain.com" already created with the default location "/"',
-          ),
+          'Domain "some-domain.com" already created with the default location "/"',
         );
-        expect(shell.exit).toHaveBeenCalledWith(1);
       });
     });
   });

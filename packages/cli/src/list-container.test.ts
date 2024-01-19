@@ -36,14 +36,11 @@ describe("List container", () => {
         };
       });
 
-      expect(() => {
-        listContainer();
-      }).toThrow();
+      listContainer();
 
       expect(consola.error).toBeCalledWith(
-        new Error("Something have been failure. Contact with the author."),
+        "Something have been failure. Contact with the author.",
       );
-      expect(shell.exit).toBeCalledTimes(1);
     });
   });
 });

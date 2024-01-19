@@ -19,29 +19,19 @@ describe("On remove action", () => {
     test("removing domain by name does not exists", () => {
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify([]));
 
-      expect(() => {
-        onRemoveAction("dummy");
-      }).toThrow();
+      onRemoveAction("dummy");
 
-      expect(consola.error).toBeCalledWith(
-        new Error('Domain "dummy" does not exists'),
-      );
-      expect(shell.exit).toHaveBeenCalledWith(1);
+      expect(consola.error).toBeCalledWith('Domain "dummy" does not exists');
     });
 
     test("remove domain by id does not exists", () => {
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify([]));
 
-      expect(() => {
-        onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
-      }).toThrow();
+      onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
 
       expect(consola.error).toBeCalledWith(
-        new Error(
-          'Domain with id "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26" does not exists',
-        ),
+        'Domain with id "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26" does not exists',
       );
-      expect(shell.exit).toHaveBeenCalledWith(1);
     });
 
     test("removing path does not exists", () => {
@@ -65,16 +55,13 @@ describe("On remove action", () => {
         ),
       );
 
-      expect(() => {
-        onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26", {
-          location: "/something",
-        });
-      }).toThrow();
+      onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26", {
+        location: "/something",
+      });
 
       expect(consola.error).toBeCalledWith(
-        new Error('Location "/something" does not exists'),
+        'Location "/something" does not exists',
       );
-      expect(shell.exit).toHaveBeenCalledWith(1);
     });
   });
 

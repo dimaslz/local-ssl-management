@@ -1,6 +1,5 @@
 import consola from "consola";
 import isUrlHttp from "is-url-http";
-import shell from "shelljs";
 
 const validateDomain = (value: string) => {
   const domains = value.split(",").map((d) => `https://${d.trim()}`);
@@ -14,8 +13,9 @@ const validateDomain = (value: string) => {
     }
 
     if (!isUrlHttp(domain)) {
-      consola.error(new Error(`Domain (${domainItem}) format is not valid`));
-      shell.exit(1);
+      consola.error(`Domain (${domainItem}) format is not valid`);
+
+      return;
     }
   });
 };

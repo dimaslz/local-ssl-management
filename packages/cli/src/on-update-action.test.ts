@@ -40,15 +40,11 @@ describe("On update action", () => {
         ),
       );
 
-      expect(() => {
-        onUpdateAction(domain, { port });
-      }).toThrow();
+      onUpdateAction(domain, { port });
 
       expect(consola.error).toBeCalledWith(
-        new Error('Domain "foo-domain.com" does not exists'),
+        'Domain "foo-domain.com" does not exists',
       );
-
-      expect(shell.exit).toBeCalledWith(1);
     });
     test("update domain by wrong id", () => {
       const domain = "48d1a85c-377a-40ef-8a82-d1405f7a0722";
@@ -74,16 +70,11 @@ describe("On update action", () => {
         ),
       );
 
-      expect(() => {
-        onUpdateAction(domain, { port });
-      }).toThrow();
+      onUpdateAction(domain, { port });
 
       expect(consola.error).toBeCalledWith(
-        new Error(
-          'Domain with key "48d1a85c-377a-40ef-8a82-d1405f7a0722" does not exists',
-        ),
+        'Domain with key "48d1a85c-377a-40ef-8a82-d1405f7a0722" does not exists',
       );
-      expect(shell.exit).toBeCalledWith(1);
     });
 
     test("location is mandatory", () => {
@@ -110,12 +101,9 @@ describe("On update action", () => {
         ),
       );
 
-      expect(() => {
-        onUpdateAction(domain, { port });
-      }).toThrow();
+      onUpdateAction(domain, { port });
 
-      expect(consola.error).toBeCalledWith(new Error("Location is mandatory"));
-      expect(shell.exit).toBeCalledWith(1);
+      expect(consola.error).toBeCalledWith("Location is mandatory");
     });
 
     test("location does not exists on replace", () => {
@@ -141,14 +129,11 @@ describe("On update action", () => {
         ),
       );
 
-      expect(() => {
-        onUpdateAction(domain, { location: "/not-exists,/app-name" });
-      }).toThrow();
+      onUpdateAction(domain, { location: "/not-exists,/app-name" });
 
       expect(consola.error).toBeCalledWith(
-        new Error('Location "/not-exists" does not exists'),
+        'Location "/not-exists" does not exists',
       );
-      expect(shell.exit).toBeCalledWith(1);
     });
 
     test("location does not exists on update", () => {
@@ -174,22 +159,16 @@ describe("On update action", () => {
         ),
       );
 
-      expect(() => {
-        onUpdateAction(domain, { location: "/app-name" });
-      }).toThrow();
+      onUpdateAction(domain, { location: "/app-name" });
 
       expect(consola.error).toBeCalledWith(
-        new Error('Location "/app-name" does not exists'),
+        'Location "/app-name" does not exists',
       );
-      expect(shell.exit).toBeCalledWith(1);
     });
 
     test.skip("port is mandatory", () => {
       const domain = "48d1a85c-377a-40ef-8a82-d1405f7a074f";
 
-      vi.spyOn(shell, "exit").mockImplementationOnce(() => {
-        throw new Error();
-      });
       vi.spyOn(fs, "readFileSync").mockReturnValue(
         JSON.stringify(
           [
@@ -210,12 +189,9 @@ describe("On update action", () => {
         ),
       );
 
-      expect(() => {
-        onUpdateAction(domain, { location: "/" });
-      }).toThrow();
+      onUpdateAction(domain, { location: "/" });
 
-      expect(consola.error).toBeCalledWith(new Error("Port is mandatory"));
-      expect(shell.exit).toBeCalledWith(1);
+      expect(consola.error).toBeCalledWith("Port is mandatory");
     });
   });
 

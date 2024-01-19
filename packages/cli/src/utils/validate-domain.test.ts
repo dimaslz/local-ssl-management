@@ -8,27 +8,21 @@ describe("Validate domain", () => {
     test("domain with wrong TLD should not be acceptable", () => {
       const domain = "your-domain.FAKE_TLD";
 
-      expect(() => {
-        validateDomain(domain);
-      }).toThrow();
+      validateDomain(domain);
 
       expect(consola.error).toBeCalledWith(
-        new Error("Domain (https://your-domain.FAKE_TLD) format is not valid"),
+        "Domain (https://your-domain.FAKE_TLD) format is not valid",
       );
-      expect(shell.exit).toHaveBeenCalledWith(1);
     });
 
     test("domain with not allowed characters should not be acceptable", () => {
       const domain = "your!domain.com";
 
-      expect(() => {
-        validateDomain(domain);
-      }).toThrow();
+      validateDomain(domain);
 
       expect(consola.error).toBeCalledWith(
-        new Error("Domain (https://your!domain.com) format is not valid"),
+        "Domain (https://your!domain.com) format is not valid",
       );
-      expect(shell.exit).toHaveBeenCalledWith(1);
     });
   });
 
@@ -46,7 +40,6 @@ describe("Validate domain", () => {
       validateDomain(domain);
 
       expect(shell.echo).not.toBeCalled();
-      expect(shell.exit).not.toHaveBeenCalledWith(1);
     });
   });
 });

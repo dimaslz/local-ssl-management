@@ -41,7 +41,7 @@
     "build": "ncc build src/index.ts -o dist",
     "to-publish": "npx vite-node publish.js",
     "test": "vitest --reporter=verbose",
-    "lint": "oxlint ."
+    "lint": "eslint ./src"
   },
   "dependencies": {
     "@dimaslz/local-ssl-management-core": "*",

@@ -8,12 +8,9 @@ describe("On list action", () => {
   test("no domains available", () => {
     vi.spyOn(fs, "readFileSync").mockReturnValue("[]");
 
-    expect(() => {
-      onListAction();
-    }).toThrow();
+    onListAction();
 
     expect(consola.box).toBeCalledWith(`Does not exists configs yet.`);
-    expect(shell.exit).toBeCalledTimes(1);
   });
 
   test("list domains availables", () => {

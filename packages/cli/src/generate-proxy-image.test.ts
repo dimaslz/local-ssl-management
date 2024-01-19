@@ -20,14 +20,11 @@ describe("Generate proxy image", () => {
 
   describe("failure", () => {
     test("does not exists config to create reverse proxy", () => {
-      expect(() => {
-        generateProxyImage([]);
-      }).toThrow();
+      generateProxyImage([]);
 
       expect(consola.warn).toBeCalledWith(
         "Does not exists config to create reverse proxy",
       );
-      expect(shell.exit).toBeCalledWith(1);
     });
   });
 

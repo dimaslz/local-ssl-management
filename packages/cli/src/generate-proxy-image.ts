@@ -41,7 +41,8 @@ const renderTable = (config: Config[]) => {
 const generateProxyImage = (config: Config[]) => {
   if (!config.length) {
     consola.warn("Does not exists config to create reverse proxy");
-    shell.exit(1);
+
+    return;
   }
 
   const localhostCertExists = fs.existsSync(sslPath + "/localhost-cert.pem");

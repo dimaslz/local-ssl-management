@@ -2,7 +2,6 @@ import type { Config } from "@dimaslz/local-ssl-management-core";
 import consola from "consola";
 import fs from "fs";
 import path from "path";
-import shell from "shelljs";
 
 import generateProxyImage from "./generate-proxy-image";
 const distPath = path.resolve(__dirname, "./");
@@ -33,12 +32,12 @@ const onRemoveAction = (
 
   if (!exists) {
     if (isUUID) {
-      consola.error(new Error(`Domain with id "${_domain}" does not exists`));
+      consola.error(`Domain with id "${_domain}" does not exists`);
     } else {
-      consola.error(new Error(`Domain "${domain}" does not exists`));
+      consola.error(`Domain "${domain}" does not exists`);
     }
 
-    shell.exit(1);
+    return;
   }
 
   const byLocation = !!location;
@@ -55,8 +54,9 @@ const onRemoveAction = (
     );
 
     if (!locationExists) {
-      consola.error(new Error(`Location "${location}" does not exists`));
-      shell.exit(1);
+      consola.error(`Location "${location}" does not exists`);
+
+      return;
     }
 
     newConfig = config.map((c, cIndex) => {
