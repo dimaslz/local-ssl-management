@@ -4,14 +4,14 @@ import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 
-import generateProxyImage from "./generate-proxy-image";
+import { generateProxyImage, updateHosts } from "@/utils";
+
 import {
   domainExistsInHosts,
   validateDomain,
   validateLocation,
   validatePort,
 } from "./utils";
-import { updateHosts } from "./utils/hosts";
 
 const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;

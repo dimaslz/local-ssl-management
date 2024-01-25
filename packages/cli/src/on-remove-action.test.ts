@@ -2,18 +2,13 @@ import consola from "consola";
 import fs from "fs";
 import shell from "shelljs";
 
-import generateProxyImage from "./generate-proxy-image";
-import onRemoveAction from "./on-remove-action";
+import onRemoveAction from "@/on-remove-action";
+import { generateProxyImage } from "@/utils/generate-proxy-image";
 
-vi.mock("./list-container");
-vi.mock("./generate-proxy-image");
-vi.mock("path", () => ({
-  default: {
-    resolve: () => "/root/path",
-  },
-}));
+vi.mock("@/list-container");
+vi.mock("@/utils/generate-proxy-image");
 
-describe("On remove action", () => {
+describe("Actions - onRemoveAction", () => {
   describe("failure", () => {
     test("removing domain by name does not exists", () => {
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify([]));

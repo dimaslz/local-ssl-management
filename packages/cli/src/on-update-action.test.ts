@@ -2,19 +2,19 @@ import consola from "consola";
 import fs from "fs";
 import shell from "shelljs";
 
-import onUpdateAction from "./on-update-action";
-import { validatePort } from "./utils";
+import onUpdateAction from "@/on-update-action";
+import { validatePort } from "@/utils";
 
-vi.mock("./utils/validate-port");
+vi.mock("@/utils/validate-port");
 
-vi.mock("./list-container");
+vi.mock("@/list-container");
 vi.mock("path", () => ({
   default: {
     resolve: () => "/root/path",
   },
 }));
 
-describe("On update action", () => {
+describe("Actions - onUpdateAction", () => {
   describe("failures", () => {
     test("update domain by wrong domain name", () => {
       const domain = "foo-domain.com";

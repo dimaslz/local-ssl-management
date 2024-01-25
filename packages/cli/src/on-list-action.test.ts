@@ -2,9 +2,9 @@ import consola from "consola";
 import fs from "fs";
 import shell from "shelljs";
 
-import onListAction from "./on-list-action";
+import onListAction from "@/on-list-action";
 
-describe("On list action", () => {
+describe("Actions - onListAction", () => {
   test("no domains available", () => {
     vi.spyOn(fs, "readFileSync").mockReturnValue("[]");
 

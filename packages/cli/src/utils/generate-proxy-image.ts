@@ -6,8 +6,8 @@ import fs from "fs";
 import path from "path";
 import shell from "shelljs";
 
-import listContainer from "./list-container";
-import Templates from "./templates";
+import listContainer from "@/list-container";
+import Templates from "@/templates";
 
 const LOCAL_IP = getLocalIP();
 const distPath = path.resolve(__dirname, "./");
@@ -38,7 +38,7 @@ const renderTable = (config: Config[]) => {
   shell.echo(`\n${tablePing.toString()}\n`);
 };
 
-const generateProxyImage = (config: Config[]) => {
+export const generateProxyImage = (config: Config[]) => {
   if (!config.length) {
     consola.warn("Does not exists config to create reverse proxy");
 
@@ -147,5 +147,3 @@ docker run --name $NAME -p 80:80 -p 443:443 -d $NAME`,
 
   renderTable(config);
 };
-
-export default generateProxyImage;

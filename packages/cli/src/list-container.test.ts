@@ -1,9 +1,9 @@
 import consola from "consola";
 import shell from "shelljs";
 
-import listContainer from "./list-container";
+import listContainer from "@/list-container";
 
-describe("List container", () => {
+describe("Actions - listContainer", () => {
   describe("success", () => {
     test("commmand found local-ssl-management container running", async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

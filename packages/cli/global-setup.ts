@@ -7,6 +7,12 @@ vi.mock("fs");
 vi.mock("consola");
 vi.mock("shelljs");
 
+vi.mock("path", () => ({
+  default: {
+    resolve: () => "/root/path",
+  },
+}));
+
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();

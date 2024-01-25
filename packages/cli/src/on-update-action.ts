@@ -3,8 +3,7 @@ import consola from "consola";
 import fs from "fs";
 import path from "path";
 
-import generateProxyImage from "./generate-proxy-image";
-import { validatePort } from "./utils";
+import { generateProxyImage, validatePort } from "@/utils";
 
 const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;

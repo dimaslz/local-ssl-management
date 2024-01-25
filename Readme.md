@@ -32,6 +32,7 @@ Request to <https://local.your-domain.tld/app-name> will serve <http://localhost
     - [remove domain](#remove-domain)
     - [remove location for a domain](#remove-location-for-a-domain)
     - [list current service configs](#list-current-service-configs)
+    - [reset hosts](#reset-hosts)
   - [Use case](#use-case)
     - [Other use cases](#other-use-cases)
   - [Requirements](#requirements)
@@ -116,6 +117,12 @@ $ local-ssl remove local.your-domain.com --location /new-app
 
 ```bash
 $ local-ssl list
+```
+
+### reset hosts
+
+```bash
+$ local-ssl reset
 ```
 
 ## Use case

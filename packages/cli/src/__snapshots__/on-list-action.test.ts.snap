@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`On list action > list domains availables 1`] = `
+exports[`Actions - onListAction > list domains availables 1`] = `
 [MockFunction spy] {
   "calls": [
     [

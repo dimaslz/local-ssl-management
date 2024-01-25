@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`List container > success > commmand found local-ssl-management container running 1`] = `
+exports[`Actions - listContainer > success > commmand found local-ssl-management container running 1`] = `
 [MockFunction spy] {
   "calls": [
     [

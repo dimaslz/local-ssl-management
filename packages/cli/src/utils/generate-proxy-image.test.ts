@@ -3,15 +3,11 @@ import consola from "consola";
 import fs from "fs";
 import shell from "shelljs";
 
-import generateProxyImage from "./generate-proxy-image";
-import listContainer from "./list-container";
+import listContainer from "@/list-container";
 
-vi.mock("./list-container");
-vi.mock("path", () => ({
-  default: {
-    resolve: () => "/root/path",
-  },
-}));
+import { generateProxyImage } from ".";
+
+vi.mock("@/list-container");
 
 describe("Generate proxy image", () => {
   beforeEach(() => {

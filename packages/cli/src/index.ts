@@ -4,10 +4,11 @@ import { Command } from "commander";
 import fs from "fs";
 import path from "path";
 
-import onCreateAction from "./on-create-action";
-import onListAction from "./on-list-action";
-import onRemoveAction from "./on-remove-action";
-import onUpdateAction from "./on-update-action";
+import onCreateAction from "@/on-create-action";
+import onListAction from "@/on-list-action";
+import onRemoveAction from "@/on-remove-action";
+import onResetHosts from "@/on-reset-hosts";
+import onUpdateAction from "@/on-update-action";
 
 const createBaseFolders = () => {
   const distPath = path.resolve(__dirname, "./");
@@ -67,6 +68,11 @@ const cli = () => {
       "Location where nginx will serve the application.",
     )
     .action(onRemoveAction);
+
+  program
+    .command("reset")
+    .description("Remove all domain in `/etc/hosts` created by this cli")
+    .action(onResetHosts);
 
   program.parse();
 };

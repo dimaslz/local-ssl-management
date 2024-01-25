@@ -2,14 +2,14 @@ import consola from "consola";
 import fs from "fs";
 import shell from "shelljs";
 
-import onCreateAction from "./on-create-action";
+import onCreateAction from "@/on-create-action";
 
-vi.mock("./list-container");
-vi.mock("./utils/domain-exists-in-hosts", () => ({
+vi.mock("@/list-container");
+vi.mock("@/utils/domain-exists-in-hosts", () => ({
   domainExistsInHosts: () => false,
 }));
 
-describe("On create action", () => {
+describe("Actions - onCreateAction", () => {
   beforeEach(() => {
     vi.spyOn(fs, "readFileSync").mockReturnValue("[]");
     vi.spyOn(fs, "existsSync").mockReturnValueOnce(true);
@@ -146,7 +146,7 @@ describe("On create action", () => {
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
           1,
-          "NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /Users/dimaslz/Development/local-ssl-management/packages/cli/src/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME",
+          "NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME",
           { silent: true },
         );
         expect(shell.exec).nthCalledWith(
@@ -204,7 +204,7 @@ describe("On create action", () => {
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
           1,
-          "NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /Users/dimaslz/Development/local-ssl-management/packages/cli/src/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME",
+          "NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME",
           { silent: true },
         );
         expect(shell.exec).nthCalledWith(
@@ -313,7 +313,7 @@ describe("On create action", () => {
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
           1,
-          "NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /Users/dimaslz/Development/local-ssl-management/packages/cli/src/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME",
+          "NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME",
           { silent: true },
         );
         expect(shell.exec).nthCalledWith(
@@ -374,7 +374,7 @@ describe("On create action", () => {
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
           1,
-          "NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /Users/dimaslz/Development/local-ssl-management/packages/cli/src/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME",
+          "NAME=local-ssl-management && docker rm -f $NAME && docker rmi -f $NAME && docker build --no-cache -t $NAME /root/path/.local-ssl-management && docker run --name $NAME -p 80:80 -p 443:443 -d $NAME",
           { silent: true },
         );
         expect(shell.exec).nthCalledWith(
