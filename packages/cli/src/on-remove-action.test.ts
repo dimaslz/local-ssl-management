@@ -1,5 +1,4 @@
 import consola from "consola";
-import crypto from "crypto";
 import fs from "fs";
 import shell from "shelljs";
 
@@ -184,8 +183,6 @@ describe("On remove action", () => {
         ]),
       );
 
-      crypto.randomUUID = vi.fn(() => "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
-
       onRemoveAction("demo.com_demo.es");
 
       expect(fs.existsSync).toHaveBeenCalledTimes(2);
@@ -238,8 +235,6 @@ describe("On remove action", () => {
           },
         ]),
       );
-
-      crypto.randomUUID = vi.fn(() => "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
 
       onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
 
@@ -299,8 +294,6 @@ describe("On remove action", () => {
           },
         ]),
       );
-
-      crypto.randomUUID = vi.fn(() => "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
 
       onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26", {
         location: "/app-name",

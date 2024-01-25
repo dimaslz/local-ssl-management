@@ -1,11 +1,13 @@
 import consola from "consola";
-import crypto from "crypto";
 import fs from "fs";
 import shell from "shelljs";
 
 import onCreateAction from "./on-create-action";
 
 vi.mock("./list-container");
+vi.mock("./utils/domain-exists-in-hosts", () => ({
+  domainExistsInHosts: () => false,
+}));
 
 describe("On create action", () => {
   beforeEach(() => {
@@ -14,7 +16,7 @@ describe("On create action", () => {
   });
 
   describe("failures", () => {
-    test("can not create with invalid domain", () => {
+    test("can not create with invalid domain", async () => {
       const domain = "wrong.domain";
       const port = "3000";
 
@@ -28,14 +30,14 @@ describe("On create action", () => {
           },
         );
 
-      onCreateAction(domain, { port });
+      await onCreateAction(domain, { port });
 
       expect(consola.error).toBeCalledWith(
         "Domain (https://wrong.domain) format is not valid",
       );
     });
 
-    test("can not create with invalid port", () => {
+    test("can not create with invalid port", async () => {
       const domain = "some-domain.com";
       const port = "666";
 
@@ -49,14 +51,14 @@ describe("On create action", () => {
           },
         );
 
-      onCreateAction(domain, { port });
+      await onCreateAction(domain, { port });
 
       expect(consola.error).toBeCalledWith(
         "Port (--port <port>) should be into the range 1025 to 65535",
       );
     });
 
-    test("can not create duplicated location", () => {
+    test("can not create duplicated location", async () => {
       const domain = "some-domain.com";
       const port = "3000";
       const location = "/app-name";
@@ -82,14 +84,14 @@ describe("On create action", () => {
         ]),
       );
 
-      onCreateAction(domain, { port, location });
+      await onCreateAction(domain, { port, location });
 
       expect(consola.error).toBeCalledWith(
         'Location "/app-name" already exists',
       );
     });
 
-    test("can not create duplicated domain", () => {
+    test("can not create duplicated domain", async () => {
       const domain = "some-domain.com";
 
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(
@@ -113,10 +115,10 @@ describe("On create action", () => {
         ]),
       );
 
-      onCreateAction(domain, {});
+      await onCreateAction(domain, {});
 
       expect(consola.error).toBeCalledWith(
-        'Domain "some-domain.com" already created with the default location "/"',
+        'Domain "some-domain.com" already created with the default location "/", but does not exist on your local `/etc/hosts`',
       );
     });
   });
@@ -135,13 +137,11 @@ describe("On create action", () => {
     });
 
     describe("single service", () => {
-      test("domain config created sucessfully", () => {
-        crypto.randomUUID = vi.fn(() => "48d1a85c-377a-40ef-8a82-d1405f7a074f");
-
+      test("domain config created sucessfully", async () => {
         const domain = "some-domain.com";
         const port = "3000";
 
-        onCreateAction(domain, { port });
+        await onCreateAction(domain, { port });
 
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
@@ -167,7 +167,9 @@ describe("On create action", () => {
         );
         expect(fs.mkdirSync).not.toHaveBeenCalled();
 
-        expect(fs.writeFileSync).toHaveBeenNthCalledWith(
+        expect(fs.writeFileSync).toBeCalledTimes(3);
+        expect(fs.writeFileSync).toMatchSnapshot();
+        expect(fs.writeFileSync).nthCalledWith(
           3,
           expect.stringMatching(/.local-ssl-management\/config.json/),
           JSON.stringify(
@@ -177,7 +179,7 @@ describe("On create action", () => {
                 domain: "some-domain.com",
                 services: [
                   {
-                    id: "48d1a85c-377a-40ef-8a82-d1405f7a074f",
+                    id: "da406b35-79b8-4909-9af1-07cfdcf37d00",
                     location: "/",
                     port: "3000",
                   },
@@ -190,22 +192,14 @@ describe("On create action", () => {
         );
       });
 
-      test("domain config created sucessfully (does not exists /ssl)", () => {
+      test("domain config created sucessfully (does not exists /ssl)", async () => {
         vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify([]));
         vi.spyOn(fs, "existsSync").mockReturnValue(false);
-
-        vi.spyOn(crypto, "randomUUID")
-          .mockImplementationOnce(
-            vi.fn(() => "48d1a85c-377a-40ef-8a82-d1405f7a074f"),
-          )
-          .mockImplementationOnce(
-            vi.fn(() => "63add84e-b600-4f0f-9e1a-7ea85cfa2d06"),
-          );
 
         const domain = "some-domain.com";
         const port = "3000";
 
-        onCreateAction(domain, { port });
+        await onCreateAction(domain, { port });
 
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
@@ -229,7 +223,10 @@ describe("On create action", () => {
         );
         expect(fs.mkdirSync).toHaveBeenCalled();
 
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
+        expect(fs.writeFileSync).toBeCalledTimes(3);
+        expect(fs.writeFileSync).toMatchSnapshot();
+        expect(fs.writeFileSync).nthCalledWith(
+          3,
           expect.stringMatching(/.local-ssl-management\/config.json/),
           JSON.stringify(
             [
@@ -238,7 +235,7 @@ describe("On create action", () => {
                 domain: "some-domain.com",
                 services: [
                   {
-                    id: "63add84e-b600-4f0f-9e1a-7ea85cfa2d06",
+                    id: "da406b35-79b8-4909-9af1-07cfdcf37d00",
                     location: "/",
                     port: "3000",
                   },
@@ -251,7 +248,7 @@ describe("On create action", () => {
         );
       });
 
-      test("domain config already exists", () => {
+      test("domain config already exists", async () => {
         vi.spyOn(fs, "readFileSync").mockReturnValue(
           JSON.stringify(
             [
@@ -275,16 +272,16 @@ describe("On create action", () => {
         const domain = "some-domain.com";
         const port = "3000";
 
-        onCreateAction(domain, { port });
+        await onCreateAction(domain, { port });
 
         expect(consola.error).toBeCalledWith(
-          'Domain "some-domain.com" already created with the default location "/"',
+          'Domain "some-domain.com" already created with the default location "/", but does not exist on your local `/etc/hosts`',
         );
       });
     });
 
     describe("multiple services", () => {
-      test("domain config created sucessfully", () => {
+      test("domain config created sucessfully", async () => {
         vi.spyOn(fs, "readFileSync").mockReturnValue(
           JSON.stringify(
             [
@@ -307,15 +304,11 @@ describe("On create action", () => {
 
         vi.spyOn(fs, "existsSync").mockReturnValue(true);
 
-        vi.spyOn(crypto, "randomUUID").mockImplementationOnce(
-          vi.fn(() => "48d1a85c-377a-40ef-8a82-d1405f7a074f"),
-        );
-
         const domain = "some-domain.com";
         const port = "4000";
         const location = "/app-name";
 
-        onCreateAction(domain, { port, location });
+        await onCreateAction(domain, { port, location });
 
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
@@ -341,7 +334,6 @@ describe("On create action", () => {
 
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
-
         expect(fs.writeFileSync).toHaveBeenNthCalledWith(
           3,
           expect.stringMatching(/.local-ssl-management\/config.json/),
@@ -370,22 +362,14 @@ describe("On create action", () => {
         );
       });
 
-      test("domain config created sucessfully (does not exists /ssl)", () => {
+      test("domain config created sucessfully (does not exists /ssl)", async () => {
         vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify([]));
         vi.spyOn(fs, "existsSync").mockReturnValue(false);
-
-        vi.spyOn(crypto, "randomUUID")
-          .mockImplementationOnce(
-            vi.fn(() => "48d1a85c-377a-40ef-8a82-d1405f7a074f"),
-          )
-          .mockImplementationOnce(
-            vi.fn(() => "63add84e-b600-4f0f-9e1a-7ea85cfa2d06"),
-          );
 
         const domain = "some-domain.com";
         const port = "3000";
 
-        onCreateAction(domain, { port });
+        await onCreateAction(domain, { port });
 
         expect(shell.exec).toBeCalledTimes(2);
         expect(shell.exec).nthCalledWith(
@@ -422,7 +406,7 @@ describe("On create action", () => {
                 domain: "some-domain.com",
                 services: [
                   {
-                    id: "63add84e-b600-4f0f-9e1a-7ea85cfa2d06",
+                    id: "da406b35-79b8-4909-9af1-07cfdcf37d00",
                     location: "/",
                     port: "3000",
                   },
@@ -435,7 +419,7 @@ describe("On create action", () => {
         );
       });
 
-      test("domain config already exists", () => {
+      test("domain config already exists", async () => {
         vi.spyOn(fs, "readFileSync").mockReturnValue(
           JSON.stringify(
             [
@@ -444,7 +428,7 @@ describe("On create action", () => {
                 domain: "some-domain.com",
                 services: [
                   {
-                    id: "8145baf2-6e39-453a-a842-9b4a4f576003",
+                    id: "da406b35-79b8-4909-9af1-07cfdcf37d00",
                     port: "3000",
                     location: "/",
                   },
@@ -459,10 +443,10 @@ describe("On create action", () => {
         const domain = "some-domain.com";
         const port = "3000";
 
-        onCreateAction(domain, { port });
+        await onCreateAction(domain, { port });
 
         expect(consola.error).toBeCalledWith(
-          'Domain "some-domain.com" already created with the default location "/"',
+          'Domain "some-domain.com" already created with the default location "/", but does not exist on your local `/etc/hosts`',
         );
       });
     });

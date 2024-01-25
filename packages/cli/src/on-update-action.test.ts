@@ -3,7 +3,7 @@ import fs from "fs";
 import shell from "shelljs";
 
 import onUpdateAction from "./on-update-action";
-import validatePort from "./utils/validate-port";
+import { validatePort } from "./utils";
 
 vi.mock("./utils/validate-port");
 

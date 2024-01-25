@@ -1,7 +1,7 @@
 import consola from "consola";
 import isUrlHttp from "is-url-http";
 
-const validateDomain = (value: string) => {
+export function validateDomain(value: string) {
   const domains = value.split(",").map((d) => `https://${d.trim()}`);
 
   domains.forEach((domainItem) => {
@@ -18,6 +18,4 @@ const validateDomain = (value: string) => {
       return;
     }
   });
-};
-
-export default validateDomain;
+}

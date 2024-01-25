@@ -5,14 +5,20 @@ import fs from "fs";
 import path from "path";
 
 import generateProxyImage from "./generate-proxy-image";
-import { validateDomain, validateLocation, validatePort } from "./utils";
+import {
+  domainExistsInHosts,
+  validateDomain,
+  validateLocation,
+  validatePort,
+} from "./utils";
+import { updateHosts } from "./utils/hosts";
 
 const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;
 const configPath = `${rootPath}/config.json`;
 const sslPath = `${rootPath}/ssl`;
 
-const onCreateAction = (
+const onCreateAction = async (
   _domain: string,
   options: { port?: string; location?: string },
 ) => {
@@ -63,9 +69,17 @@ const onCreateAction = (
 
   if (domainExists && locationExists) {
     if (location === "/") {
-      consola.error(
-        `Domain "${domain}" already created with the default location "${location}"`,
-      );
+      const domainExists = await domainExistsInHosts(domain);
+
+      if (!domainExists) {
+        consola.error(
+          `Domain "${domain}" already created with the default location "${location}", but does not exist on your local \`/etc/hosts\``,
+        );
+      } else {
+        consola.error(
+          `Domain "${domain}" already created with the default location "${location}"`,
+        );
+      }
     } else {
       consola.error(`Location "${location}" already exists`);
     }
@@ -112,6 +126,8 @@ const onCreateAction = (
   generateProxyImage(config);
 
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+  await updateHosts(domain);
 };
 
 export default onCreateAction;

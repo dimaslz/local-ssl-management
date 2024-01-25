@@ -1,6 +1,6 @@
 import consola from "consola";
 
-const validatePort = (port: string) => {
+export function validatePort(port: string) {
   const portIsNumber = !isNaN(Number(port));
   if (!portIsNumber) {
     consola.error("Port (--port <port>) should be a valid number");
@@ -16,6 +16,4 @@ const validatePort = (port: string) => {
 
     return;
   }
-};
-
-export default validatePort;
+}

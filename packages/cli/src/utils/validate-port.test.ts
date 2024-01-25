@@ -1,6 +1,6 @@
 import consola from "consola";
 
-import validatePort from "./validate-port";
+import { validatePort } from ".";
 
 describe("Validate port", () => {
   describe("success", () => {
