@@ -5,12 +5,6 @@ import { HOSTS_END, HOSTS_START } from "@/constants";
 
 import { getContentFromHosts, setContentToHosts, updateHosts } from "./hosts";
 
-vi.mock("path", () => ({
-  default: {
-    resolve: () => "/root/path",
-  },
-}));
-
 describe("Utils - hosts", () => {
   test("move domain if already exists without Local SSL config slot", async () => {
     vi.spyOn(fs, "readFile").mockReturnValue(

@@ -6,13 +6,7 @@ import onUpdateAction from "@/on-update-action";
 import { validatePort } from "@/utils";
 
 vi.mock("@/utils/validate-port");
-
 vi.mock("@/list-container");
-vi.mock("path", () => ({
-  default: {
-    resolve: () => "/root/path",
-  },
-}));
 
 describe("Actions - onUpdateAction", () => {
   describe("failures", () => {
