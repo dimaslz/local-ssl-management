@@ -15,6 +15,17 @@ describe("Actions - onRemoveAction", () => {
 
       onRemoveAction("dummy");
 
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
+
       expect(consola.error).toBeCalledWith('Domain "dummy" does not exists');
     });
 
@@ -22,6 +33,17 @@ describe("Actions - onRemoveAction", () => {
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify([]));
 
       onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
 
       expect(consola.error).toBeCalledWith(
         'Domain with id "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26" does not exists',
@@ -53,6 +75,17 @@ describe("Actions - onRemoveAction", () => {
         location: "/something",
       });
 
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
+
       expect(consola.error).toBeCalledWith(
         'Location "/something" does not exists',
       );
@@ -79,6 +112,22 @@ describe("Actions - onRemoveAction", () => {
       );
 
       onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).toBeCalledTimes(1);
+      expect(fs.writeFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        "[]",
+      );
 
       // unlink
       expect(fs.unlinkSync).toHaveBeenCalledTimes(2);
@@ -144,13 +193,25 @@ describe("Actions - onRemoveAction", () => {
         2,
         "/root/path/.local-ssl-management/ssl/local.some-domain.tld-key.pem",
       );
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        "/root/path/.local-ssl-management/config.json",
-        JSON.stringify([], null, 2),
-      );
 
       expect(consola.success).nthCalledWith(1, "Domain removed succesful.");
       expect(consola.success).nthCalledWith(2, "Updating proxy image.");
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).toBeCalledTimes(1);
+      expect(fs.writeFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        "[]",
+      );
 
       expect(generateProxyImage).toBeCalled();
     });
@@ -197,9 +258,21 @@ describe("Actions - onRemoveAction", () => {
         2,
         expect.stringMatching(/.*?\/demo.com_demo.es-key.pem$/g),
       );
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        expect.stringMatching(/.*?\/\.local-ssl-management\/config.json$/g),
-        JSON.stringify([], null, 2),
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).toBeCalledTimes(1);
+      expect(fs.writeFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        "[]",
       );
 
       expect(consola.success).nthCalledWith(1, "Domain removed succesful.");
@@ -250,9 +323,21 @@ describe("Actions - onRemoveAction", () => {
         2,
         expect.stringMatching(/.*?\/demo.com_demo.es-key.pem$/g),
       );
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        expect.stringMatching(/.*?\/\.local-ssl-management\/config.json$/g),
-        JSON.stringify([], null, 2),
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).toBeCalledTimes(1);
+      expect(fs.writeFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        "[]",
       );
 
       expect(consola.success).nthCalledWith(1, "Domain removed succesful.");
@@ -304,6 +389,15 @@ describe("Actions - onRemoveAction", () => {
         expect.stringMatching(/.*?\/demo.com_demo.es-key.pem$/g),
       );
 
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
       expect(fs.writeFileSync).toBeCalledTimes(1);
       expect(fs.writeFileSync).toHaveBeenNthCalledWith(
         1,

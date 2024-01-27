@@ -1,18 +1,16 @@
 import consola from "consola";
-import fs from "fs/promises";
+import fs from "fs";
 
 import { HOSTS_END, HOSTS_START } from "@/constants";
 
 import { getContentFromHosts, setContentToHosts, updateHosts } from "./hosts";
 
-describe("Utils - hosts", () => {
+describe("Utils - getContentFromHosts, setContentToHosts, updateHosts", () => {
   test("move domain if already exists without Local SSL config slot", async () => {
-    vi.spyOn(fs, "readFile").mockReturnValue(
-      Promise.resolve(`
+    vi.spyOn(fs, "readFileSync").mockReturnValue(`
 127.0.0.1       				localhost
 127.0.0.1               other-domain.com
-`),
-    );
+`);
 
     const result = await getContentFromHosts();
 
@@ -20,12 +18,10 @@ describe("Utils - hosts", () => {
   });
 
   test("get hosts content without Local SSL config slot", async () => {
-    vi.spyOn(fs, "readFile").mockReturnValue(
-      Promise.resolve(`
+    vi.spyOn(fs, "readFileSync").mockReturnValue(`
 127.0.0.1               localhost
 127.0.0.1               other-domain.com
-`),
-    );
+`);
 
     const result = await getContentFromHosts();
 
@@ -33,8 +29,7 @@ describe("Utils - hosts", () => {
   });
 
   test("get hosts content with Local SSL config slot", async () => {
-    vi.spyOn(fs, "readFile").mockReturnValue(
-      Promise.resolve(`
+    vi.spyOn(fs, "readFileSync").mockReturnValue(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
@@ -43,8 +38,7 @@ ${HOSTS_START}
 ${HOSTS_END}
 
 127.0.0.1               other-domain.com
-`),
-    );
+`);
 
     const result = await getContentFromHosts();
 
@@ -58,14 +52,12 @@ ${HOSTS_END}
 
   test("set hosts content without Local SSL config slot", async () => {
     vi.spyOn(consola, "prompt").mockReturnValue(Promise.resolve(true));
-    vi.spyOn(fs, "readFile").mockReturnValue(
-      Promise.resolve(`
+    vi.spyOn(fs, "readFileSync").mockReturnValue(`
 127.0.0.1               localhost
 127.0.0.1               other-domain.com
-`),
-    );
+`);
 
-    vi.spyOn(fs, "writeFile").mockImplementation(vi.fn());
+    vi.spyOn(fs, "writeFileSync").mockImplementation(vi.fn());
 
     await setContentToHosts(
       `
@@ -74,7 +66,13 @@ ${HOSTS_END}
 `.trim(),
     );
 
-    expect(fs.writeFile).toBeCalledWith(
+    expect(fs.readFileSync).toBeCalledTimes(1);
+    expect(fs.readFileSync).toHaveBeenNthCalledWith(1, "/etc/hosts", {
+      encoding: "utf8",
+    });
+
+    expect(fs.writeFileSync).toBeCalledTimes(1);
+    expect(fs.writeFileSync).toBeCalledWith(
       expect.stringMatching(/\/root\/path\/.tmp-hosts/i),
       `
 127.0.0.1               localhost
@@ -91,8 +89,7 @@ ${HOSTS_END}
 
   test("set hosts content with Local SSL config slot", async () => {
     vi.spyOn(consola, "prompt").mockReturnValue(Promise.resolve(true));
-    vi.spyOn(fs, "readFile").mockReturnValue(
-      Promise.resolve(`
+    vi.spyOn(fs, "readFileSync").mockReturnValue(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
@@ -101,10 +98,7 @@ ${HOSTS_START}
 ${HOSTS_END}
 
 127.0.0.1               other-domain.com
-`),
-    );
-
-    vi.spyOn(fs, "writeFile").mockImplementation(vi.fn());
+`);
 
     await setContentToHosts(
       `
@@ -113,7 +107,8 @@ ${HOSTS_END}
 `.trim(),
     );
 
-    expect(fs.writeFile).toBeCalledWith(
+    expect(fs.writeFileSync).toBeCalledTimes(1);
+    expect(fs.writeFileSync).toBeCalledWith(
       expect.stringMatching(/\/root\/path\/.tmp-hosts/i),
       `
 127.0.0.1               localhost
@@ -130,9 +125,7 @@ ${HOSTS_END}
 
   test("update hosts where a domain already exists outside Local SSL config slot", async () => {
     vi.spyOn(consola, "prompt").mockReturnValue(Promise.resolve(true));
-    vi.spyOn(fs, "readFile")
-      .mockReturnValueOnce(
-        Promise.resolve(`
+    vi.spyOn(fs, "readFileSync").mockReturnValueOnce(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
@@ -141,20 +134,14 @@ ${HOSTS_START}
 ${HOSTS_END}
 
 127.0.0.1               other-domain.com
-`),
-      )
-      .mockReturnValueOnce(
-        Promise.resolve(`
+`).mockReturnValueOnce(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
 127.0.0.1               local.domain.com
 127.0.0.1               local.domain.dev
 ${HOSTS_END}
-`),
-      )
-      .mockReturnValueOnce(
-        Promise.resolve(`
+`).mockReturnValueOnce(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
@@ -162,14 +149,27 @@ ${HOSTS_START}
 127.0.0.1               local.domain.dev
 127.0.0.1               other-domain.com
 ${HOSTS_END}
-`),
-      );
+`);
 
     vi.spyOn(fs, "writeFile").mockImplementation(vi.fn());
 
     await updateHosts("other-domain.com");
 
-    expect(fs.writeFile).nthCalledWith(
+    // read files
+    expect(fs.readFileSync).toBeCalledTimes(3);
+    expect(fs.readFileSync).nthCalledWith(1, "/etc/hosts", {
+      encoding: "utf8",
+    });
+    expect(fs.readFileSync).nthCalledWith(2, "/etc/hosts", {
+      encoding: "utf8",
+    });
+    expect(fs.readFileSync).nthCalledWith(3, "/etc/hosts", {
+      encoding: "utf8",
+    });
+
+    // write files
+    expect(fs.writeFileSync).toBeCalledTimes(2);
+    expect(fs.writeFileSync).nthCalledWith(
       1,
       expect.stringMatching(/\/root\/path\/.tmp-hosts/i),
       `
@@ -181,7 +181,7 @@ ${HOSTS_START}
 ${HOSTS_END}
 `,
     );
-    expect(fs.writeFile).nthCalledWith(
+    expect(fs.writeFileSync).nthCalledWith(
       2,
       expect.stringMatching(/\/root\/path\/.tmp-hosts/i),
       `
@@ -198,29 +198,21 @@ ${HOSTS_END}
 
   test("update hosts where a domain does not exists inside/outside Local SSL config slot", async () => {
     vi.spyOn(consola, "prompt").mockReturnValue(Promise.resolve(true));
-    vi.spyOn(fs, "readFile")
-      .mockReturnValueOnce(
-        Promise.resolve(`
+    vi.spyOn(fs, "readFileSync").mockReturnValueOnce(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
 127.0.0.1               local.domain.com
 127.0.0.1               local.domain.dev
 ${HOSTS_END}
-`),
-      )
-      .mockReturnValueOnce(
-        Promise.resolve(`
+`).mockReturnValueOnce(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
 127.0.0.1               local.domain.com
 127.0.0.1               local.domain.dev
 ${HOSTS_END}
-`),
-      )
-      .mockReturnValueOnce(
-        Promise.resolve(`
+`).mockReturnValueOnce(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
@@ -228,14 +220,25 @@ ${HOSTS_START}
 127.0.0.1               local.domain.dev
 127.0.0.1               other-domain.com
 ${HOSTS_END}
-`),
-      );
-
-    vi.spyOn(fs, "writeFile").mockImplementation(vi.fn());
+`);
 
     await updateHosts("other-domain.com");
 
-    expect(fs.writeFile).nthCalledWith(
+    // read files
+    expect(fs.readFileSync).toBeCalledTimes(3);
+    expect(fs.readFileSync).nthCalledWith(1, "/etc/hosts", {
+      encoding: "utf8",
+    });
+    expect(fs.readFileSync).nthCalledWith(2, "/etc/hosts", {
+      encoding: "utf8",
+    });
+    expect(fs.readFileSync).nthCalledWith(3, "/etc/hosts", {
+      encoding: "utf8",
+    });
+
+    // write files
+    expect(fs.writeFileSync).toBeCalledTimes(1);
+    expect(fs.writeFileSync).nthCalledWith(
       1,
       expect.stringMatching(/\/root\/path\/.tmp-hosts/i),
       `
@@ -251,9 +254,7 @@ ${HOSTS_END}
   });
 
   test("update hosts where a domain already exists into Local SSL slot", async () => {
-    vi.spyOn(fs, "readFile")
-      .mockReturnValueOnce(
-        Promise.resolve(`
+    vi.spyOn(fs, "readFileSync").mockReturnValueOnce(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
@@ -262,10 +263,7 @@ ${HOSTS_START}
 127.0.0.1               other-domain.com
 ${HOSTS_END}
 
-`),
-      )
-      .mockReturnValueOnce(
-        Promise.resolve(`
+`).mockReturnValueOnce(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
@@ -273,10 +271,7 @@ ${HOSTS_START}
 127.0.0.1               local.domain.dev
 127.0.0.1               other-domain.com
 ${HOSTS_END}
-`),
-      )
-      .mockReturnValueOnce(
-        Promise.resolve(`
+`).mockReturnValueOnce(`
 127.0.0.1               localhost
 
 ${HOSTS_START}
@@ -284,13 +279,19 @@ ${HOSTS_START}
 127.0.0.1               local.domain.dev
 127.0.0.1               other-domain.com
 ${HOSTS_END}
-`),
-      );
-
-    vi.spyOn(fs, "writeFile").mockImplementation(vi.fn());
+`);
 
     await updateHosts("other-domain.com");
 
-    expect(fs.writeFile).not.toBeCalled();
+    // read files
+    expect(fs.readFileSync).toBeCalledTimes(2);
+    expect(fs.readFileSync).nthCalledWith(1, "/etc/hosts", {
+      encoding: "utf8",
+    });
+    expect(fs.readFileSync).nthCalledWith(2, "/etc/hosts", {
+      encoding: "utf8",
+    });
+
+    expect(fs.writeFileSync).not.toBeCalled();
   });
 });

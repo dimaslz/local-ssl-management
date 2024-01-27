@@ -1,5 +1,5 @@
 import consola from "consola";
-import fs from "fs/promises";
+import fs from "fs";
 import path from "path";
 
 import { HOSTS_END, HOSTS_START } from "@/constants";
@@ -10,7 +10,9 @@ const distPath = path.resolve(__dirname, "./");
 const tmpHostsPath = `${distPath}/.tmp-hosts`;
 
 export async function getContentFromHosts(): Promise<string> {
-  const hostsContent = await fs.readFile("/etc/hosts", { encoding: "utf8" });
+  const hostsContent = await fs.readFileSync("/etc/hosts", {
+    encoding: "utf8",
+  });
 
   const [, localSSLHosts = ""] =
     hostsContent.match(new RegExp(`${HOSTS_START}([^#]+)${HOSTS_END}`, "im")) ||
@@ -20,7 +22,9 @@ export async function getContentFromHosts(): Promise<string> {
 }
 
 export async function setContentToHosts(content: string): Promise<string> {
-  const hostsContent = await fs.readFile("/etc/hosts", { encoding: "utf8" });
+  const hostsContent = await fs.readFileSync("/etc/hosts", {
+    encoding: "utf8",
+  });
   const [, localSSLHosts = ""] =
     hostsContent.match(new RegExp(`${HOSTS_START}([^#]+)${HOSTS_END}`, "im")) ||
     [];
@@ -45,7 +49,7 @@ ${HOSTS_START}\n${content}\n${HOSTS_END}
   });
 
   if (answer) {
-    await fs.writeFile(tmpHostsPath, newContent);
+    await fs.writeFileSync(tmpHostsPath, newContent);
     updateSystemHosts(tmpHostsPath);
   }
 
@@ -53,7 +57,9 @@ ${HOSTS_START}\n${content}\n${HOSTS_END}
 }
 
 export async function updateHosts(domain: string) {
-  const hostsContent = await fs.readFile("/etc/hosts", { encoding: "utf8" });
+  const hostsContent = await fs.readFileSync("/etc/hosts", {
+    encoding: "utf8",
+  });
   const currentLocalSSLHosts = await getContentFromHosts();
 
   const [alreadyExistsInLocalSSLHosts] =
@@ -77,7 +83,7 @@ export async function updateHosts(domain: string) {
     );
 
     try {
-      await fs.writeFile(tmpHostsPath, `\n${hostsContentCleaned.trim()}\n`);
+      await fs.writeFileSync(tmpHostsPath, `\n${hostsContentCleaned.trim()}\n`);
       updateSystemHosts(tmpHostsPath);
     } catch (error) {
       // silent

@@ -1,6 +1,6 @@
 import consola from "consola";
 
-import { validateLocation } from ".";
+import { validateLocation } from "@/utils";
 
 describe("Validate location", () => {
   describe("failures", () => {

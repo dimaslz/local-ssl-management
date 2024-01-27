@@ -1,4 +1,5 @@
 import consola from "consola";
+import fs from "fs";
 import shell from "shelljs";
 
 import listContainer from "@/list-container";
@@ -23,6 +24,12 @@ describe("Actions - listContainer", () => {
 
       expect(shell.echo).toHaveBeenCalledTimes(1);
       expect(shell.echo).toMatchSnapshot();
+
+      // read files
+      expect(fs.readFileSync).not.toBeCalled();
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
     });
   });
 
@@ -41,6 +48,12 @@ describe("Actions - listContainer", () => {
       expect(consola.error).toBeCalledWith(
         "Something have been failure. Contact with the author.",
       );
+
+      // read files
+      expect(fs.readFileSync).not.toBeCalled();
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
     });
   });
 });

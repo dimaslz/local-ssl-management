@@ -1,10 +1,11 @@
 import consola from "consola";
 
-import { validatePort } from ".";
+import { validatePort } from "@/utils";
 
 describe("Validate port", () => {
   describe("success", () => {
     const ports = [["1025"], ["3000"], ["65535"]];
+
     test.each(ports)("Port %s is valid", (port) => {
       validatePort(port);
 

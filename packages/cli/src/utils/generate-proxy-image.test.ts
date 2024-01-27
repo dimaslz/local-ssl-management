@@ -4,12 +4,11 @@ import fs from "fs";
 import shell from "shelljs";
 
 import listContainer from "@/list-container";
-
-import { generateProxyImage } from ".";
+import { generateProxyImage } from "@/utils";
 
 vi.mock("@/list-container");
 
-describe("Generate proxy image", () => {
+describe("Utils - generateProxyImage", () => {
   beforeEach(() => {
     vi.spyOn(fs, "existsSync").mockReturnValue(false);
   });

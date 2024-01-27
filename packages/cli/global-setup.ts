@@ -4,6 +4,7 @@ import shell from "shelljs";
 import { beforeEach, vi } from "vitest";
 
 vi.mock("fs");
+vi.mock("fs/promises");
 vi.mock("consola");
 vi.mock("shelljs");
 

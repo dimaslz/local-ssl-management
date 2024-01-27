@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Generate proxy image > success > multiple service > create domain config succesful (domain certs does not exists) 1`] = `
+exports[`Utils - generateProxyImage > success > multiple service > create domain config succesful (domain certs does not exists) 1`] = `
 [MockFunction writeFileSync] {
   "calls": [
     [
@@ -142,7 +142,7 @@ CMD ["nginx", "-g", "daemon off;"]",
 }
 `;
 
-exports[`Generate proxy image > success > multiple service > create domain config succesful (domain certs does not exists) 2`] = `
+exports[`Utils - generateProxyImage > success > multiple service > create domain config succesful (domain certs does not exists) 2`] = `
 [MockFunction spy] {
   "calls": [
     [
@@ -164,7 +164,7 @@ exports[`Generate proxy image > success > multiple service > create domain confi
 }
 `;
 
-exports[`Generate proxy image > success > multiple service > create domain config succesful (localhost certs does not exists) 1`] = `
+exports[`Utils - generateProxyImage > success > multiple service > create domain config succesful (localhost certs does not exists) 1`] = `
 [MockFunction writeFileSync] {
   "calls": [
     [
@@ -306,7 +306,7 @@ CMD ["nginx", "-g", "daemon off;"]",
 }
 `;
 
-exports[`Generate proxy image > success > multiple service > create domain config succesful (localhost certs does not exists) 2`] = `
+exports[`Utils - generateProxyImage > success > multiple service > create domain config succesful (localhost certs does not exists) 2`] = `
 [MockFunction spy] {
   "calls": [
     [
@@ -328,7 +328,7 @@ exports[`Generate proxy image > success > multiple service > create domain confi
 }
 `;
 
-exports[`Generate proxy image > success > multiple service > does not exists localhost certs 1`] = `
+exports[`Utils - generateProxyImage > success > multiple service > does not exists localhost certs 1`] = `
 [MockFunction writeFileSync] {
   "calls": [
     [
@@ -470,7 +470,7 @@ CMD ["nginx", "-g", "daemon off;"]",
 }
 `;
 
-exports[`Generate proxy image > success > multiple service > does not exists localhost certs 2`] = `
+exports[`Utils - generateProxyImage > success > multiple service > does not exists localhost certs 2`] = `
 [MockFunction spy] {
   "calls": [
     [
@@ -492,7 +492,7 @@ exports[`Generate proxy image > success > multiple service > does not exists loc
 }
 `;
 
-exports[`Generate proxy image > success > single service > create domain config succesful (domain certs does not exists) 1`] = `
+exports[`Utils - generateProxyImage > success > single service > create domain config succesful (domain certs does not exists) 1`] = `
 [MockFunction writeFileSync] {
   "calls": [
     [
@@ -610,7 +610,7 @@ CMD ["nginx", "-g", "daemon off;"]",
 }
 `;
 
-exports[`Generate proxy image > success > single service > create domain config succesful (domain certs does not exists) 2`] = `
+exports[`Utils - generateProxyImage > success > single service > create domain config succesful (domain certs does not exists) 2`] = `
 [MockFunction spy] {
   "calls": [
     [
@@ -632,7 +632,7 @@ exports[`Generate proxy image > success > single service > create domain config 
 }
 `;
 
-exports[`Generate proxy image > success > single service > create domain config succesful (localhost certs does not exists) 1`] = `
+exports[`Utils - generateProxyImage > success > single service > create domain config succesful (localhost certs does not exists) 1`] = `
 [MockFunction writeFileSync] {
   "calls": [
     [
@@ -750,7 +750,7 @@ CMD ["nginx", "-g", "daemon off;"]",
 }
 `;
 
-exports[`Generate proxy image > success > single service > create domain config succesful (localhost certs does not exists) 2`] = `
+exports[`Utils - generateProxyImage > success > single service > create domain config succesful (localhost certs does not exists) 2`] = `
 [MockFunction spy] {
   "calls": [
     [
@@ -772,7 +772,7 @@ exports[`Generate proxy image > success > single service > create domain config 
 }
 `;
 
-exports[`Generate proxy image > success > single service > does not exists localhost certs 1`] = `
+exports[`Utils - generateProxyImage > success > single service > does not exists localhost certs 1`] = `
 [MockFunction writeFileSync] {
   "calls": [
     [
@@ -890,7 +890,7 @@ CMD ["nginx", "-g", "daemon off;"]",
 }
 `;
 
-exports[`Generate proxy image > success > single service > does not exists localhost certs 2`] = `
+exports[`Utils - generateProxyImage > success > single service > does not exists localhost certs 2`] = `
 [MockFunction spy] {
   "calls": [
     [

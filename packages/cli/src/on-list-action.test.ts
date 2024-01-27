@@ -61,5 +61,16 @@ describe("Actions - onListAction", () => {
       'curl -s -o /dev/null -w "%{http_code}" https://local.some-domain.tld/app-name',
       { silent: true },
     );
+
+    // read files
+    expect(fs.readFileSync).toBeCalledTimes(1);
+    expect(fs.readFileSync).nthCalledWith(
+      1,
+      "/root/path/.local-ssl-management/config.json",
+      { encoding: "utf8" },
+    );
+
+    // write files
+    expect(fs.writeFileSync).not.toBeCalled();
   });
 });

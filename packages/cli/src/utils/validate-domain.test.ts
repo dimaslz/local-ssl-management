@@ -1,7 +1,7 @@
 import consola from "consola";
 import shell from "shelljs";
 
-import { validateDomain } from ".";
+import { validateDomain } from "@/utils";
 
 describe("Validate domain", () => {
   describe("wrong TLD", () => {

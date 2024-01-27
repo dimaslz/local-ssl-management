@@ -1,11 +1,13 @@
-import fs from "fs/promises";
+import fs from "fs";
 
 export async function domainExistsInHosts(domain: string) {
-  const hostsContent = await fs.readFile("/etc/hosts", { encoding: "utf8" });
+  const hostsContent = await fs.readFileSync("/etc/hosts", {
+    encoding: "utf8",
+  });
 
-  const [alreadyExistsInHosts] =
+  const [alreadyExistsInHosts = false] =
     hostsContent.match(new RegExp(`\\d+.\\d+.\\d+.\\d+.*?${domain}$`, "mi")) ||
     [];
 
-  return alreadyExistsInHosts;
+  return Boolean(alreadyExistsInHosts);
 }

@@ -11,7 +11,6 @@ vi.mock("@/utils/domain-exists-in-hosts", () => ({
 
 describe("Actions - onCreateAction", () => {
   beforeEach(() => {
-    vi.spyOn(fs, "readFileSync").mockReturnValue("[]");
     vi.spyOn(fs, "existsSync").mockReturnValueOnce(true);
   });
 
@@ -19,6 +18,16 @@ describe("Actions - onCreateAction", () => {
     test("can not create with invalid domain", async () => {
       const domain = "wrong.domain";
       const port = "3000";
+
+      const hostMock = `
+127.0.0.1       				localhost
+127.0.0.1               other-domain.com
+`;
+      vi.spyOn(fs, "readFileSync")
+        .mockReturnValueOnce(JSON.stringify([], null, 2))
+        .mockReturnValueOnce(hostMock)
+        .mockReturnValueOnce(hostMock)
+        .mockReturnValueOnce(hostMock);
 
       vi.spyOn(shell, "exec")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,6 +40,27 @@ describe("Actions - onCreateAction", () => {
         );
 
       await onCreateAction(domain, { port });
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(4);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+      expect(fs.readFileSync).nthCalledWith(2, "/etc/hosts", {
+        encoding: "utf8",
+      });
+      expect(fs.readFileSync).nthCalledWith(3, "/etc/hosts", {
+        encoding: "utf8",
+      });
+      expect(fs.readFileSync).nthCalledWith(4, "/etc/hosts", {
+        encoding: "utf8",
+      });
+
+      // write files
+      expect(fs.writeFileSync).toBeCalledTimes(3);
+      expect(fs.writeFileSync).toMatchSnapshot();
 
       expect(consola.error).toBeCalledWith(
         "Domain (https://wrong.domain) format is not valid",
@@ -41,6 +71,16 @@ describe("Actions - onCreateAction", () => {
       const domain = "some-domain.com";
       const port = "666";
 
+      const hostMock = `
+127.0.0.1       				localhost
+127.0.0.1               other-domain.com
+`;
+      vi.spyOn(fs, "readFileSync")
+        .mockReturnValueOnce(JSON.stringify([], null, 2))
+        .mockReturnValueOnce(hostMock)
+        .mockReturnValueOnce(hostMock)
+        .mockReturnValueOnce(hostMock);
+
       vi.spyOn(shell, "exec")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .mockImplementationOnce((): any => "")
@@ -52,6 +92,27 @@ describe("Actions - onCreateAction", () => {
         );
 
       await onCreateAction(domain, { port });
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(4);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+      expect(fs.readFileSync).nthCalledWith(2, "/etc/hosts", {
+        encoding: "utf8",
+      });
+      expect(fs.readFileSync).nthCalledWith(3, "/etc/hosts", {
+        encoding: "utf8",
+      });
+      expect(fs.readFileSync).nthCalledWith(4, "/etc/hosts", {
+        encoding: "utf8",
+      });
+
+      // write files
+      expect(fs.writeFileSync).toBeCalledTimes(3);
+      expect(fs.writeFileSync).toMatchSnapshot();
 
       expect(consola.error).toBeCalledWith(
         "Port (--port <port>) should be into the range 1025 to 65535",
@@ -86,6 +147,17 @@ describe("Actions - onCreateAction", () => {
 
       await onCreateAction(domain, { port, location });
 
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
+
       expect(consola.error).toBeCalledWith(
         'Location "/app-name" already exists',
       );
@@ -117,6 +189,17 @@ describe("Actions - onCreateAction", () => {
 
       await onCreateAction(domain, {});
 
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
+
       expect(consola.error).toBeCalledWith(
         'Domain "some-domain.com" already created with the default location "/", but does not exist on your local `/etc/hosts`',
       );
@@ -140,6 +223,16 @@ describe("Actions - onCreateAction", () => {
       test("domain config created sucessfully", async () => {
         const domain = "some-domain.com";
         const port = "3000";
+        const hostMock = `
+127.0.0.1       				localhost
+127.0.0.1               other-domain.com
+`;
+
+        vi.spyOn(fs, "readFileSync")
+          .mockReturnValueOnce(JSON.stringify([]))
+          .mockReturnValueOnce(hostMock)
+          .mockReturnValueOnce(hostMock)
+          .mockReturnValueOnce(hostMock);
 
         await onCreateAction(domain, { port });
 
@@ -155,18 +248,29 @@ describe("Actions - onCreateAction", () => {
           { silent: true },
         );
 
-        expect(fs.readFileSync).toBeCalledTimes(1);
-        expect(fs.readFileSync).toHaveBeenNthCalledWith(
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(4);
+        expect(fs.readFileSync).nthCalledWith(
           1,
-          expect.stringMatching(/.local-ssl-management\/config.json/),
+          "/root/path/.local-ssl-management/config.json",
           { encoding: "utf8" },
         );
+        expect(fs.readFileSync).nthCalledWith(2, "/etc/hosts", {
+          encoding: "utf8",
+        });
+        expect(fs.readFileSync).nthCalledWith(3, "/etc/hosts", {
+          encoding: "utf8",
+        });
+        expect(fs.readFileSync).nthCalledWith(4, "/etc/hosts", {
+          encoding: "utf8",
+        });
 
         expect(fs.existsSync).toHaveBeenCalledWith(
           expect.stringMatching(/.local-ssl-management\/ssl/),
         );
         expect(fs.mkdirSync).not.toHaveBeenCalled();
 
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
         expect(fs.writeFileSync).nthCalledWith(
@@ -193,7 +297,15 @@ describe("Actions - onCreateAction", () => {
       });
 
       test("domain config created sucessfully (does not exists /ssl)", async () => {
-        vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify([]));
+        const hostMock = `
+127.0.0.1       				localhost
+127.0.0.1               other-domain.com
+`;
+        vi.spyOn(fs, "readFileSync")
+          .mockReturnValueOnce(JSON.stringify([], null, 2))
+          .mockReturnValueOnce(hostMock)
+          .mockReturnValueOnce(hostMock)
+          .mockReturnValueOnce(hostMock);
         vi.spyOn(fs, "existsSync").mockReturnValue(false);
 
         const domain = "some-domain.com";
@@ -213,16 +325,29 @@ describe("Actions - onCreateAction", () => {
           { silent: true },
         );
 
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(4);
         expect(fs.readFileSync).toHaveBeenNthCalledWith(
           1,
           expect.stringMatching(/.local-ssl-management\/config.json/),
           { encoding: "utf8" },
         );
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(2, "/etc/hosts", {
+          encoding: "utf8",
+        });
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(3, "/etc/hosts", {
+          encoding: "utf8",
+        });
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(4, "/etc/hosts", {
+          encoding: "utf8",
+        });
+
         expect(fs.existsSync).toHaveBeenCalledWith(
           expect.stringMatching(/.local-ssl-management\/ssl/),
         );
         expect(fs.mkdirSync).toHaveBeenCalled();
 
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
         expect(fs.writeFileSync).nthCalledWith(
@@ -249,7 +374,7 @@ describe("Actions - onCreateAction", () => {
       });
 
       test("domain config already exists", async () => {
-        vi.spyOn(fs, "readFileSync").mockReturnValue(
+        vi.spyOn(fs, "readFileSync").mockReturnValueOnce(
           JSON.stringify(
             [
               {
@@ -273,6 +398,16 @@ describe("Actions - onCreateAction", () => {
         const port = "3000";
 
         await onCreateAction(domain, { port });
+
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(1);
+        expect(fs.readFileSync).toBeCalledWith(
+          "/root/path/.local-ssl-management/config.json",
+          { encoding: "utf8" },
+        );
+
+        // write files
+        expect(fs.writeFileSync).not.toBeCalled();
 
         expect(consola.error).toBeCalledWith(
           'Domain "some-domain.com" already created with the default location "/", but does not exist on your local `/etc/hosts`',
@@ -322,16 +457,29 @@ describe("Actions - onCreateAction", () => {
           { silent: true },
         );
 
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(4);
         expect(fs.readFileSync).toHaveBeenNthCalledWith(
           1,
           expect.stringMatching(/.local-ssl-management\/config.json/),
           { encoding: "utf8" },
         );
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(2, "/etc/hosts", {
+          encoding: "utf8",
+        });
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(3, "/etc/hosts", {
+          encoding: "utf8",
+        });
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(4, "/etc/hosts", {
+          encoding: "utf8",
+        });
+
         expect(fs.existsSync).toHaveBeenCalledWith(
           expect.stringMatching(/.local-ssl-management\/ssl/),
         );
         expect(fs.mkdirSync).not.toHaveBeenCalled();
 
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
         expect(fs.writeFileSync).toHaveBeenNthCalledWith(
@@ -383,16 +531,29 @@ describe("Actions - onCreateAction", () => {
           { silent: true },
         );
 
+        // read files
+        expect(fs.readFileSync).toHaveBeenCalledTimes(4);
         expect(fs.readFileSync).toHaveBeenNthCalledWith(
           1,
           expect.stringMatching(/.local-ssl-management\/config.json/),
           { encoding: "utf8" },
         );
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(2, "/etc/hosts", {
+          encoding: "utf8",
+        });
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(3, "/etc/hosts", {
+          encoding: "utf8",
+        });
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(4, "/etc/hosts", {
+          encoding: "utf8",
+        });
+
         expect(fs.existsSync).toHaveBeenCalledWith(
           expect.stringMatching(/.local-ssl-management\/ssl/),
         );
         expect(fs.mkdirSync).toHaveBeenCalled();
 
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
 
@@ -444,6 +605,17 @@ describe("Actions - onCreateAction", () => {
         const port = "3000";
 
         await onCreateAction(domain, { port });
+
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(1);
+        expect(fs.readFileSync).toHaveBeenNthCalledWith(
+          1,
+          "/root/path/.local-ssl-management/config.json",
+          { encoding: "utf8" },
+        );
+
+        // write files
+        expect(fs.writeFileSync).not.toBeCalled();
 
         expect(consola.error).toBeCalledWith(
           'Domain "some-domain.com" already created with the default location "/", but does not exist on your local `/etc/hosts`',

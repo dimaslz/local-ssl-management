@@ -39,7 +39,7 @@ export function updateSystemHosts(tmpHostsPath: string) {
   const watchTmpHostsFile = chokidar.watch(tmpHostsPath).on("unlink", () => {
     watchTmpHostsFile.unwatch(tmpHostsPath);
 
-    consola.info(`Your hosts has been updated. Type \`cat/etc/hosts\` in your terminal to see the last updates on LOCAL SSL block.
+    consola.info(`Your hosts has been updated. Type \`cat /etc/hosts\` in your terminal to see the last updates on LOCAL SSL block.
 `);
   });
 }

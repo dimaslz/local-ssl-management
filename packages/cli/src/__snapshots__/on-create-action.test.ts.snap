@@ -1,5 +1,281 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Actions - onCreateAction > failures > can not create with invalid domain 1`] = `
+[MockFunction writeFileSync] {
+  "calls": [
+    [
+      "/root/path/.local-ssl-management/nginx.conf",
+      "user  nginx;
+worker_processes  20;
+
+error_log		/var/log/nginx/error.log warn;
+pid					/var/run/nginx.pid;
+
+events {
+	worker_connections  1024;
+}
+
+http {
+		server {
+				listen              443 ssl;
+				server_name         _;
+				ssl_certificate     /etc/nginx/localhost-cert.pem;
+				ssl_certificate_key /etc/nginx/localhost-key.pem;
+				location / {
+						root  /var/www/html;
+				}
+		}
+
+		server {
+				listen 80 default_server;
+				server_name         _;
+
+				include       /etc/nginx/mime.types;
+				default_type  application/octet-stream;
+
+				location / {
+						root  /var/www/html;
+				}
+		}
+
+		server {
+			listen	443 ssl;
+
+			autoindex off;
+
+			access_log  /var/log/nginx/wrong.domain.access.log;
+			error_log   /var/log/nginx/wrong.domain.error.log;
+
+			server_tokens off;
+			server_name wrong.domain;
+
+			ssl_certificate     /etc/nginx/wrong.domain-cert.pem;
+			ssl_certificate_key /etc/nginx/wrong.domain-key.pem;
+
+			gzip_static on;
+
+			location ~ ^/(/?)(.*) {
+				gzip on;
+				gzip_disable "msie6";
+				gzip_vary on;
+				gzip_proxied any;
+				gzip_comp_level 6;
+				gzip_buffers 16 8k;
+				gzip_http_version 1.1;
+				gzip_min_length 256;
+				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
+				proxy_pass http://11.22.33.445:3000/$2;
+				proxy_redirect off;
+				proxy_http_version 1.1;
+				proxy_cache_bypass $http_upgrade;
+				proxy_set_header Upgrade $http_upgrade;
+				proxy_set_header Connection 'upgrade';
+				proxy_set_header Host $host;
+				proxy_set_header 'Access-Control-Allow-Origin' '*';
+				proxy_set_header X-Real-IP $remote_addr;
+				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+				expires off;
+		}
+	}
+}",
+    ],
+    [
+      "/root/path/.local-ssl-management/Dockerfile",
+      "FROM nginx
+
+# RUN rm -f /etc/nginx/conf.d/default.conf
+
+# WORKDIR /var/www/html
+# COPY index.html /var/www/html
+# RUN chmod 755 /var/www/html/index.html
+
+COPY nginx.conf /etc/nginx/conf.d/
+
+COPY ssl/wrong.domain-key.pem /etc/nginx/
+COPY ssl/wrong.domain-cert.pem /etc/nginx/
+
+COPY ssl/localhost-key.pem /etc/nginx/
+COPY ssl/localhost-cert.pem /etc/nginx/
+
+COPY nginx.conf /etc/nginx/
+
+EXPOSE 80 443
+
+CMD ["nginx", "-g", "daemon off;"]",
+    ],
+    [
+      "/root/path/.local-ssl-management/config.json",
+      "[
+  {
+    "id": "48d1a85c-377a-40ef-8a82-d1405f7a074f",
+    "domain": "wrong.domain",
+    "services": [
+      {
+        "id": "da406b35-79b8-4909-9af1-07cfdcf37d00",
+        "location": "/",
+        "port": "3000"
+      }
+    ]
+  }
+]",
+    ],
+  ],
+  "results": [
+    {
+      "type": "return",
+      "value": undefined,
+    },
+    {
+      "type": "return",
+      "value": undefined,
+    },
+    {
+      "type": "return",
+      "value": undefined,
+    },
+  ],
+}
+`;
+
+exports[`Actions - onCreateAction > failures > can not create with invalid port 1`] = `
+[MockFunction writeFileSync] {
+  "calls": [
+    [
+      "/root/path/.local-ssl-management/nginx.conf",
+      "user  nginx;
+worker_processes  20;
+
+error_log		/var/log/nginx/error.log warn;
+pid					/var/run/nginx.pid;
+
+events {
+	worker_connections  1024;
+}
+
+http {
+		server {
+				listen              443 ssl;
+				server_name         _;
+				ssl_certificate     /etc/nginx/localhost-cert.pem;
+				ssl_certificate_key /etc/nginx/localhost-key.pem;
+				location / {
+						root  /var/www/html;
+				}
+		}
+
+		server {
+				listen 80 default_server;
+				server_name         _;
+
+				include       /etc/nginx/mime.types;
+				default_type  application/octet-stream;
+
+				location / {
+						root  /var/www/html;
+				}
+		}
+
+		server {
+			listen	443 ssl;
+
+			autoindex off;
+
+			access_log  /var/log/nginx/some-domain.com.access.log;
+			error_log   /var/log/nginx/some-domain.com.error.log;
+
+			server_tokens off;
+			server_name some-domain.com;
+
+			ssl_certificate     /etc/nginx/some-domain.com-cert.pem;
+			ssl_certificate_key /etc/nginx/some-domain.com-key.pem;
+
+			gzip_static on;
+
+			location ~ ^/(/?)(.*) {
+				gzip on;
+				gzip_disable "msie6";
+				gzip_vary on;
+				gzip_proxied any;
+				gzip_comp_level 6;
+				gzip_buffers 16 8k;
+				gzip_http_version 1.1;
+				gzip_min_length 256;
+				gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
+				proxy_pass http://11.22.33.445:666/$2;
+				proxy_redirect off;
+				proxy_http_version 1.1;
+				proxy_cache_bypass $http_upgrade;
+				proxy_set_header Upgrade $http_upgrade;
+				proxy_set_header Connection 'upgrade';
+				proxy_set_header Host $host;
+				proxy_set_header 'Access-Control-Allow-Origin' '*';
+				proxy_set_header X-Real-IP $remote_addr;
+				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+				proxy_set_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+				expires off;
+		}
+	}
+}",
+    ],
+    [
+      "/root/path/.local-ssl-management/Dockerfile",
+      "FROM nginx
+
+# RUN rm -f /etc/nginx/conf.d/default.conf
+
+# WORKDIR /var/www/html
+# COPY index.html /var/www/html
+# RUN chmod 755 /var/www/html/index.html
+
+COPY nginx.conf /etc/nginx/conf.d/
+
+COPY ssl/some-domain.com-key.pem /etc/nginx/
+COPY ssl/some-domain.com-cert.pem /etc/nginx/
+
+COPY ssl/localhost-key.pem /etc/nginx/
+COPY ssl/localhost-cert.pem /etc/nginx/
+
+COPY nginx.conf /etc/nginx/
+
+EXPOSE 80 443
+
+CMD ["nginx", "-g", "daemon off;"]",
+    ],
+    [
+      "/root/path/.local-ssl-management/config.json",
+      "[
+  {
+    "id": "48d1a85c-377a-40ef-8a82-d1405f7a074f",
+    "domain": "some-domain.com",
+    "services": [
+      {
+        "id": "da406b35-79b8-4909-9af1-07cfdcf37d00",
+        "location": "/",
+        "port": "666"
+      }
+    ]
+  }
+]",
+    ],
+  ],
+  "results": [
+    {
+      "type": "return",
+      "value": undefined,
+    },
+    {
+      "type": "return",
+      "value": undefined,
+    },
+    {
+      "type": "return",
+      "value": undefined,
+    },
+  ],
+}
+`;
+
 exports[`Actions - onCreateAction > success > multiple services > domain config created sucessfully (does not exists /ssl) 1`] = `
 [MockFunction writeFileSync] {
   "calls": [

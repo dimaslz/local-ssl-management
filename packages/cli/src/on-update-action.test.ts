@@ -36,6 +36,17 @@ describe("Actions - onUpdateAction", () => {
 
       onUpdateAction(domain, { port });
 
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
+
       expect(consola.error).toBeCalledWith(
         'Domain "foo-domain.com" does not exists',
       );
@@ -65,6 +76,17 @@ describe("Actions - onUpdateAction", () => {
       );
 
       onUpdateAction(domain, { port });
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
 
       expect(consola.error).toBeCalledWith(
         'Domain with key "48d1a85c-377a-40ef-8a82-d1405f7a0722" does not exists',
@@ -97,6 +119,17 @@ describe("Actions - onUpdateAction", () => {
 
       onUpdateAction(domain, { port });
 
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
+
       expect(consola.error).toBeCalledWith("Location is mandatory");
     });
 
@@ -124,6 +157,17 @@ describe("Actions - onUpdateAction", () => {
       );
 
       onUpdateAction(domain, { location: "/not-exists,/app-name" });
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
 
       expect(consola.error).toBeCalledWith(
         'Location "/not-exists" does not exists',
@@ -154,6 +198,17 @@ describe("Actions - onUpdateAction", () => {
       );
 
       onUpdateAction(domain, { location: "/app-name" });
+
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(
+        1,
+        "/root/path/.local-ssl-management/config.json",
+        { encoding: "utf8" },
+      );
+
+      // write files
+      expect(fs.writeFileSync).not.toBeCalled();
 
       expect(consola.error).toBeCalledWith(
         'Location "/app-name" does not exists',
@@ -250,6 +305,15 @@ describe("Actions - onUpdateAction", () => {
           { silent: true },
         );
 
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(1);
+        expect(fs.readFileSync).nthCalledWith(
+          1,
+          "/root/path/.local-ssl-management/config.json",
+          { encoding: "utf8" },
+        );
+
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
 
@@ -320,6 +384,15 @@ describe("Actions - onUpdateAction", () => {
           { silent: true },
         );
 
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(1);
+        expect(fs.readFileSync).nthCalledWith(
+          1,
+          "/root/path/.local-ssl-management/config.json",
+          { encoding: "utf8" },
+        );
+
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
 
@@ -391,6 +464,15 @@ describe("Actions - onUpdateAction", () => {
           { silent: true },
         );
 
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(1);
+        expect(fs.readFileSync).nthCalledWith(
+          1,
+          "/root/path/.local-ssl-management/config.json",
+          { encoding: "utf8" },
+        );
+
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
 
@@ -460,6 +542,15 @@ describe("Actions - onUpdateAction", () => {
           { silent: true },
         );
 
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(1);
+        expect(fs.readFileSync).nthCalledWith(
+          1,
+          "/root/path/.local-ssl-management/config.json",
+          { encoding: "utf8" },
+        );
+
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
 
@@ -532,6 +623,15 @@ describe("Actions - onUpdateAction", () => {
           { silent: true },
         );
 
+        // read files
+        expect(fs.readFileSync).toBeCalledTimes(1);
+        expect(fs.readFileSync).nthCalledWith(
+          1,
+          "/root/path/.local-ssl-management/config.json",
+          { encoding: "utf8" },
+        );
+
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(3);
         expect(fs.writeFileSync).toMatchSnapshot();
 

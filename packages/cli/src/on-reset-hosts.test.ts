@@ -17,6 +17,13 @@ ${HOSTS_END}
 `);
       await onResetHosts();
 
+      // read files
+      expect(fs.readFileSync).toBeCalledTimes(1);
+      expect(fs.readFileSync).nthCalledWith(1, "/etc/hosts", {
+        encoding: "utf8",
+      });
+
+      // write files
       expect(fs.writeFileSync).toBeCalledWith(
         expect.stringMatching(/\/.tmp-hosts/i),
         `
