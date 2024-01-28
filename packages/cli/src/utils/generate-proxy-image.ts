@@ -14,9 +14,19 @@ const distPath = path.resolve(__dirname, "./");
 const rootPath = `${distPath}/.local-ssl-management`;
 const sslPath = `${rootPath}/ssl`;
 
+const isTest = process.env.NODE_ENV === "test";
+
 const renderTable = (config: Config[]) => {
   const tablePing = new Table({
     head: ["domain", "app running"],
+    ...(isTest
+      ? {
+          style: {
+            head: [], //disable colors in header cells
+            border: [], //disable colors for the border
+          },
+        }
+      : {}),
   });
 
   config.forEach((c: Config) => {
