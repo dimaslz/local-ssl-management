@@ -3,8 +3,7 @@ import fs from "fs";
 import path from "path";
 
 import { HOSTS_END, HOSTS_START } from "@/constants";
-
-import { updateSystemHosts } from "./update-system-hosts";
+import { updateSystemHosts } from "@/utils";
 
 const distPath = path.resolve(__dirname, "./");
 const tmpHostsPath = `${distPath}/.tmp-hosts`;

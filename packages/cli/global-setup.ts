@@ -4,20 +4,32 @@ import shell from "shelljs";
 import { beforeEach, vi } from "vitest";
 
 vi.mock("fs");
-vi.mock("fs/promises");
 vi.mock("consola");
 vi.mock("shelljs");
-
-vi.mock("path", () => ({
-  default: {
-    resolve: () => "/root/path",
-  },
-}));
 
 beforeEach(() => {
   vi.resetAllMocks();
   vi.clearAllMocks();
   vi.resetModules();
+
+  vi.mock("path", async (importOriginal) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const actual: any = await importOriginal();
+
+    return {
+      default: {
+        ...actual.default,
+        resolve: () => "/root/path",
+      },
+    };
+  });
+
+  vi.mock("@dimaslz/local-ssl-management-core", () => {
+    return {
+      getLocalIP: () => "11.22.33.445",
+      mkcert: vi.fn(),
+    };
+  });
 
   vi.spyOn(crypto, "randomUUID")
     .mockImplementationOnce(() => "48d1a85c-377a-40ef-8a82-d1405f7a074f")
@@ -28,16 +40,9 @@ beforeEach(() => {
     throw new Error();
   });
 
-  vi.mock("@dimaslz/local-ssl-management-core", () => {
-    return {
-      getLocalIP: () => "11.22.33.445",
-      mkcert: vi.fn(),
-    };
-  });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  vi.spyOn(fs, "readdirSync").mockImplementationOnce((): any[] => [
+  vi.spyOn(fs, "readdirSync").mockReturnValue([
     "some-domain.com-cert.pem",
     "some-domain.com-key.pem",
-  ]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ] as any[]);
 });
