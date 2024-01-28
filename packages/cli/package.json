@@ -41,7 +41,7 @@
     "build-run": "ncc build -m src/run.ts -o dist/run",
     "build": "ncc build -m src/index.ts -o dist && npm run build-run",
     "to-publish": "npx vite-node publish.js",
-    "test": "vitest --reporter=verbose",
+    "test": "vitest --reporter=verbose --pool=forks",
     "lint": "eslint ./src"
   },
   "dependencies": {

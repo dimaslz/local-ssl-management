@@ -55,6 +55,7 @@ describe("Utils - generateProxyImage", () => {
         ]);
 
         expect(fs.existsSync).toBeCalledTimes(4);
+
         expect(mkcert).toBeCalledTimes(2);
         expect(mkcert).nthCalledWith(
           1,
@@ -67,6 +68,10 @@ describe("Utils - generateProxyImage", () => {
           "/root/path/.local-ssl-management/ssl",
         );
 
+        // read files
+        expect(fs.readFileSync).not.toBeCalled();
+
+        // write files
         expect(fs.writeFileSync).toBeCalledTimes(2);
         expect(fs.writeFileSync).toMatchSnapshot();
 
