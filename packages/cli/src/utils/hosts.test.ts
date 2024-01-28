@@ -2,8 +2,13 @@ import consola from "consola";
 import fs from "fs";
 
 import { HOSTS_END, HOSTS_START } from "@/constants";
+import {
+  getContentFromHosts,
+  setContentToHosts,
+  updateHosts,
+} from "@/utils/hosts";
 
-import { getContentFromHosts, setContentToHosts, updateHosts } from "./hosts";
+vi.mock("@/utils/update-system-hosts");
 
 describe("Utils - getContentFromHosts, setContentToHosts, updateHosts", () => {
   test("move domain if already exists without Local SSL config slot", async () => {
@@ -13,6 +18,15 @@ describe("Utils - getContentFromHosts, setContentToHosts, updateHosts", () => {
 `);
 
     const result = await getContentFromHosts();
+
+    // read files
+    expect(fs.readFileSync).toBeCalledTimes(1);
+    expect(fs.readFileSync).nthCalledWith(1, "/etc/hosts", {
+      encoding: "utf8",
+    });
+
+    // write files
+    expect(fs.writeFileSync).not.toBeCalled();
 
     expect(result).toBe("");
   });
@@ -24,6 +38,15 @@ describe("Utils - getContentFromHosts, setContentToHosts, updateHosts", () => {
 `);
 
     const result = await getContentFromHosts();
+
+    // read files
+    expect(fs.readFileSync).toBeCalledTimes(1);
+    expect(fs.readFileSync).nthCalledWith(1, "/etc/hosts", {
+      encoding: "utf8",
+    });
+
+    // write files
+    expect(fs.writeFileSync).not.toBeCalled();
 
     expect(result).toBe("");
   });
@@ -41,6 +64,15 @@ ${HOSTS_END}
 `);
 
     const result = await getContentFromHosts();
+
+    // read files
+    expect(fs.readFileSync).toBeCalledTimes(1);
+    expect(fs.readFileSync).nthCalledWith(1, "/etc/hosts", {
+      encoding: "utf8",
+    });
+
+    // write files
+    expect(fs.writeFileSync).not.toBeCalled();
 
     expect(result).toBe(
       `
@@ -106,6 +138,13 @@ ${HOSTS_END}
 `.trim(),
     );
 
+    // read files
+    expect(fs.readFileSync).toBeCalledTimes(1);
+    expect(fs.readFileSync).nthCalledWith(1, "/etc/hosts", {
+      encoding: "utf8",
+    });
+
+    // write files
     expect(fs.writeFileSync).toBeCalledTimes(1);
     expect(fs.writeFileSync).toBeCalledWith(
       expect.stringMatching(/\/root\/path\/.tmp-hosts/i),
