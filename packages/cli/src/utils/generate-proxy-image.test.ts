@@ -39,7 +39,7 @@ describe("Utils - generateProxyImage", () => {
           );
       });
 
-      test("does not exists localhost certs", () => {
+      test.concurrent("does not exists localhost certs", () => {
         generateProxyImage([
           {
             id: "485b5a34-f0c3-4472-8308-6bcc0a485527",
