@@ -2,6 +2,8 @@ import Table from "cli-table3";
 import consola from "consola";
 import shell from "shelljs";
 
+const isTest = process.env.NODE_ENV === "test";
+
 const listContainer = () => {
   const containersList = shell.exec(
     "docker ps --format '{{.ID}} | {{.Names}} | {{.Ports}}'",
@@ -10,6 +12,14 @@ const listContainer = () => {
 
   const table = new Table({
     head: ["container id", "container image", "port"],
+    ...(isTest
+      ? {
+          style: {
+            head: [], //disable colors in header cells
+            border: [], //disable colors for the border
+          },
+        }
+      : {}),
   });
 
   const containerData =

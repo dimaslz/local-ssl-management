@@ -11,9 +11,6 @@ export default mergeConfig(
       environment: "node",
       setupFiles: "./global-setup.ts",
       clearMocks: true,
-      snapshotFormat: {
-        printBasicPrototype: false,
-      },
     },
     resolve: {
       alias: {
