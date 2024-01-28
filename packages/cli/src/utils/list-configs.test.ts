@@ -30,6 +30,6 @@ describe("Utils - listConfigs", () => {
 
     listConfigs(configs);
 
-    expect(shell.echo).matchSnapshot();
+    expect(shell.echo).toMatchSnapshot();
   });
 });

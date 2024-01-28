@@ -57,8 +57,6 @@ ${HOSTS_END}
 127.0.0.1               other-domain.com
 `);
 
-    vi.spyOn(fs, "writeFileSync").mockImplementation(vi.fn());
-
     await setContentToHosts(
       `
 127.0.0.1               local.domain.io
@@ -150,8 +148,6 @@ ${HOSTS_START}
 127.0.0.1               other-domain.com
 ${HOSTS_END}
 `);
-
-    vi.spyOn(fs, "writeFile").mockImplementation(vi.fn());
 
     await updateHosts("other-domain.com");
 

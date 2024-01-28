@@ -40,6 +40,7 @@ beforeEach(() => {
     throw new Error();
   });
 
+  vi.spyOn(fs, "writeFileSync").mockImplementation(vi.fn());
   vi.spyOn(fs, "readdirSync").mockReturnValue([
     "some-domain.com-cert.pem",
     "some-domain.com-key.pem",
