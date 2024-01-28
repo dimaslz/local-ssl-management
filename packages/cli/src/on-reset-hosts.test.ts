@@ -25,16 +25,14 @@ ${HOSTS_END}
 
       // write files
       expect(fs.writeFileSync).toBeCalledWith(
-        expect.stringMatching(/\/.tmp-hosts/i),
+        "/root/path/.tmp-hosts",
         `
 127.0.0.1				other-domain.com
 
 `,
       );
 
-      expect(updateSystemHosts).toBeCalledWith(
-        expect.stringMatching(/\/.tmp-hosts/i),
-      );
+      expect(updateSystemHosts).toBeCalledWith("/root/path/.tmp-hosts");
     });
   });
 });

@@ -52,6 +52,7 @@ ${HOSTS_END}
 
   test("set hosts content without Local SSL config slot", async () => {
     vi.spyOn(consola, "prompt").mockReturnValue(Promise.resolve(true));
+    vi.spyOn(fs, "writeFileSync").mockImplementation(vi.fn());
     vi.spyOn(fs, "readFileSync").mockReturnValue(`
 127.0.0.1               localhost
 127.0.0.1               other-domain.com
