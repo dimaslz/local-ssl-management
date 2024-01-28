@@ -10,6 +10,10 @@ export default mergeConfig(
       globals: true,
       environment: "node",
       setupFiles: "./global-setup.ts",
+      snapshotFormat: {
+        escapeString: false,
+        printBasicPrototype: false,
+      },
     },
     resolve: {
       alias: {
