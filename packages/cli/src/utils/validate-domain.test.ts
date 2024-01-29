@@ -1,32 +1,31 @@
-import consola from "consola";
 import shell from "shelljs";
 
 import { validateDomain } from "@/utils";
 
 describe("Validate domain", () => {
   describe("wrong TLD", () => {
-    test("domain with wrong TLD should not be acceptable", () => {
-      const domain = "your-domain.FAKE_TLD";
+    describe("failure", () => {
+      test("domain with wrong TLD should not be acceptable", () => {
+        const domain = "your-domain.FAKE_TLD";
 
-      validateDomain(domain);
+        expect(() => {
+          validateDomain(domain);
+        }).toThrowError(
+          "Domain (https://your-domain.FAKE_TLD) format is not valid",
+        );
+      });
 
-      expect(consola.error).toBeCalledWith(
-        "Domain (https://your-domain.FAKE_TLD) format is not valid",
-      );
-    });
+      test("domain with not allowed characters should not be acceptable", () => {
+        const domain = "your!domain.com";
 
-    test("domain with not allowed characters should not be acceptable", () => {
-      const domain = "your!domain.com";
-
-      validateDomain(domain);
-
-      expect(consola.error).toBeCalledWith(
-        "Domain (https://your!domain.com) format is not valid",
-      );
+        expect(() => {
+          validateDomain(domain);
+        }).toThrowError("Domain (https://your!domain.com) format is not valid");
+      });
     });
   });
 
-  describe("corrent domains", () => {
+  describe("success", () => {
     const domains = [
       ["your-domain.com"],
       ["local.your-domain.com"],

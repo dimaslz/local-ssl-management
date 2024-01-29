@@ -19,48 +19,24 @@ describe("Actions - onCreateAction", () => {
       const domain = "wrong.domain";
       const port = "3000";
 
-      const hostMock = `
-127.0.0.1       				localhost
-127.0.0.1               other-domain.com
-`;
-      vi.spyOn(fs, "readFileSync")
-        .mockReturnValueOnce(JSON.stringify([], null, 2))
-        .mockReturnValueOnce(hostMock)
-        .mockReturnValueOnce(hostMock)
-        .mockReturnValueOnce(hostMock);
-
-      vi.spyOn(shell, "exec")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockImplementationOnce((): any => "")
-        .mockImplementationOnce(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (): any => {
-            return { stdout: 200 };
-          },
-        );
+      vi.spyOn(fs, "readFileSync").mockReturnValueOnce(
+        JSON.stringify([], null, 2),
+      );
 
       await onCreateAction(domain, { port });
 
       // read files
-      expect(fs.readFileSync).toBeCalledTimes(4);
+      expect(fs.readFileSync).toBeCalledTimes(1);
       expect(fs.readFileSync).nthCalledWith(
         1,
         "/root/path/.local-ssl-management/config.json",
         { encoding: "utf8" },
       );
-      expect(fs.readFileSync).nthCalledWith(2, "/etc/hosts", {
-        encoding: "utf8",
-      });
-      expect(fs.readFileSync).nthCalledWith(3, "/etc/hosts", {
-        encoding: "utf8",
-      });
-      expect(fs.readFileSync).nthCalledWith(4, "/etc/hosts", {
-        encoding: "utf8",
-      });
 
       // write files
-      expect(fs.writeFileSync).toBeCalledTimes(3);
-      expect(fs.writeFileSync).toMatchSnapshot();
+      expect(fs.writeFileSync).not.toBeCalled();
+
+      expect(shell.exec).not.toBeCalled();
 
       expect(consola.error).toBeCalledWith(
         "Domain (https://wrong.domain) format is not valid",
@@ -71,48 +47,24 @@ describe("Actions - onCreateAction", () => {
       const domain = "some-domain.com";
       const port = "666";
 
-      const hostMock = `
-127.0.0.1       				localhost
-127.0.0.1               other-domain.com
-`;
-      vi.spyOn(fs, "readFileSync")
-        .mockReturnValueOnce(JSON.stringify([], null, 2))
-        .mockReturnValueOnce(hostMock)
-        .mockReturnValueOnce(hostMock)
-        .mockReturnValueOnce(hostMock);
-
-      vi.spyOn(shell, "exec")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockImplementationOnce((): any => "")
-        .mockImplementationOnce(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (): any => {
-            return { stdout: 200 };
-          },
-        );
+      vi.spyOn(fs, "readFileSync").mockReturnValueOnce(
+        JSON.stringify([], null, 2),
+      );
 
       await onCreateAction(domain, { port });
 
       // read files
-      expect(fs.readFileSync).toBeCalledTimes(4);
+      expect(fs.readFileSync).toBeCalledTimes(1);
       expect(fs.readFileSync).nthCalledWith(
         1,
         "/root/path/.local-ssl-management/config.json",
         { encoding: "utf8" },
       );
-      expect(fs.readFileSync).nthCalledWith(2, "/etc/hosts", {
-        encoding: "utf8",
-      });
-      expect(fs.readFileSync).nthCalledWith(3, "/etc/hosts", {
-        encoding: "utf8",
-      });
-      expect(fs.readFileSync).nthCalledWith(4, "/etc/hosts", {
-        encoding: "utf8",
-      });
 
       // write files
-      expect(fs.writeFileSync).toBeCalledTimes(3);
-      expect(fs.writeFileSync).toMatchSnapshot();
+      expect(fs.writeFileSync).not.toBeCalled();
+
+      expect(shell.exec).not.toBeCalled();
 
       expect(consola.error).toBeCalledWith(
         "Port (--port <port>) should be into the range 1025 to 65535",
@@ -158,6 +110,8 @@ describe("Actions - onCreateAction", () => {
       // write files
       expect(fs.writeFileSync).not.toBeCalled();
 
+      expect(shell.exec).not.toBeCalled();
+
       expect(consola.error).toBeCalledWith(
         'Location "/app-name" already exists',
       );
@@ -199,6 +153,8 @@ describe("Actions - onCreateAction", () => {
 
       // write files
       expect(fs.writeFileSync).not.toBeCalled();
+
+      expect(shell.exec).not.toBeCalled();
 
       expect(consola.error).toBeCalledWith(
         'Domain "some-domain.com" already created with the default location "/", but does not exist on your local `/etc/hosts`',

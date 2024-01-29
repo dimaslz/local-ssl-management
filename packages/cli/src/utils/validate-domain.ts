@@ -1,4 +1,3 @@
-import consola from "consola";
 import isUrlHttp from "is-url-http";
 
 export function validateDomain(value: string) {
@@ -13,9 +12,7 @@ export function validateDomain(value: string) {
     }
 
     if (!isUrlHttp(domain)) {
-      consola.error(`Domain (${domainItem}) format is not valid`);
-
-      return;
+      throw new Error(`Domain (${domainItem}) format is not valid`);
     }
   });
 }
