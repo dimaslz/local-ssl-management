@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 import { dockerExists, mkcertExists } from "@dimaslz/local-ssl-management-core";
 import { Command } from "commander";
+import consola from "consola";
 import fs from "fs";
 import path from "path";
 
@@ -46,6 +47,9 @@ const cli = () => {
       "-l, --location <location>",
       'Location where nginx will serve the application. By default is "/"',
     )
+    .configureOutput({
+      writeErr: (str) => consola.error(str.replace("error: ", "")),
+    })
     .action(onCreateAction);
 
   program.command("list").description("List domains").action(onListAction);
@@ -58,6 +62,9 @@ const cli = () => {
       "-l, --location <location>",
       'Location where nginx will serve the application. By default is "/"',
     )
+    .configureOutput({
+      writeErr: (str) => consola.error(str.replace("error: ", "")),
+    })
     .action(onUpdateAction);
 
   program
@@ -67,11 +74,17 @@ const cli = () => {
       "-l, --location <location>",
       "Location where nginx will serve the application.",
     )
+    .configureOutput({
+      writeErr: (str) => consola.error(str.replace("error: ", "")),
+    })
     .action(onRemoveAction);
 
   program
     .command("reset")
     .description("Remove all domain in `/etc/hosts` created by this cli")
+    .configureOutput({
+      writeErr: (str) => consola.error(str.replace("error: ", "")),
+    })
     .action(onResetHosts);
 
   program.parse();
