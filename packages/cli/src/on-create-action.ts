@@ -28,7 +28,7 @@ const onCreateAction = async (
     );
 
     const { location = "/" } = options as { port: string; location: string };
-    const { port } = options as { port: string; location: string };
+    const { port = "3000" } = options as { port: string; location: string };
 
     validateDomain(_domain);
     if (port) {
@@ -68,40 +68,34 @@ const onCreateAction = async (
         (service) => service.location === location,
       ) || false;
 
-    if (domainExists && locationExists) {
-      if (location === "/") {
-        const domainExists = await domainExistsInHosts(domain);
-
-        if (!domainExists) {
-          consola.error(
-            `Domain "${domain}" already created with the default location "${location}", but does not exist on your local \`/etc/hosts\``,
-          );
-        } else {
-          consola.error(
-            `Domain "${domain}" already created with the default location "${location}"`,
-          );
-        }
-      } else {
-        consola.error(`Location "${location}" already exists`);
-      }
-
-      return;
-    }
-
-    if (domainExists && locationExists) {
-      consola.error(`Domain "${domain}" already exists`);
-
-      return;
-    }
-
     const portExists =
       config[domainIndex]?.services.some((service) => service.port === port) ||
       false;
 
-    if (portExists) {
-      consola.error(`Port "${port}" already exists`);
+    const domainExistsInLocalhost = await domainExistsInHosts(domain);
 
-      return;
+    const domainExistsInLocalhostMsg = domainExistsInLocalhost
+      ? ", but does not exists in localhost,"
+      : "";
+
+    if (domainExists && location === "/" && port === "3000") {
+      throw new Error(
+        `Domain "${domain}" already exists${domainExistsInLocalhostMsg}, with the datult location "${location}" and port "${port}"`,
+      );
+    }
+
+    if (domainExists && locationExists && portExists) {
+      throw new Error(
+        `Domain "${domain}" already exists${domainExistsInLocalhostMsg}, with this location "${location}" and port "${port}"`,
+      );
+    }
+
+    if (portExists) {
+      throw new Error(`Port "${port}" already exists on this domain`);
+    }
+
+    if (locationExists) {
+      throw new Error(`Location "${location}" already exists`);
     }
 
     if (domainIndex > -1) {

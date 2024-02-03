@@ -13,7 +13,9 @@ describe("Actions - onRemoveAction", () => {
     test("removing domain by name does not exists", () => {
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify([]));
 
-      onRemoveAction("dummy");
+      expect(() => {
+        onRemoveAction("dummy");
+      }).toThrowError('Domain "dummy" does not exists');
 
       // read files
       expect(fs.readFileSync).toBeCalledTimes(1);
@@ -25,14 +27,16 @@ describe("Actions - onRemoveAction", () => {
 
       // write files
       expect(fs.writeFileSync).not.toBeCalled();
-
-      expect(consola.error).toBeCalledWith('Domain "dummy" does not exists');
     });
 
     test("remove domain by id does not exists", () => {
       vi.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify([]));
 
-      onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
+      expect(() => {
+        onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26");
+      }).toThrowError(
+        'Domain with id "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26" does not exists',
+      );
 
       // read files
       expect(fs.readFileSync).toBeCalledTimes(1);
@@ -44,10 +48,6 @@ describe("Actions - onRemoveAction", () => {
 
       // write files
       expect(fs.writeFileSync).not.toBeCalled();
-
-      expect(consola.error).toBeCalledWith(
-        'Domain with id "6eb61d17-ba78-4618-a2ac-47aeb4ba8b26" does not exists',
-      );
     });
 
     test("removing path does not exists", () => {
@@ -71,9 +71,11 @@ describe("Actions - onRemoveAction", () => {
         ),
       );
 
-      onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26", {
-        location: "/something",
-      });
+      expect(() => {
+        onRemoveAction("6eb61d17-ba78-4618-a2ac-47aeb4ba8b26", {
+          location: "/something",
+        });
+      }).toThrowError('Location "/something" does not exists');
 
       // read files
       expect(fs.readFileSync).toBeCalledTimes(1);
@@ -85,10 +87,6 @@ describe("Actions - onRemoveAction", () => {
 
       // write files
       expect(fs.writeFileSync).not.toBeCalled();
-
-      expect(consola.error).toBeCalledWith(
-        'Location "/something" does not exists',
-      );
     });
   });
 

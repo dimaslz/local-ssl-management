@@ -33,12 +33,10 @@ const onRemoveAction = (
 
   if (!exists) {
     if (isUUID) {
-      consola.error(`Domain with id "${_domain}" does not exists`);
+      throw new Error(`Domain with id "${_domain}" does not exists`);
     } else {
-      consola.error(`Domain "${domain}" does not exists`);
+      throw new Error(`Domain "${domain}" does not exists`);
     }
-
-    return;
   }
 
   const byLocation = !!location;
@@ -55,9 +53,7 @@ const onRemoveAction = (
     );
 
     if (!locationExists) {
-      consola.error(`Location "${location}" does not exists`);
-
-      return;
+      throw new Error(`Location "${location}" does not exists`);
     }
 
     newConfig = config.map((c, cIndex) => {

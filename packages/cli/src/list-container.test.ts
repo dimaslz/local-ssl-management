@@ -43,11 +43,9 @@ describe("Actions - listContainer", () => {
         };
       });
 
-      listContainer();
-
-      expect(consola.error).toBeCalledWith(
-        "Something have been failure. Contact with the author.",
-      );
+      expect(() => {
+        listContainer();
+      }).toThrowError("Something have been failure. Contact with the author.");
 
       // read files
       expect(fs.readFileSync).not.toBeCalled();

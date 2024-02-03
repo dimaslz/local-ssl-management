@@ -12,103 +12,99 @@ const configPath = `${rootPath}/config.json`;
 type Options = { port?: string; location?: string };
 
 const onUpdateAction = (domain: string, options: Options) => {
-  const config: Config[] = JSON.parse(
-    fs.readFileSync(configPath, { encoding: "utf8" }) || "[]",
-  );
+  try {
+    const config: Config[] = JSON.parse(
+      fs.readFileSync(configPath, { encoding: "utf8" }) || "[]",
+    );
 
-  const v4 = new RegExp(
-    /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
-  );
-  const isUUID = v4.test(domain);
+    const v4 = new RegExp(
+      /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+    );
+    const isUUID = v4.test(domain);
 
-  const exists = isUUID
-    ? config.some((c) => c.id === domain)
-    : config.some((c) => c.domain === domain);
+    const exists = isUUID
+      ? config.some((c) => c.id === domain)
+      : config.some((c) => c.domain === domain);
 
-  if (!exists) {
-    if (isUUID) {
-      consola.error(`Domain with key "${domain}" does not exists`);
-    } else {
-      consola.error(`Domain "${domain}" does not exists`);
+    if (!exists) {
+      if (isUUID) {
+        throw new Error(`Domain with key "${domain}" does not exists`);
+      } else {
+        throw new Error(`Domain "${domain}" does not exists`);
+      }
     }
 
-    return;
-  }
+    let { port } = options;
+    const { location } = options;
 
-  let { port } = options;
-  const { location } = options;
+    if (!location) {
+      throw new Error(`Location is mandatory`);
+    }
 
-  if (!location) {
-    consola.error(`Location is mandatory`);
+    const domainIndex = config.findIndex(
+      (c) => (isUUID && c.id === domain) || c.domain === domain,
+    );
 
-    return;
-  }
+    if (location.includes(",")) {
+      const [oldLocation] = location.split(",");
 
-  const domainIndex = config.findIndex(
-    (c) => (isUUID && c.id === domain) || c.domain === domain,
-  );
+      if (!port) {
+        port = config[domainIndex].services.find(
+          (service) => service.location === oldLocation,
+        )?.port;
+      }
 
-  if (location.includes(",")) {
-    const [oldLocation] = location.split(",");
-
-    if (!port) {
-      port = config[domainIndex].services.find(
+      const oldLocationExists = config[domainIndex].services.some(
         (service) => service.location === oldLocation,
-      )?.port;
+      );
+
+      if (!oldLocationExists) {
+        throw new Error(`Location "${oldLocation}" does not exists`);
+      }
+    } else {
+      const locationExists = config[domainIndex].services.some(
+        (service) => service.location === location,
+      );
+
+      if (!locationExists) {
+        throw new Error(`Location "${location}" does not exists`);
+      }
     }
 
-    const oldLocationExists = config[domainIndex].services.some(
-      (service) => service.location === oldLocation,
-    );
-
-    if (!oldLocationExists) {
-      consola.error(`Location "${oldLocation}" does not exists`);
-
-      return;
+    if (port) {
+      validatePort(port);
     }
-  } else {
-    const locationExists = config[domainIndex].services.some(
-      (service) => service.location === location,
-    );
 
-    if (!locationExists) {
-      consola.error(`Location "${location}" does not exists`);
+    const newConfig = config.map((c, cIndex) => {
+      if (domainIndex === cIndex) {
+        c.services.map((service) => {
+          if (location?.includes(",")) {
+            const [oldLocation, newLocation] = location.split(",");
 
-      return;
-    }
-  }
-
-  if (port) {
-    validatePort(port);
-  }
-
-  const newConfig = config.map((c, cIndex) => {
-    if (domainIndex === cIndex) {
-      c.services.map((service) => {
-        if (location?.includes(",")) {
-          const [oldLocation, newLocation] = location.split(",");
-
-          if (service.location === oldLocation) {
-            service.location = newLocation;
-            service.port = port || service.port;
+            if (service.location === oldLocation) {
+              service.location = newLocation;
+              service.port = port || service.port;
+            }
           }
-        }
 
-        if (service.location === location && port) {
-          service.port = port;
-        }
-      });
-    }
+          if (service.location === location && port) {
+            service.port = port;
+          }
+        });
+      }
 
-    return c;
-  });
+      return c;
+    });
 
-  fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
+    fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
 
-  consola.success("Domain updated succesful");
-  consola.success("Updating proxy image");
+    consola.success("Domain updated succesful");
+    consola.success("Updating proxy image");
 
-  generateProxyImage(newConfig);
+    generateProxyImage(newConfig);
+  } catch (error) {
+    consola.error((error as Error).message);
+  }
 };
 
 export default onUpdateAction;
