@@ -40,7 +40,7 @@
     "prebuild": "node prebuild.mjs",
     "build-run": "ncc build -m src/run.ts -o dist/run",
     "build": "ncc build -m src/index.ts -o dist && npm run build-run",
-    "to-publish": "npx vite-node publish.js",
+    "to-publish": "node publish.mjs",
     "test": "vitest --reporter=verbose --pool=forks",
     "lint": "eslint ./src"
   },
