@@ -1,12 +1,14 @@
 # Local SSL Management
 
-This project is the iteration of [https://github.com/dimaslz/local-ssl-management-docker](https://github.com/dimaslz/local-ssl-management-docker), to do the same but throuth a UI or CLI.
+This project is the iteration of [https://github.com/dimaslz/local-ssl-management-docker](https://github.com/dimaslz/local-ssl-management-docker), to do the same but throuth a UI or CLI (currently the only option).
 
-CLI to manage local SSL certifications by [mkcert](https://github.com/FiloSottile/mkcert). The key of this script: do not use ports in the domain and use all of them through port 443.
+This CLI is to manage local SSL certifications by [mkcert](https://github.com/FiloSottile/mkcert). The key of this script: do not use ports in the domain and use all of them through port 443.
+
+The solution is simple, it is running a Nginx container as reverse proxy.
 
 **Example:**
 
-https://local.your-domain.tld:3000 → https://local.your-domain.tld
+<https://local.your-domain.tld:3000> → <https://local.your-domain.tld>
 
 > ℹ️ At the moment, just tested in MacOS
 
@@ -43,6 +45,7 @@ Request to <https://local.your-domain.tld/app-name> will serve <http://localhost
     - [app](#app)
     - [cli](#cli)
     - [core](#core)
+    - [landing page](#landing-page)
   - [Author](#author)
   - [My other projects](#my-other-projects)
 
@@ -51,24 +54,41 @@ Request to <https://local.your-domain.tld/app-name> will serve <http://localhost
 `npm install -g @dimaslz/local-ssl-management-cli`
 > [https://www.npmjs.com/package/@dimaslz/local-ssl-management-cli](https://www.npmjs.com/package/@dimaslz/local-ssl-management-cli)
 
-Then the CLI will be `local-ssl ...`
+Then the CLI will be
+
+```sh
+$ local-ssl
+Usage: local-ssl [options] [command]
+
+Options:
+  -h, --help                    display help for command
+
+Commands:
+  create [options] <domain>     Create domain
+  list                          List domains
+  update [options] <domain|id>  update domain
+  remove [options] <domain|id>  Remove domain
+  reset                         Remove all domain in `/etc/hosts` created by this cli
+  help [command]                display help for command
+```
 
 ## Commands
 
-> Is important to know that you need to setup the domains into your `/etc/hosts`
+> By default, the CLI will ask to your system password to be able to updathe the `/etc/hosts` file. If you skip it, keep in mind that you need to update it manually.
 >
 > ```bash
+> [...]
+> #--------------- LOCAL SSL ---------------#
 > your-domain.com           127.0.0.1
+> #--------------- LOCAL SSL ---------------#
 > ```
 >
-> This will be automatically on the next version
+> always at the end of the file
 
 ### create domain config
 
 ```bash
 $ local-ssl create local.your-name.com --location / --port 3000
-
-# note: --location is "/"" by default.
 ```
 
 Now, go to your favourite browser and visit <https://local.your-name.com> and should be serving what is serving on <http://localhost:3000>.
@@ -153,28 +173,32 @@ Yes, this is a specific use case but for me, sometimes is very useful and, I do 
 
 ![Local SSL Management - Project idea](/architecture-schema.png)
 
-Basically, the script creates a container based on [nginx](https://hub.docker.com/_/nginx), and this container works as proxy for local domains, like in a server.
+Basically, the script creates a container based on [nginx](https://hub.docker.com/_/nginx), and this container works as reverse proxy for local domains, like in a server.
 
 ## How to use
 
 > By default, always is created the certifications for `https://localhost`
 
-**#1 - Update your /hosts**:
+**#1 - Update your /etchosts**:
 
 MacOS and Linux:
 
+> Do it manually or the script will do it.
+
 ```bash
 ...
+#--------------- LOCAL SSL ---------------#
 127.0.0.1     local.your-domain.com
+#--------------- LOCAL SSL ---------------#
 ```
 
 **#2 - Create new domain**:
 
-`$ local-ssl create local.your-domain.com --port 4200`
+`$ local-ssl create local.your-domain.com --location / --port 4200`
 
 or for multiple domains...
 
-`$ local-ssl create local.your-domain.com,local.your-domain.es --port 4200`
+`$ local-ssl create local.your-domain.com,local.your-domain.es --location / --port 4200`
 
 List domain to check it
 
@@ -206,6 +230,8 @@ For sure, if the service is not working, the result will response a server error
   - [ ] Allow edit Nginx config
 - [ ] Add certs manually
 - [ ] Add custom nginx config
+- [ ] Test on Windows
+- [ ] Allow do not use HTTPS
 
 ## Packages
 
@@ -215,11 +241,15 @@ UI of the project (WIP)
 
 ### cli
 
-Command line to manage local SSL certificates.
+Command line to manage local SSL certificates. (all information on this readme)
 
 ### core
 
 Common methods and functions to use in `app` and `cli`. At the moment not very useful because the `app` is not ready.
+
+### landing page
+
+Landing page to present the project. (coming soon...)
 
 ## Author
 
@@ -237,11 +267,11 @@ Common methods and functions to use in `app` and `cli`. At the moment not very u
 
 ## My other projects
 
-* [https://ng-heroicons.dimaslz.dev/](https://ng-heroicons.dimaslz.dev/): An Angular components library to use Heroicons.com in your Angular projects.
-* [https://randomdata.loremapi.io/](https://randomdata.loremapi.io/): A tool to create mock Api responses with your custom schema.
-* [https://svg-icon-2-fw-component.dimaslz.dev](https://svg-icon-2-fw-component.dimaslz.dev): A tool to create a framework icon component from a SVG
-* [https://loremapi.io](https://loremapi.io): Mock and document your Api's
-* [https://cv.dimaslz.dev](https://cv.dimaslz.dev): My online CV
-* [https://api.dimaslz.dev](https://api.dimaslz.dev): My professional info by API
-* [https://dimaslz.dev](https://dimaslz.dev): Dev landing
-* [https://dimaslz.com](https://dimaslz.com): Profesional landing profile
+- [https://ng-heroicons.dimaslz.dev/](https://ng-heroicons.dimaslz.dev/): An Angular components library to use Heroicons.com in your Angular projects.
+- [https://randomdata.loremapi.io/](https://randomdata.loremapi.io/): A tool to create mock Api responses with your custom schema.
+- [https://svg-icon-2-fw-component.dimaslz.dev](https://svg-icon-2-fw-component.dimaslz.dev): A tool to create a framework icon component from a SVG
+- [https://loremapi.io](https://loremapi.io): Mock and document your Api's
+- [https://cv.dimaslz.dev](https://cv.dimaslz.dev): My online CV
+- [https://api.dimaslz.dev](https://api.dimaslz.dev): My professional info by API
+- [https://dimaslz.dev](https://dimaslz.dev): Dev landing
+- [https://dimaslz.com](https://dimaslz.com): Profesional landing profile
