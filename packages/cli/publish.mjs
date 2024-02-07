@@ -1,9 +1,16 @@
 import cpy from "cpy";
 import fs from "fs";
+import { dirname } from "path";
 import prompts from "prompts";
 import { rimrafSync } from "rimraf";
 import semver from "semver";
 import shell from "shelljs";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const __here = __dirname;
+const __root = __dirname + "/../..";
 
 import packageFile from "./package.json" assert { type: "json" };
 
@@ -22,7 +29,8 @@ async function prompt(props, onCancel = null) {
 }
 
 const run = async () => {
-  await rimrafSync("publish");
+  await rimrafSync(`${__here}/publish`, { recursive: true });
+
   const { value: canRelease } = await prompt({
     type: "confirm",
     name: "value",
@@ -32,27 +40,39 @@ const run = async () => {
 
   if (!canRelease) process.exit(1);
 
-  const { value: releaseType } = await prompt({
-    type: "select",
+  const { value: bumpVersion } = await prompt({
+    type: "confirm",
     name: "value",
-    message: "Set the update type",
-    choices: [
-      { title: "major", description: "", value: "major" },
-      { title: "minor", description: "", value: "minor" },
-      { title: "patch", description: "", value: "patch" },
-      { title: "premajor", description: "", value: "premajor" },
-      { title: "preminor", description: "", value: "preminor" },
-      { title: "prepatch", description: "", value: "prepatch" },
-      { title: "prerelease", description: "", value: "prerelease" },
-    ],
-    initial: 0,
+    message: "Do you want to bump the version?",
+    initial: true,
   });
 
-  if (!releaseType) process.exit(1);
+  let newVersion = packageFile.version;
+  if (bumpVersion) {
+    const { value: releaseType } = await prompt({
+      type: "select",
+      name: "value",
+      message: "Set the update type",
+      choices: [
+        { title: "major", description: "", value: "major" },
+        { title: "minor", description: "", value: "minor" },
+        { title: "patch", description: "", value: "patch" },
+        { title: "premajor", description: "", value: "premajor" },
+        { title: "preminor", description: "", value: "preminor" },
+        { title: "prepatch", description: "", value: "prepatch" },
+        { title: "prerelease", description: "", value: "prerelease" },
+      ],
+      initial: 0,
+    });
 
-  const [version, prefix] = packageFile.version.split("-");
-  const [type, n] = prefix.split(".");
-  const newVersion = semver.inc(version, releaseType, type, +n + 1);
+    const [version, prefix = ""] = packageFile.version.split("-");
+    const [type, n] = prefix.split(".") || ["", ""];
+    newVersion = semver.inc(version, releaseType, type, +n + 1);
+
+    if (!releaseType) {
+      process.exit(1);
+    }
+  }
 
   shell.echo(`New version is ${newVersion}`);
 
@@ -90,40 +110,46 @@ const run = async () => {
   });
 
   if (canPublishPackage) {
-    const pckg = packageFile;
+    const pckg = structuredClone(packageFile);
     delete pckg.dependencies;
     delete pckg.devDependencies;
     delete pckg.scripts;
     delete pckg.publishConfig;
     pckg.version = newVersion;
 
-    if (!fs.existsSync("publish")) {
-      fs.mkdirSync("publish", { recursive: true });
+    // update package version
+    packageFile.version = newVersion;
+    fs.writeFileSync(
+      `${__here}/package.json`,
+      JSON.stringify(packageFile, null, 2) + "\n",
+    );
+
+    if (!fs.existsSync(`${__here}/publish`)) {
+      fs.mkdirSync(`${__here}/publish`, { recursive: true });
     }
 
-    if (fs.existsSync("dist/.local-ssl-management")) {
-      await cpy("dist/.local-ssl-management/**/*", ".tmp-local-ssl-management");
+    fs.writeFileSync(
+      `${__here}/publish/package.json`,
+      JSON.stringify(pckg, null, 2),
+    );
+
+    shell.exec(`ncc build -m ${__here}/src/index.ts -o ${__here}/publish/dist`);
+    shell.exec(
+      `ncc build -m ${__here}/src/run.ts -o ${__here}/publish/dist/run`,
+    );
+
+    if (fs.existsSync(`${__here}/publish/package.json`)) {
+      fs.writeFileSync(
+        `${__here}/publish/package.json`,
+        JSON.stringify(pckg, null, 2),
+      );
     }
 
-    rimrafSync("dist");
-    shell.exec("npm run build");
+    // move readme.md
+    await cpy(`${__root}/Readme.md`, `${__here}/publish`);
 
-    if (fs.existsSync("package.json")) {
-      fs.writeFileSync("publish/package.json", JSON.stringify(pckg, null, 2));
-    }
-
-    if (fs.existsSync(".tmp-local-ssl-management")) {
-      fs.mkdirSync("dist", { recursive: true });
-      await cpy(".tmp-local-ssl-management/**/*", "dist/.local-ssl-management");
-    }
-
-    rimrafSync(".tmp-local-ssl-management");
-
-    if (!fs.existsSync(".local-ssl-management/ssl")) {
-      fs.mkdirSync("dist/.local-ssl-management/ssl", { recursive: true });
-    }
-
-    shell.cd("publish");
+    // publish package
+    shell.cd(`${__here}/publish`);
     shell.exec(`npm publish --access public`);
     shell.cd("..");
   }
