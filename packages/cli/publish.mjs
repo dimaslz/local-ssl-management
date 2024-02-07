@@ -85,7 +85,7 @@ const run = async () => {
 
   if (canCommit) {
     shell.exec(
-      `git add . && git commit -m "chore(tag): bump version to ${newVersion}"`,
+      `git add ${__here} && git commit -m "chore(tag): bump version to ${newVersion}"`,
     );
   }
 
@@ -97,9 +97,7 @@ const run = async () => {
   });
 
   if (canTag) {
-    shell.exec(
-      `git add . && git tag ${newVersion} && git push -f --tags origin ${BRANCH}`,
-    );
+    shell.exec(`git tag ${newVersion} && git push -f --tags origin ${BRANCH}`);
   }
 
   const { value: canPublishPackage } = await prompt({
