@@ -1,0 +1,11 @@
+node_modules/
+ssl/
+dist/
+.svelte-kit/
+.npmrc
+yarn-error.log
+.DS_Store
+.tmp.package.json
+coverage
+publish
+build
